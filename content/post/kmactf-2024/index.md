@@ -7,7 +7,7 @@ date: 2024-10-27 17:10:08+0000
 
 ---
 
-# pickleball
+## pickleball
 ![image](https://hackmd.io/_uploads/rynYQTui0.png)
 - URL: [157.15.86.73:8888](http://157.15.86.73:8888)
 
@@ -20,11 +20,11 @@ Part 3 ở file css
 ![image](https://hackmd.io/_uploads/S1yi15OiA.png)
 - Flag: **KMACTF{p1Ckleb4ll_WitH-uU_piCklepal_5a6b89113abb}**
 
-# malicip
-## Preface
+## malicip
+### Preface
 ![image](https://hackmd.io/_uploads/rJ94UpdsC.png)
 - URL: [157.15.86.73:18000](http://157.15.86.73:18000)
-## Source Code
+### Source Code
 Tại schema.sql mình thấy flag được đưa vào bảng giấu tên REDACTED_TABLE và cột giấu tên REDACTED_COLUMN, gợi ý để solve challenge cần dump database:
 ```sql!
 CREATE TABLE `REDACTED_TABLE` (
@@ -135,7 +135,7 @@ def _split_scope_id(ip_str):
 Như vậy về cơ bản thì mình có thể bypass hàm check `ipaddress.ip_address()` bằng dấu `%` đằng sau 1 địa chỉ IPv6 valid:
 ![image](https://hackmd.io/_uploads/SyJD40OiA.png)
 ![image](https://hackmd.io/_uploads/HJ1OEC_oC.png)
-## Exploit
+### Exploit
 Việc khó đã làm được, giờ mình chỉ cần exploit SQLi để dump db là sol được challenge rồi.
 Lợi dụng việc route hiển thị tất cả các row của câu lệnh select thông qua vòng for, mình dùng union based để lấy thông tin luôn:
 Tại local thì có select thẳng luôn vì mình đã biết tên bảng tên cột chứa flag:
@@ -156,11 +156,11 @@ Còn lên server thì mình sẽ lấy thông tin về tên bảng trước bằ
 ![image](https://hackmd.io/_uploads/BygEUCOo0.png)
 - Flag: **KMACTF{actually__this_flag-is_not_so_malicious_but_the_ipv6_is}**
 
-# spring up
-## Preface
+## spring up
+### Preface
 ![image](https://hackmd.io/_uploads/HJasIAuiR.png)
 Đây là một challenge Java Spring boot mà động đến kiến thức mà mình chưa từng tìm hiểu, cho nên quá trình searching để tìm ra đúng lỗ hổng là rất lâu, sau đó mình cũng ngốn tiếp hơn 2 tiếng để build file exploit nên mình solve challenge này khi cuộc thi chỉ còn 1 tiếng, ngần đấy không đủ thời gian để tìm ra hướng cho bài web cuối cùng.
-## Source Code
+### Source Code
 Đầu tiên xem xét Dockerfile, ta thấy flag được move với ký hiệu ngẫu nhiên, gợi ý cho việc để solve challenge ta cần phải RCE:
 ```dockerfile!
 COPY flag.txt /flag.txt
@@ -317,7 +317,7 @@ Trigger bằng request kèm header: `Accept: text/html;charset=GBK`
 ![image](https://hackmd.io/_uploads/Hk-8KIFj0.png)
 Kiểm tra tại docker thì ta thấy 2 file log đã được khởi tạo, chứng tỏ ta đã RCE thành công:
 ![image](https://hackmd.io/_uploads/S1xp3Y8Fi0.png)
-## Exploit
+### Exploit
 Giờ công việc của mình là tự build lại 1 file jar để thay vì tạo file tmp mình sẽ ghi flag vào /tmp/flag.txt và rồi dùng route downloadResource để đọc flag
 Vì chưa build file jar từ artifacts bao giờ mà mình hay dùng maven để package nên mình tốn rất nhiều thời gian cho việc này (cụ thể là 2 tiếng rưỡi)
 Có một số vấn đề gặp phải mà mình lưu ý:
@@ -352,12 +352,12 @@ Kết quả trên instance challenge:
 ![image](https://hackmd.io/_uploads/HJgTkvYjC.png)
 - Flag: **KMACTF{ayoooo00oo0ooo0o0o00o0ooooo000oo0oo0o00000}**
 
-# not so secure
+## not so secure
 ![image](https://hackmd.io/_uploads/Bk8JWDFsR.png)
 - URL: [157.15.86.73:9999](http://157.15.86.73:9999/)
 
 Đây là challenge mà mình không kịp làm trong 1 tiếng cuối trước khi cuộc thi kết thúc, nên mình có đi hỏi về hướng làm, từ đó reproduce lại để hiểu hơn
-## Bypass JWT ES256
+### Bypass JWT ES256
 Khi truy cập vào website, ta sẽ được ghi hero name và quirk code:
 ![image](https://hackmd.io/_uploads/B1k1u3YjA.png)
 Giá trị username được ghi vào trong jwt, còn quirk code thì điền bao nhiều thì quirk vẫn có giá trị là civilian thôi.
@@ -392,7 +392,7 @@ Thử đến cái quirk cuối cùng thì mình mới thấy route dashboard có
 Forge một jwt mới, và giao diện lúc này đã thay đổi, cho phép ta được upload file docx:
 ![image](https://hackmd.io/_uploads/SyGi5htiR.png)
 ![image](https://hackmd.io/_uploads/ry2p53YjC.png)
-## From docx to XXE
+### From docx to XXE
 Đầu tiên mình gửi một file docx valid thì chương trình sẽ đếm số lượng word có trong doc để hiển thị ra ngoài:
 ![image](https://hackmd.io/_uploads/HkdQn2FiA.png)
 Đi mò mẫm các file xml có dùng để khai thác thì em tìm được write up này: https://ctftime.org/writeup/24895, trong 1 file word sẽ tồn tại các file xml và thư mục sau:
