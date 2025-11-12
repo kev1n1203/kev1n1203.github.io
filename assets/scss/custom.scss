@@ -1,3 +1,13 @@
 /*
     You can add your own custom styles here.
 */
+
+.article-page {
+  .main-article {
+    width: 70%;               // chiếm toàn bộ chiều ngang container
+    max-width: none;           // bỏ giới hạn max-width
+    flex: 1 1 100%;            // nếu nằm trong flexbox, cho phép nó mở rộng hết mức
+    margin: 0 auto;            // căn giữa nếu cần
+    padding: 2rem;             // thêm khoảng cách nội dung cho đẹp
+  }
+}
