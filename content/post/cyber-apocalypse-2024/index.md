@@ -3,6 +3,7 @@ title: Cyber Apocalypse 2024 Write Up
 tags: [CTF, Writeup]
 slug: htb-cyber-apocalypse-2024
 date: 2024-03-15 10:31:07+0000
+image: cover.jpg
 
 ---
 
