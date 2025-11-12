@@ -1,7 +1,6 @@
 ---
 title: ISITDTU CTF 2024
-categories: 
-    - CTF
+tags: [CTF]
 slug: isitdtu-ctf-2024
 date: 2024-10-27 17:10:08+0000
 

@@ -1,7 +1,6 @@
 ---
 title: CyberSpace CTF 2024 write up - Twig Playground
-categories: 
-    - CTF
+tags: [CTF]
 slug: cyberspace-ctf-2024
 date: 2024-09-03 16:46:31+0000
 

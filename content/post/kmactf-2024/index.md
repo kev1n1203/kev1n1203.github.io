@@ -1,7 +1,6 @@
 ---
 title: KMACTF 2024 write up
-categories: 
-    - CTF
+tags: [CTF]
 slug: kma-ctf-2024
 date: 2024-10-27 17:10:08+0000
 
