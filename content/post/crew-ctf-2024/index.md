@@ -8,10 +8,10 @@ image: cover.png
 
 ---
 
-# Preface
+## Preface
 Challenge này mình ngồi làm từ đầu giải đến cuối giải nhưng đã không kịp solve, vì cay cú nên mình sẽ viết write up để lưu lại kiến thức mình học được thông qua challenge này.
 Bearburger là challenge mà tác giả custom lại code project Bear Burger Spring Boot tại [github](https://github.com/Raofin/BearBurger/). Các chức năng như make admin, remove admin đã bị xóa bỏ, mình có thể nói là 1 phiên bản tối giản và "có thể khai thác hơn" từ version trên github
-# Source code analysis
+## Source code analysis
 Author tuy đưa cả file war nhưng lại không cho file database, nên mình phải đi tìm file sql của src github để nhét vào, và lưu ý khi lấy từ trên đó về mình sẽ cần phải khai báo username là kiểu varchar(300) cho hợp lý với khai báo thuộc tính đó trong model User:
 ```java 
 @Column(
@@ -22,7 +22,7 @@ Author tuy đưa cả file war nhưng lại không cho file database, nên mình
     max = 300
 ) String username;
 ```
-## SQL Injection in Order By Clause
+### SQL Injection in Order By Clause
 Thoạt đầu mình nhìn thì cũng spot được ngay chỗ khai thác SQL Injection tại endpoint: `/api/v1/fetch-foods-by-category/{category}/{sorting}`
 ```java! 
 
@@ -70,7 +70,7 @@ hashcat -m 3200 -a 0 hash-2 /usr/share/wordlists/rockyou.txt --force
 ```
 ![image](https://hackmd.io/_uploads/HylE366FR.png)
 Mình có mật khẩu admin tại web challenge là `adidas`, quá yếu =)))
-## SpEL Injection in fetchAllUser
+### SpEL Injection in fetchAllUser
 Leo lên được admin, mình diff code với project có trên github thì thấy đoạn code fetchAllUser dính lỗi parseExpression tên của user, chức năng này nằm tại api /api/v1/admin vốn chỉ được truy cập khi người dùng có role ADMIN:
 ```java!
 @RequestMapping({"/api/v1/admin"})
@@ -119,7 +119,7 @@ Mình ngố quá, không nhận ra là flag nằm ngay tại thư mục chứa f
 ![image](https://hackmd.io/_uploads/SkxIX0aFA.png)
 **Flag:** crew{BearBurger_is_on_sale!_LINZ_IS_HERE}
 
-## Another Workaround to Admin
+### Another Workaround to Admin
 Khi mình đi hỏi những người đã solve được challenge thì nhận được cách khác với cách intended của tác giả, đó là khai thác mass assignment vào register để tạo thêm 1 role nữa cho mình.
 Đoạn code xử lý của chức năng register khá đơn giản, nó chỉ hash mật khẩu trước khi lưu vào bảng user, và lưu 1 hàng mang luôn giá trị CUSTOMER vào bảng roles:
 ```java!

@@ -10,17 +10,17 @@ date: 2024-09-03 16:46:31+0000
 Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao là top 2. Nói riêng về mảng web thì team mình còn 1 bài web logic là không kịp làm, cá nhân mình không tự solve được bài nào cả, và bài Twig Playgound là challenge mà mình tốn nhiều thời gian để làm nhất (nhưng vẫn không solve được)
 Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi.
 Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!
-# Preface
+## Preface
 ![image](https://hackmd.io/_uploads/H1fDp8V2A.png)
 Đề bài rất straightforward, là một website để render Twig template online, thì mình cũng hiểu được là phải khai thác lỗi SSTI tại challenge này.
-# Source Code Analysis
-## Dockerfile
+## Source Code Analysis
+### Dockerfile
 ```dockerfile!
 COPY ./flag /flag
 RUN mv /flag /flag-$(head -c 30 /dev/urandom | xxd -p | tr -dc 'a-f' | head -c 10)
 ```
 Flag được move vào / và đổi tên, yêu cầu đưa ra chắc chắn là RCE
-## Index.php
+### Index.php
 Source của challenge rất đơn giản, đưa thẳng input của user vào template để render, nhưng điều mình chú ý là cái đống blacklist này là quá đủ để đá hết các payload của Hacktrick và PayloadAllTheThings ra chuồng gà
 ```php!
 $loader = new \Twig\Loader\ArrayLoader([]);
@@ -70,8 +70,8 @@ Ngoài ra có thể kể đến các filter như: map, sort, filter, reduce -> �
 Sau khi teammate tìm ra được cách để nối chuỗi là sử dụng dump() và ghép các ký tự trong đấy để thành chuỗi, mình mới xác định được 2 bước cần làm để solve challenge:
 - Tìm được cách nối chuỗi các ký tự tùy ý để không phụ thuộc vào context do context giới hạn số lượng từ ngữ.
 - Tìm filter có tác dụng RCE tương tự như các filter đã bị blacklist
-# Bypass
-## Craft String in Twig using {% set ... %}
+## Bypass
+### Craft String in Twig using {% set ... %}
 Với việc cấm tất cả dấu nháy, việc khai báo một string hay array cơ bản là không thể. Tuy nhiên ta có thể dụng dấu `~` để nối chuỗi các string với nhau hoặc các **biến** với nhau. Nên ý tưởng ban đầu là sử dump() -> var_dump ra context hiện tại, dùng slice để lấy từng ký tự trong chuỗi trả ra và nối chúng lại với nhau thành chuỗi.
 ![image](https://hackmd.io/_uploads/HkN6MqVhC.png)
 ![image](https://hackmd.io/_uploads/HyfaXq4hC.png)
@@ -95,8 +95,8 @@ Còn dấu `/` thì ta có thể lấy ký tự xuống dòng (sẽ xuất hiệ
 ```
 Ngoài cách sử dụng `{}`, ta cũng có thể sử dụng filter split chuỗi đầu vào với ký tự không tồn tại trong chuỗi để chuyển chuỗi thành mảng, vì công dụng của split là chia chuỗi thành mảng các phần tử theo ký tự xác định
 ![image](https://hackmd.io/_uploads/S18kYqEnR.png)
-## Find Twig filters to RCE
-### find
+### Find Twig filters to RCE
+#### find
 Công cụ đã có đủ cả, giờ thứ mình và đồng đội đã stuck rất lâu mới tìm ra, đó là filters phù hợp để có thể RCE.
 Biết được phiên bản Twig đang sử dụng là 3.12, mình tìm kiếm nhưng kết quả no hope, cày hết cái doc các filters của Twig thì toàn cái không dùng được, những cái dùng được đều bị blacklist hết.
 Bí ngòi cả 1 ngày thì teammate tìm ra filter `find` có thể được sử dụng để RCE:
@@ -144,7 +144,7 @@ passthru($command, 0)
 ```
 Để test thì tạm thời mình comment lại đoạn check blacklist để run cho tiện:
 ![image](https://hackmd.io/_uploads/SkB-05E3A.png)
-### has some
+#### has some
 Ngoài filter `find` ra, mình đi lượn github thì có người còn tìm được operator `has some` cũng có thể được sử dụng để RCE, với nguyên lý cũng tương tự `find`:
 ```php!
 public function getOperators(): array
@@ -178,7 +178,7 @@ public static function arraySome(Environment $env, $array, $arrow)
 ```
 ![image](https://hackmd.io/_uploads/Sy4LksN2C.png)
 Cách này khá lỏd và có lẽ mình sẽ sử dụng trong một ctf challenge nào đó =)))
-# Final Payload & Exploit
+## Final Payload & Exploit
 Tổng hợp lại để khai thác, đầu tiên mình craft payload `ls /` để đọc flag trước đã, mình sử dụng passthru thay cho system vì đỡ phải nối chuỗi 3 phát=))
 ```php!
 {% set ls = dump({ls})|slice(15,2) %}
