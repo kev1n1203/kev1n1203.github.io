@@ -8,10 +8,10 @@ date: 2024-09-03 16:46:31+0000
 ---
 
 Sau một tháng lu bu việc học, việc tết, việc làm... Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,... Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu `¯\_(ツ)_/¯`. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.
-# Say My Name
+## Say My Name
 Một challenge code bằng python với source code ngắn, ý tưởng khá trực quan. Vừa mở code, mình đã thấy `bot.py` (damn, lại XSS)
 ![image](https://hackmd.io/_uploads/B1N94yXikg.png)
-## XSS with CSRF
+### XSS with CSRF
 Khi render template python để dính XSS thì ta cần có option `|safe` trong expression, mình đi tìm trong code thì chỉ có giá trị name trong `templates/yourname.html` là dính:
 ![image](https://hackmd.io/_uploads/HyhwIymikg.png)
 Nó nằm trong một dấu nháy kép của document.location và trong tiếp thuộc tính onfocus của thẻ `<a>`
@@ -69,7 +69,7 @@ Giờ thì lấy token của bot thôi:
 ![image](https://hackmd.io/_uploads/SkhzJe7skl.png)
 ![image](https://hackmd.io/_uploads/BycDWxmo1x.png)
 Mình đã có X-Admin-Token là 8657e9a9dec84afb8710a1a4a9e09efb
-## Format String Python
+### Format String Python
 Với X-Admin-Token, mình đã có thể truy cập được route `/admin`
 ```python!
 def run_cmd(): # I will do that later
@@ -131,7 +131,7 @@ Mày mò một lúc thì mình cũng thấy từ attribute Flask có thể dẫn
 `{.__globals__[Flask].__init__.__globals__[os].environ}`
 ![image](https://hackmd.io/_uploads/B1c1Hx7jye.png)
 
-# pwnshop
+## pwnshop
 Một challenge PHP với lượng source khá đồ sộ so với chall phía trên, có đầy đủ các chức năng của một shop online. Mục tiêu của chúng ta là RCE:
 ![image](https://hackmd.io/_uploads/BJCuwrmj1g.png)
 Một số folder đáng chú ý trong src:
@@ -141,7 +141,7 @@ Một số folder đáng chú ý trong src:
 - Models: Chứa các đối tượng và các hàm query DB với từng đối tượng
 - Security: Filter file upload và XML file
 
-## SQL Injection to Admin role
+### SQL Injection to Admin role
 Sau khi đọc qua một lượt, mình tập trung chủ yếu vào file Api/Rest/RestController.php vì nó chứa routing và các hàm được sử dụng trong các api tương ứng. Một số hàm sẽ lấy từ Models.
 Còn Security mình không để ý lắm vì đoạn code filter XML khá dài và lan man, còn file upload thì nghỉ đi vì họ whitelist rồi.
 Tại route /api/orders/search sử dụng method searchOrders, ta có thể khai thác SQL Injection qua param limit:
@@ -164,7 +164,7 @@ update users set password = '$2y$10$sB/I2oDHtik8W2fWX3odE.FSDq9fGJ6U5HWOMfhSIhLk
 ![image](https://hackmd.io/_uploads/SJUgRSQjye.png)
 Vậy là mình có Admin =))
 
-## 0 day in less.php Library leads to RCE
+### 0 day in less.php Library leads to RCE
 Mình đã stuck ở SQLi mà không leo lên được RCE, sau đó end giải thì author có push lên solution:
 ![image](https://hackmd.io/_uploads/S1UIJL7s1x.png)
 Oh damn, có lẽ SQLi không phải là intended. Anyways, không có cách này thì có cách khác thôi `¯\_(ツ)_/¯`
@@ -240,7 +240,7 @@ Sau đó chỉ cần trigger lỗi RCE thông qua api custom CSS là có thể R
 ![image](https://hackmd.io/_uploads/ByAUCIQj1g.png)
 Lụm flag bằng command `/getflag PWNME` 
 ![image](https://hackmd.io/_uploads/BJ4CC8Qj1l.png)
-### Funny Walkaround
+#### Funny Walkaround
 Vì sink lỗ hổng nằm tại method `Less_FileManager::getFilePath`, tất cả các funtions call đến method này đều có thể dẫn đến RCE, quan sát trong lib/Less/Functions.php thì ngoài method datauri thì còn có method getImageSize sử dụng đến method này, cùng với tham số truyền vào tương tự:
 ![image](https://hackmd.io/_uploads/B1yi4wQsJe.png)
 Có 3 function của less sử dụng method này, bao gồm:

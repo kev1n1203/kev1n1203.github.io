@@ -7,7 +7,7 @@ date: 2024-10-27 17:10:08+0000
 
 ---
 
-# hihi
+## hihi
 Đây là một challenge whitebox, cung cấp cho mình source code, cung cấp một cách khá hay để khai thác SSTI
 Challenge sử dụng Springboot để build web, với 1 route duy nhất tại index, tại phương thức POST nhận đầu vào là data và xử lý để in ra chuỗi hello tên người dùng và thời gian:
 ```java!
@@ -136,7 +136,7 @@ Solve :heavy_check_mark:
 ![image](https://hackmd.io/_uploads/SyEFqsjgJx.png)
 - Flag: `ISITDTU{We1come_t0_1s1tDTU_CTF}`
 
-# Hero
+## Hero
 Một challenge blackbox mà khi truy cập đến có độc mỗi chức năng đăng kỹ và đăng nhập:
 ![image](https://hackmd.io/_uploads/rybHE9oxJx.png)
 Mình login với credential `a:a`, thì có 3 endpoint trang web cung cấp:

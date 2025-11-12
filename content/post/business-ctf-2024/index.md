@@ -10,13 +10,13 @@ image: cover.jpg
 
 Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và Magicom cùng với các teammates trong câu lạc bộ. Chúng mình đã solve được challenge Omniwatch, còn Magicom thì gần như đã làm được, chỉ thiếu một bước nữa nhưng chúng mình đã đi sai hướng và không tìm ra cách giải kịp giờ nên không kịp solve.
 Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))
-# Preface
+## Preface
 Challenge xuất hiện dưới dạng một website có chức năng xem sản phẩm và thêm sản phẩm, người dùng có thể thêm sản phẩm và một số các thông tin của sản phẩm, trong đó là phần ảnh minh họa:
 ![image](https://hackmd.io/_uploads/BkhzXty40.png)
 Đã được add product tùy theo ý mình mà còn unauthen, mình ban đầu cũng nghĩ upload php để RCE:
 ![image](https://hackmd.io/_uploads/Sya5yqJN0.png)
-# Phân Tích Source Code
-## Config
+## Phân Tích Source Code
+### Config
 Ngay sau khi mình mở source của challenge mình đã thấy đây chắc chắn không phải là một challenge upload file PHP thông thường. Vì challenge cung cấp cả phpinfo tại /info, và file php.ini, mình nhìn sơ qua qua thì cũng chưa có gì bất thường, nhưng chắc chắn là mình cần phải dùng đến chúng.
 ```php!
 $router->get('/info', function(){
@@ -24,7 +24,7 @@ $router->get('/info', function(){
 });
 ```
 ![image](https://hackmd.io/_uploads/S1fCHcy4R.png)
-## Source Code
+### Source Code
 Challenge đã quy định những route có thể truy cập tại website trong index.php:
 ```php!
 $router = new Router;
@@ -231,8 +231,8 @@ function healthCheck() {
 - Hàm truy cập đến path info dùng để hiển thị phpinfo() và lấy status code trả về thông qua header. Nếu 200 thì coi là ổn, khác thì bị coi là không ổn
 
 => Method backup và import có khả năng command injection nếu như control được giá trị trong file config. Còn với option -f thì không chắc vì nó cũng bị kiểm tra bằng `file_exists` nên không thể command injection sau filename được.
-# Khai Thác
-## Command Injection in cli.php
+## Khai Thác
+### Command Injection in cli.php
 Mình mất một lúc để nhận ra có thể truy cập đến cli.php thông qua website /cli/cli.php. Nên mình đang nghĩ đến command injection vào các method, nhưng làm thế nào để bypass sử dụng trên command line?
 Đang tìm cách thì teammates của mình phát hiện ra tại php.ini giá trị `register_argc_argv` đã bị comment: Giá trị này được mặc định là off, nếu như config này được kích hoạt thì mình hoàn toàn có thể truyền vào giá trị của 2 biến này thông qua dấu `+` thay vì dùng dấu `&` để ngăn cách. 
 ![image](https://hackmd.io/_uploads/HkoZro1EC.png)
@@ -254,11 +254,11 @@ Thử truyền vào method backup và tên file config là: /tmp/a.xml
 Và mình thấy kết quả trả về requestrepo, đây là sink đúng để có thể RCE:
 ![image](https://hackmd.io/_uploads/BJmt_i1VA.png)
 Oke vậy là đã có chỗ để RCE, vấn đề còn lại là upload file xml này lên như nào với cái rule whitelist kia thôi.
-## Race Condition??
+### Race Condition??
 Như mình đã nói ở trên, có 2 thứ mà mình thấy mình chưa sử dụng được trong challenge này, thứ nhất là trang phpinfo, và thứ 2 là cái print_r hiện thông tin của file. Khi PHP script nhận được một file request, file đó sẽ được lưu tạm thời trong thư mục /tmp và có thể tùy chỉnh trong php.ini. Trong trường hợp này sẽ là /tmp/php+6 ký tự [a-zA-Z0-9]. File trong thư mục tmp sẽ biến mất sau khi có sự xuất hiện của hàm `move_uploaded_file` hoặc khi PHP script đó kết thúc. Nghe ná ná giống với case LFI2RCE với phpinfo nên mình và teammate triển luôn theo hướng này.
 Bọn mình dự định sẽ upload file sau đó vào phpinfo để xem đường dẫn file tmp, rồi sử dụng mode backup để command injection. Nhưng sau khi thử rất nhiều lần không được, mình đã đi tìm hiểu kĩ hơn và nhận ra mình đã sai và chưa hiểu bản chất: Lỗi LFI2RCE với phpinfo xảy ra khi mình có thể upload file tại trang phpinfo luôn, tức là có thể sử dụng POST request. PHP sẽ lưu các file được upload lên thư mục temp đối với cả các PHP script không hề hỗ trợ xử lý file trong nó, còn ở đây mình chỉ có thể GET /info, nên cách này coi như tiêu tùng. Ref: http://dann.com.br/php-winning-the-race-condition-vs-temporary-file-upload-alternative-way-to-easy_php-n1ctf2018/
 Không từ bỏ việc race, mình quyết định đánh vào khả năng print_r mảng về thông tin file khi upload file tại `/addProduct`, nhưng việc này cũng bất khả thi vì file đã được xử xong xuôi hết r mới có response trả về cho mình, mình đã tốn 2 ngày để thử theo phương pháp này và không thu được kết quả gì, vậy là challenge đã không thể solve kịp trước khi cuộc thi kết thúc :((
-## The right path: Phar Deserialization
+### The right path: Phar Deserialization
 Mình cứ mải đi race mà không nghĩ ra DOMDocument hỗ trợ cả file phar, tương tự như trong case [XXE to Phar Deserialize](https://blog.efiens.com/post/doublevkay/xxe-to-phar-deserialization/) khi DOMDocument->loadXML có thể truyền vào phar protocol thì ở đây, DOMDocument->load cũng có thể truyền vào phar protocol -> +1 kiến thức.
 Thiên thời địa lợi nhân hòa, config phar.readonly cũng được tắt => có thể deser file phar:
 ![image](https://hackmd.io/_uploads/ByzNl3kNR.png)
@@ -268,7 +268,7 @@ Nếu như đã hỗ trợ deser phar file, thì mình chỉ cần để file xm
 - Lấy hex của file đó, đắp vào file phar, chèn xml vào file phar và đổi extension về ảnh
 - Upload file ảnh, lấy đường dẫn ảnh
 - Gọi đến cli.php, sử dụng phar:// protocol gọi đến file xml nằm trong file phar => RCE
-## Final Exploit
+### Final Exploit
 Mình gen ảnh 1 pixel cho nó bé bằng đoạn code:
 ```python!
 from PIL import Image
