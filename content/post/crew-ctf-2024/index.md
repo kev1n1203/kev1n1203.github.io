@@ -1,7 +1,6 @@
 ---
 title: crewCTF2024 - BearBurger
-categories: 
-    - CTF
+tags: [CTF]
 slug: crewctf-2024
 date: 2024-08-05 09:47:56+0000
 image: cover.png

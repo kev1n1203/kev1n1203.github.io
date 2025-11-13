@@ -2,7 +2,7 @@
 title: Pwnme Phreaks CTF 2025 write up
 tags: [CTF]
 slug: pwnme-phreaks-2025
-date: 2024-09-03 16:46:31+0000
+date: 2025-03-03 00:00:00+0000
 
 ---
 
