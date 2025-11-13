@@ -3,7 +3,6 @@ title: HTB Business CTF 2024 Write Up - Magicom
 tags: [CTF]
 slug: htb-business-2024
 date: 2024-05-25 21:42:04+0000
-image: cover.jpg
 
 ---
 
