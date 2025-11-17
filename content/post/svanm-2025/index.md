@@ -6,14 +6,18 @@ date: 2025-11-16 17:28:53+0000
 ---
 
 Mình nghĩ cũng phải 8 tháng sau bài wu gần nhất, không phải là do mình không chơi nữa, mà là do mình lười. Mãi sau khi thi xong SVANM, mình mới thấy là mình nên tập tành viết trở lại, nên đây sẽ là hành trình thi trong 8 tiếng của mình hơn là một writeup thuần túy.
+
 Là một sinh viên năm 4(.5) chuẩn bị ra trường may mắn được lựa chọn để đi thi Sinh Viên An Ninh Mạng, tiền thân là Sinh Viên với An Toàn Thông tin. Cho nên đây là lần đầu cũng là lần cuối mình có thể tham gia cuộc thi này.
+
 Điều đặc biệt là chung khảo năm nay là không thi theo kiểu Attack-Defend truyền thống mà sử dụng format năm 2020-2021: King Of The Hill. Nói nôm na thì nó là jeo, ai solve nhanh nhất sẽ được điểm của 1 round - 100 điểm. Các challenge có các cách patch khác nhau, các đội còn lại nếu muốn khai thác thì sẽ phải đợi round sau hoặc unpatch để attack.
+
 Phần King of the Hill có 2 challenge web, mình nhìn thấy challenge 1 cần tài khoản Azure và review source code 1 hồi thấy khoai lang vão nên bỏ luôn 🗿. Do đó mình chỉ còn 1 chall web để giành giật điểm là challenge thứ 2: Breach
 ## Breach
 Một challenge Java không outbound với docker cho flag vào cả 2 service web là db, khả năng sẽ có 2 cách để lấy flag:
 ![image](https://hackmd.io/_uploads/S1cWtxdlZl.png)
 
-Author cũng cung cấp cách để patch challenge là sẽ patch tại 2 file: patchme.groovy và patchme.jsp. Các file jsp sẽ inlcude file patchme.jsp, tương tự với groovy
+Author cũng cung cấp cách để patch challenge là sẽ patch tại 2 file: patchme.groovy và patchme.jsp. Các file jsp sẽ inlcude file patchme.jsp, tương tự với groovy:
+
 ![image](https://hackmd.io/_uploads/rkpdheOg-g.png)
 ![image](https://hackmd.io/_uploads/Skoh2x_lZl.png)
 
@@ -176,9 +180,12 @@ Thuộc tính protect được set bằng logic sau:
 - Set page_type mặc định rỗng, nếu như tên file có nhiều hơn 2 dấu . thì lấy extension sau dấu chấm cuối cùng
 - Check nếu page_type nằm trong protectedPages thì set là true, không thì là false
 Mặc định truyền vào file thông thường như: /admin/index.tpl thì mặc định page_type là "" => chuỗi nào mà chả contains "" nên mặc định protect là true:
+
 ![image](https://hackmd.io/_uploads/SJXgZXOx-l.png)
 Như vậy, để bypass auth thì phải không được để doFilter là false, để làm được điều đó thì:
+
 ***Bypass verifyUser***
+
 Debug kỹ hơn, ta thấy vòng if đầu có block try/catch, mà nếu như rơi vào catch thì doFilter sẽ không bị set thành false:
 ```java!
 if (username != null && password != null) {
@@ -256,11 +263,13 @@ Khi gặp các file này, class call method service, thực hiện parse URI đ�
 Để `protect` là false, ta cần phải truyền vào file có 2 extension:
 - Extension thứ 2 không phải là groovy => page, tpl, htm đều được
 - Extension thứ nhất là extension đúng của file cần truy cập
+
 Kết hợp cả 2 điều kiện, ta có request bypass authen để truy cập file /admin/index.html:
 ![image](https://hackmd.io/_uploads/SybIOXdeWg.png)
 #### SSTI In Velocity
 Trong các file có thể truy cập, tồn tại editPage.groovy cho phép tạo file .page có nội dung tùy ý truy cập được từ webroot => SSTI Velocity:
 ![image](https://hackmd.io/_uploads/Sk_ktm_xWg.png)
+
 Vấn đề còn lại là bypass đống blacklist này nữa thôi:
 ```java!
 private static final List<String> BLACKLIST = Arrays.asList("runtime", "processbuilder", "eval", "forName", "scriptEngine", "parse", "include");
