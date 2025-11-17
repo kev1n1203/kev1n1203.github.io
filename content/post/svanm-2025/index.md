@@ -231,7 +231,7 @@ Tại đây mật khẩu được lấy từ user tương ứng, không sẽ ret
 ![image](https://hackmd.io/_uploads/BkIyVQOlZl.png)
 Hàm hashPassword sẽ check format truyền vào có phải một thuật toán hash hợp lệ trong MessageDigest không:
 ![image](https://hackmd.io/_uploads/Bk_W4QOgZl.png)
-Do `,sha512` không valid nên sẽ raise exception `,sha512 MessageDigest not available`, từ đó bypass được đoạn bloack if đầu:
+Do `,sha512` không valid nên sẽ raise exception `,sha512 MessageDigest not available`, từ đó bypass được đoạn whitelist if đầu:
 ![image](https://hackmd.io/_uploads/HyOGVXdlWe.png)
 ***Set protect = false***
 Xem lại web.xml, các file có extension như sau được handle bởi class EditContentParser
