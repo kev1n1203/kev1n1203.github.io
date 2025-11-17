@@ -234,6 +234,7 @@ Hàm hashPassword sẽ check format truyền vào có phải một thuật toán
 Do `,sha512` không valid nên sẽ raise exception `,sha512 MessageDigest not available`, từ đó bypass được đoạn whitelist if đầu:
 ![image](https://hackmd.io/_uploads/HyOGVXdlWe.png)
 ***Set protect = false***
+
 Xem lại web.xml, các file có extension như sau được handle bởi class EditContentParser
 ```xml!
 <servlet>
@@ -296,7 +297,7 @@ private boolean containsBlacklisted(String input) {
 ```
 Đa số các payload Velocity SSTI đều dùng forName để call class, để bypass thì mình đã chọn sử dụng classloader. Sau một hồi fuzz tùm lum, mình tìm được object $request chứa instance của class RequestFacade:
 ![image](https://hackmd.io/_uploads/H1DecXOlbe.png)
-Từ đây có thể call đến object URLClassLoader thông qua payload `.servletContext.class.classLoader`:
+Từ đây có thể call đến object URLClassLoader thông qua payload `$request.servletContext.class.classLoader`:
 ![image](https://hackmd.io/_uploads/BJH497ugZe.png)
 Việc khó đã làm được, giờ mình sẽ dùng nó để load class java.lang.Runtime, lấy command từ header 1337:
 ```java!
