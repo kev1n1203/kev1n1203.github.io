@@ -166,15 +166,20 @@ Trong web.xml khai báo các file truy cập từ đường dẫn `/admin` đề
 </filter-mapping>
 ```
 Class AuthFilter yêu cầu mỗi request đi vào đều có username và password, biến format là cách thức hash mật khẩu để so khớp, nếu không có mặc định là sha1:
+
 ![image](https://hackmd.io/_uploads/ByXK6zuxZl.png)
+
 Nếu như format được truyền vào thì phải nằm trong `sha1,md5,sha256,sha512`, nếu không sẽ báo lỗi ngay:
 ![image](https://hackmd.io/_uploads/B19i6fdeZl.png)
+
 Check chán chê r mới đến đoạn check thông tin người dùng tại InMemoryUserDB#verifyUser:
 ![image](https://hackmd.io/_uploads/Syje0G_lZe.png)
 Hàm này check username trước bằng cách lấy password của user tương ứng. Sau đó so khớp mật khẩu lưu trữ với mật khẩu truyền vào được hash bằng format ta điều chỉnh. Đồng thời this.users là một map chứa mỗi admin, nên loại bỏ việc crack hash:
 ![image](https://hackmd.io/_uploads/ByvU0MdeWx.png)
+
 Qua 1 vòng if, tiếp tục kiểm tra thuộc tính protect là true thì kiểm tra role, không phải admin thì trả về lỗi role, cuối cùng nếu dpFilter là true thì mới tiếp tục xử lý:
 ![image](https://hackmd.io/_uploads/rknUWmOx-l.png)
+
 Thuộc tính protect được set bằng logic sau:
 - Lấy URI của request, split từng thư mục theo dấu "/"
 - Set page_type mặc định rỗng, nếu như tên file có nhiều hơn 2 dấu . thì lấy extension sau dấu chấm cuối cùng
@@ -226,12 +231,19 @@ if (!"sha1,md5,sha256,sha512".contains(format))
 ```
 Giá trị được check để **contains** trong chuỗi kia, nếu như ta truyền vào `,sha512` thì sao?
 Đoạn check if contains sẽ được pass, chương trình gọi đến verifyUser:
+
 ![image](https://hackmd.io/_uploads/SyljEX_g-x.png)
+
 Tại đây mật khẩu được lấy từ user tương ứng, không sẽ return false => auth failed1! Nên username truyền vào cần phải là `admin`. Hàm check tiếp tục nhảy vào hàm hashPassword:
+
 ![image](https://hackmd.io/_uploads/BkIyVQOlZl.png)
+
 Hàm hashPassword sẽ check format truyền vào có phải một thuật toán hash hợp lệ trong MessageDigest không:
+
 ![image](https://hackmd.io/_uploads/Bk_W4QOgZl.png)
+
 Do `,sha512` không valid nên sẽ raise exception `,sha512 MessageDigest not available`, từ đó bypass được đoạn whitelist if đầu:
+
 ![image](https://hackmd.io/_uploads/HyOGVXdlWe.png)
 ***Set protect = false***
 
@@ -260,15 +272,20 @@ Xem lại web.xml, các file có extension như sau được handle bởi class 
 </servlet-mapping>
 ```
 Khi gặp các file này, class call method service, thực hiện parse URI để lấy ra tên file cần hiển thị. Nhưng vấn là ở đây page_type lại được lấy là phần tử tiên sau dấu chấm, ngược lại với logic xử lý `protect`:
+
 ![image](https://hackmd.io/_uploads/rkWIDQOxZe.png)
+
 Để `protect` là false, ta cần phải truyền vào file có 2 extension:
 - Extension thứ 2 không phải là groovy => page, tpl, htm đều được
 - Extension thứ nhất là extension đúng của file cần truy cập
 
 Kết hợp cả 2 điều kiện, ta có request bypass authen để truy cập file /admin/index.html:
+
 ![image](https://hackmd.io/_uploads/SybIOXdeWg.png)
+
 #### SSTI In Velocity
 Trong các file có thể truy cập, tồn tại editPage.groovy cho phép tạo file .page có nội dung tùy ý truy cập được từ webroot => SSTI Velocity:
+
 ![image](https://hackmd.io/_uploads/Sk_ktm_xWg.png)
 
 Vấn đề còn lại là bypass đống blacklist này nữa thôi:
@@ -296,9 +313,13 @@ private boolean containsBlacklisted(String input) {
 }
 ```
 Đa số các payload Velocity SSTI đều dùng forName để call class, để bypass thì mình đã chọn sử dụng classloader. Sau một hồi fuzz tùm lum, mình tìm được object $request chứa instance của class RequestFacade:
+
 ![image](https://hackmd.io/_uploads/H1DecXOlbe.png)
+
 Từ đây có thể call đến object URLClassLoader thông qua payload `$request.servletContext.class.classLoader`:
+
 ![image](https://hackmd.io/_uploads/BJH497ugZe.png)
+
 Việc khó đã làm được, giờ mình sẽ dùng nó để load class java.lang.Runtime, lấy command từ header 1337:
 ```java!
 #set($cl = $request.servletContext.class.classLoader)
@@ -318,12 +339,16 @@ $next.invoke($sc)
 ```
 ![image](https://hackmd.io/_uploads/r1VF57_g-e.png)
 Finally, RCE:
+
 ![image](https://hackmd.io/_uploads/rkD95Xdx-g.png)
+
 Đớp flag trên server:
+
 ![image](https://hackmd.io/_uploads/r13xo7ugbl.png)
+
 Ra đến bước này thì cuộc thi cũng kết thúc rồi, thôi thì +1 kiến thức vậy
 ## Kết thúc
 Trong khoảng thời gian 8 tiếng, ngoài challenge web2 thì mình có vọc Lucky Star nữa mà không confirm được đã RCE con Sharepoint hay chưa, coi như là tốn thêm thời gian mà không có thành quả gì. 
-Ngậm ngùi kết thúc ở vị trí thứ 6, mình cũng chỉ biết tự trách bản thân thôi  🗿
+Ngậm ngùi kết thúc ở vị trí thứ 6, mình cũng chỉ biết tự trách bản thân thôi 🗿
 ![image](https://hackmd.io/_uploads/S1PUdlulZx.png)
 Đây là bài học cho bản thân về việc không chuẩn bị kĩ trước một format thi mới, cũng như sự thiếu quyết đoán khi sử dụng tool unshield,... dẫn đến kết quả không như mong muốn. Hi vọng rằng các khóa sau sẽ không mắc phải sai lầm như mình nữa.
