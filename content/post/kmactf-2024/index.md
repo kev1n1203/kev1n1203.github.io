@@ -7,21 +7,21 @@ date: 2024-08-25 17:59:27+0000
 ---
 
 ## pickleball
-![image](https://hackmd.io/_uploads/rynYQTui0.png)
+<br>![image](https://hackmd.io/_uploads/rynYQTui0.png)<br>
 - URL: [157.15.86.73:8888](http://157.15.86.73:8888)
 
 Challenge chia flag thành 3 phần và giấu chúng vào trang web, mình dirsearch và tìm kiếm trong request burp 1 lúc thì tìm được:
 Part 1 nằm ở /robots.txt
-![image](https://hackmd.io/_uploads/SyXuk5OoA.png)
+<br>![image](https://hackmd.io/_uploads/SyXuk5OoA.png)<br>
 Part 2 nằm tại file js 
-![image](https://hackmd.io/_uploads/r1KYy9_sC.png)
+<br>![image](https://hackmd.io/_uploads/r1KYy9_sC.png)<br>
 Part 3 ở file css
-![image](https://hackmd.io/_uploads/S1yi15OiA.png)
+<br>![image](https://hackmd.io/_uploads/S1yi15OiA.png)<br>
 - Flag: **KMACTF{p1Ckleb4ll_WitH-uU_piCklepal_5a6b89113abb}**
 
 ## malicip
 ### Preface
-![image](https://hackmd.io/_uploads/rJ94UpdsC.png)
+<br>![image](https://hackmd.io/_uploads/rJ94UpdsC.png)<br>
 - URL: [157.15.86.73:18000](http://157.15.86.73:18000)
 ### Source Code
 Tại schema.sql mình thấy flag được đưa vào bảng giấu tên REDACTED_TABLE và cột giấu tên REDACTED_COLUMN, gợi ý để solve challenge cần dump database:
@@ -52,7 +52,7 @@ def check_ip():
 
 Mục đích của challenge đã khá rõ ràng, việc mình cần làm là truyền vào IP thỏa mãn hàm ipaddress.ip_address(), đồng thời vẫn phải exploit SQL Injection.
 Điều này không dễ tí nào khi hàm này check khá chặt, thêm 1 dấu nháy hàm sẽ trả về exception ngay:
-![image](https://hackmd.io/_uploads/H1D3c6uj0.png)
+<br>![image](https://hackmd.io/_uploads/H1D3c6uj0.png)<br>
 Mình mất kha khá thời gian cho việc chèn vào được một địa chỉ IP hợp lệ mà chứa được cả dấu nháy đơn. Đi tìm kiếm các vuln của thư viện nhưng cũng không có gì sử dụng được cả
 Đọc lại source code, tự nhiên mình thấy địa chỉ IPv6 được insert hàng cuối khá thú vị, vì nó vẫn có thể chứa các ký tự, mình tiếp fuzzing tiếp một số địa chỉ IPv6 như `abcd::dead:beef:abcd`, nhưng vẫn chưa thể chèn được dấu nháy vào vì chỉ có thể chèn vào các ký tự biểu diễn hex mà thôi
 ```sql!
@@ -66,9 +66,9 @@ VALUES
 ('1337::dead:beef', 'dead leet');
 ```
 Lượn lờ các doc thì mình thấy có phần so sánh tại [đây](https://blog.51cto.com/u_16099261/8620358) khá thú vị khi có thể chèn giá trị đằng sau địa chỉ IPv6 bằng dấu `%`
-![image](https://hackmd.io/_uploads/HJMMe0dj0.png)
+<br>![image](https://hackmd.io/_uploads/HJMMe0dj0.png)<br>
 Không hiểu lắm nó có tác dụng gì, mình thử chèn nhiều hơn là số 1 vào đằng sau dấu `%` thì thấy hoàn toàn valid, mình có thể truyền vào gần như bất cứ thứ gì, trong đó có cả dấu nháy:
-![image](https://hackmd.io/_uploads/rkO2eRuj0.png)
+<br>![image](https://hackmd.io/_uploads/rkO2eRuj0.png)<br>
 Lý do cho việc này thì ta cần phải đi đoạn code xử lý hàm `ipaddress.ip_address()`, hàm xét 2 trường hợp địa chỉ IP truyền vào hoặc là IPv4 hay IPv6. Sau đó tiến hành check bằng việc gán địa chỉ đó vào 2 class, việc kiểm tra sẽ được tiếp tục diễn ra tại phương thức `__init__` của 2 class đó:
 ```python!
 def ip_address(address):
@@ -128,36 +128,36 @@ def _split_scope_id(ip_str):
     return addr, scope_id
 ```
 - Ví dụ:
-![image](https://hackmd.io/_uploads/HyDpzAujC.png)
+<br>![image](https://hackmd.io/_uploads/HyDpzAujC.png)<br>
 - Sau đó addr là giá trị `addr_str`, được đưa vào hàm `_ip_int_from_string` để đưa về dạng địa chỉ, sau đó gán vào thuộc tính `_ip` của object hiện tại. Còn `_scope_id` tạm thời không được sử dụng tiếp trong method `__init__`
 
 Như vậy về cơ bản thì mình có thể bypass hàm check `ipaddress.ip_address()` bằng dấu `%` đằng sau 1 địa chỉ IPv6 valid:
-![image](https://hackmd.io/_uploads/SyJD40OiA.png)
-![image](https://hackmd.io/_uploads/HJ1OEC_oC.png)
+<br>![image](https://hackmd.io/_uploads/SyJD40OiA.png)<br>
+<br>![image](https://hackmd.io/_uploads/HJ1OEC_oC.png)<br>
 ### Exploit
 Việc khó đã làm được, giờ mình chỉ cần exploit SQLi để dump db là sol được challenge rồi.
 Lợi dụng việc route hiển thị tất cả các row của câu lệnh select thông qua vòng for, mình dùng union based để lấy thông tin luôn:
 Tại local thì có select thẳng luôn vì mình đã biết tên bảng tên cột chứa flag:
-![image](https://hackmd.io/_uploads/H1bmBCOjA.png)
+<br>![image](https://hackmd.io/_uploads/H1bmBCOjA.png)<br>
 Còn lên server thì mình sẽ lấy thông tin về tên bảng trước bằng tên db `malicip`:
 ```!
 1337::dead:beef%' union select null,table_name from information_schema.tables where table_schema="malicip"-- -
 ```
-![image](https://hackmd.io/_uploads/H1H2HA_i0.png)
+<br>![image](https://hackmd.io/_uploads/H1H2HA_i0.png)<br>
 Được tên bảng là `______________________________________________m4LiC10u5_T413Le`, mình tiếp tục lấy cột và lấy flag:
 ```!
 1337::dead:beef%' union select null,column_name from information_schema.columns where table_name="______________________________________________m4LiC10u5_T413Le"-- -
 ```
-![image](https://hackmd.io/_uploads/Byr-LCOoR.png)
+<br>![image](https://hackmd.io/_uploads/Byr-LCOoR.png)<br>
 ```!
 1337::dead:beef%' union select null,_____________________________________________MaL1ci0uS_c0lUmnN from ______________________________________________m4LiC10u5_T413Le-- -
 ```
-![image](https://hackmd.io/_uploads/BygEUCOo0.png)
+<br>![image](https://hackmd.io/_uploads/BygEUCOo0.png)<br>
 - Flag: **KMACTF{actually__this_flag-is_not_so_malicious_but_the_ipv6_is}**
 
 ## spring up
 ### Preface
-![image](https://hackmd.io/_uploads/HJasIAuiR.png)
+<br>![image](https://hackmd.io/_uploads/HJasIAuiR.png)<br>
 Đây là một challenge Java Spring boot mà động đến kiến thức mà mình chưa từng tìm hiểu, cho nên quá trình searching để tìm ra đúng lỗ hổng là rất lâu, sau đó mình cũng ngốn tiếp hơn 2 tiếng để build file exploit nên mình solve challenge này khi cuộc thi chỉ còn 1 tiếng, ngần đấy không đủ thời gian để tìm ra hướng cho bài web cuối cùng.
 ### Source Code
 Đầu tiên xem xét Dockerfile, ta thấy flag được move với ký hiệu ngẫu nhiên, gợi ý cho việc để solve challenge ta cần phải RCE:
@@ -270,8 +270,8 @@ Chương trình chỉ có 2 route này là đáng chú ý, vì user chạy web s
 - Read file tùy ý
 
 Tưởng ngon ăn nhưng lại không hề ngon, ta không thể upload web shell jsp vì Spring Boot không code để phục vụ việc hiển thị thư mục uploads ra web, mà chỉ có thể truy cập đến thông qua route `/file/downloadResource`
-![image](https://hackmd.io/_uploads/BJTRQUtiC.png)
-![image](https://hackmd.io/_uploads/HyK1EIYjA.png)
+<br>![image](https://hackmd.io/_uploads/BJTRQUtiC.png)<br>
+<br>![image](https://hackmd.io/_uploads/HyK1EIYjA.png)<br>
 Từ đó, mình đã thử kha khá cách, một số có thể nói đến là:
 - Upload các file có khả năng tự động thực thi như crontab, nhưng bị blacklist -> failed
 - Upload ghi đè html để trigger thymeleaf (maybe), nhưng chương trình được đóng gói thành file jar -> failed
@@ -310,12 +310,12 @@ private static HashMap<String, String> fun() {
 }
 ```
 Upload file jar ghi đè file jar hiện tại:
-![image](https://hackmd.io/_uploads/HJuj_IYoA.png)
-![image](https://hackmd.io/_uploads/HyFaOLKiC.png)
+<br>![image](https://hackmd.io/_uploads/HJuj_IYoA.png)<br>
+<br>![image](https://hackmd.io/_uploads/HyFaOLKiC.png)<br>
 Trigger bằng request kèm header: `Accept: text/html;charset=GBK`
-![image](https://hackmd.io/_uploads/Hk-8KIFj0.png)
+<br>![image](https://hackmd.io/_uploads/Hk-8KIFj0.png)<br>
 Kiểm tra tại docker thì ta thấy 2 file log đã được khởi tạo, chứng tỏ ta đã RCE thành công:
-![image](https://hackmd.io/_uploads/S1xp3Y8Fi0.png)
+<br>![image](https://hackmd.io/_uploads/S1xp3Y8Fi0.png)<br>
 ### Exploit
 Giờ công việc của mình là tự build lại 1 file jar để thay vì tạo file tmp mình sẽ ghi flag vào /tmp/flag.txt và rồi dùng route downloadResource để đọc flag
 Vì chưa build file jar từ artifacts bao giờ mà mình hay dùng maven để package nên mình tốn rất nhiều thời gian cho việc này (cụ thể là 2 tiếng rưỡi)
@@ -325,43 +325,43 @@ Có một số vấn đề gặp phải mà mình lưu ý:
 - Và cũng đừng có đi sửa source của hộ, tự build lại từ source đó nhanh hơn nhiều =))
 
 Bắt đầu từ việc khởi tạo project mới, mình để tên là charsets luôn cho tiện, đồng thời dùng jdk 1.8
-![image](https://hackmd.io/_uploads/BkeesUtiA.png)
+<br>![image](https://hackmd.io/_uploads/BkeesUtiA.png)<br>
 Tại thư mục java mình chọn new package, và nhập vào package như của author là `sun.nio.cs.ext`:
-![image](https://hackmd.io/_uploads/BJUQsUFi0.png)
+<br>![image](https://hackmd.io/_uploads/BJUQsUFi0.png)<br>
 Tạo 2 file Java clss bên trong package vừa tạo và copy code vô :))), riêng tại IBM33722.java thì mình sẽ sửa câu lệnh tạo file log, đồng thời thêm main method vào (không có gì không sao):
-![image](https://hackmd.io/_uploads/r1AQn8KoC.png)
+<br>![image](https://hackmd.io/_uploads/r1AQn8KoC.png)<br>
 Thêm folder META-INF và file `MANIFEST.MF` vào bên trong thư mục resource, copy nội dung của file jar kia vào:
-![image](https://hackmd.io/_uploads/ry5O2UYj0.png)
+<br>![image](https://hackmd.io/_uploads/ry5O2UYj0.png)<br>
 Tiến hành compile project này bằng cách chạy nó thôi, kết quả file class sẽ nằm tại folder target:
-![image](https://hackmd.io/_uploads/H10C2IFiR.png)
+<br>![image](https://hackmd.io/_uploads/H10C2IFiR.png)<br>
 Tiến hành đóng gói thành file JAR tại tab Project Structure, chọn mục Artifacts và chọn tạo file JAR:
-![image](https://hackmd.io/_uploads/BJXf6UYsA.png)
+<br>![image](https://hackmd.io/_uploads/BJXf6UYsA.png)<br>
 Tại đây thì mình không chọn gì, vì main method có cũng không quan trọng lắm:
-![image](https://hackmd.io/_uploads/B1pmaLtjR.png)
+<br>![image](https://hackmd.io/_uploads/B1pmaLtjR.png)<br>
 Lúc này file charsets.jar sẽ chứa kết quả output của compile, để chắc chắn thì mình thêm nội dung bên trong folder resource là folder META-INF để chắc cú:
-![image](https://hackmd.io/_uploads/rkT_TLFsA.png)
+<br>![image](https://hackmd.io/_uploads/rkT_TLFsA.png)<br>
 Tại tab Build chọn Build Artifacts, file jar sẽ được compile
-![image](https://hackmd.io/_uploads/rJWjaUtsA.png)
+<br>![image](https://hackmd.io/_uploads/rJWjaUtsA.png)<br>
 Kiểm tra file jar khởi tạo thì nó đã đầy đủ các thành phần như của file jar mẫu: thư mục chứa MANIFEST và 2 file class
-![image](https://hackmd.io/_uploads/ByNxR8KsR.png)
+<br>![image](https://hackmd.io/_uploads/ByNxR8KsR.png)<br>
 Nếu như nhét file java vào file jar thì file jar sẽ nặng khoảng 5KB, còn khi compile xong thì nó sẽ là 11KB
 Mình deploy lại local để upload file jar mới, sau khi lặp lại các bước trên thì file flag.txt đã được khởi tạo tại /tmp/flag.txt
-![image](https://hackmd.io/_uploads/SJ6_C8KiC.png)
+<br>![image](https://hackmd.io/_uploads/SJ6_C8KiC.png)<br>
 Kết quả trên instance challenge:
-![image](https://hackmd.io/_uploads/HJgTkvYjC.png)
+<br>![image](https://hackmd.io/_uploads/HJgTkvYjC.png)<br>
 - Flag: **KMACTF{ayoooo00oo0ooo0o0o00o0ooooo000oo0oo0o00000}**
 
 ## not so secure
-![image](https://hackmd.io/_uploads/Bk8JWDFsR.png)
+<br>![image](https://hackmd.io/_uploads/Bk8JWDFsR.png)<br>
 - URL: [157.15.86.73:9999](http://157.15.86.73:9999/)
 
 Đây là challenge mà mình không kịp làm trong 1 tiếng cuối trước khi cuộc thi kết thúc, nên mình có đi hỏi về hướng làm, từ đó reproduce lại để hiểu hơn
 ### Bypass JWT ES256
 Khi truy cập vào website, ta sẽ được ghi hero name và quirk code:
-![image](https://hackmd.io/_uploads/B1k1u3YjA.png)
+<br>![image](https://hackmd.io/_uploads/B1k1u3YjA.png)<br>
 Giá trị username được ghi vào trong jwt, còn quirk code thì điền bao nhiều thì quirk vẫn có giá trị là civilian thôi.
 Website thì có file robots.txt có một chút gợi ý về việc mã hóa ES256 diễn ra như thế nào:
-![image](https://hackmd.io/_uploads/S154_ntsA.png)
+<br>![image](https://hackmd.io/_uploads/S154_ntsA.png)<br>
 Đi theo gợi ý, mình tìm cách crack jwt để đưa giá trị của quirk về hero nhưng không kịp.
 Sau đó thì mình đã xin hint của người anh em [C4t-f4t](https://hackmd.io/@C4t-f4t) về hướng giải và nhận ra có script của 1 bài gần tương tự tại NahamCon 2021 dùng để bypass jwt sử dụng hệ mật đường cong Eliptic. Lỗ hổng xảy ra khi sử dụng thuật toán ECDSA mà không thay đổi nonce, attacker có thể crack ra được private key. Để hiểu hơn thì mình có thể tham khảo thêm tại: https://asecuritysite.com/encryption/ecd5
 Với 2 mẫu thông điệp thì mình có thể crack được secret key và forge ra được token của riêng mình
@@ -370,7 +370,7 @@ Mình chỉnh sửa 1 chút cho phù hợp với bài và chèn vào phần jwt 
 ```
 {"username":"kev1n","quirk":"hero"}
 ```
-![image](https://hackmd.io/_uploads/BkguF3Kj0.png)
+<br>![image](https://hackmd.io/_uploads/BkguF3Kj0.png)<br>
 Nhưng có vẻ quirk hero là không đúng, quirk là tên gọi chung của các siêu năng lực của mấy nhân vật trong website, nên mình nảy ra ý định là thử với tất cả các quirk được giới thiệu trên trang web, bao gồm:
 ```
 ONE FOR ALL
@@ -387,15 +387,15 @@ ANIVOICE
 HACKING
 ```
 Thử đến cái quirk cuối cùng thì mình mới thấy route dashboard có sự khác biệt, và mình cũng để ý là tác giả đã hint để thành quirk này khi trang web đề cập đến người sở hữu quirk HACKING nên liên lạc với họ:
-![image](https://hackmd.io/_uploads/ByJ25hts0.png)
+<br>![image](https://hackmd.io/_uploads/ByJ25hts0.png)<br>
 Forge một jwt mới, và giao diện lúc này đã thay đổi, cho phép ta được upload file docx:
-![image](https://hackmd.io/_uploads/SyGi5htiR.png)
-![image](https://hackmd.io/_uploads/ry2p53YjC.png)
+<br>![image](https://hackmd.io/_uploads/SyGi5htiR.png)<br>
+<br>![image](https://hackmd.io/_uploads/ry2p53YjC.png)<br>
 ### From docx to XXE
 Đầu tiên mình gửi một file docx valid thì chương trình sẽ đếm số lượng word có trong doc để hiển thị ra ngoài:
-![image](https://hackmd.io/_uploads/HkdQn2FiA.png)
+<br>![image](https://hackmd.io/_uploads/HkdQn2FiA.png)<br>
 Đi mò mẫm các file xml có dùng để khai thác thì em tìm được write up này: https://ctftime.org/writeup/24895, trong 1 file word sẽ tồn tại các file xml và thư mục sau:
-![image](https://hackmd.io/_uploads/ryDhu6KsR.png)
+<br>![image](https://hackmd.io/_uploads/ryDhu6KsR.png)<br>
 Như vậy ta có thể thấy file word thực chất là tổng hợp của nhiều file xml, nên mình có thể chèn file xml vào trong file docx để thực thi XXE.
 Trong writeup mình tham khảo thì họ sử dụng file docProps/app.xml chứa các thông số về file word, cụ thể như số dòng, số chữ, số trang,... của file docx đó để inject vào số mà website show ra -> đó là số chữ (words)
 ```xml!
@@ -428,11 +428,11 @@ Tiến hành zip file xml này vào file docx bằng command:
 ```bash
 zip a1.docx docProps/app.xml
 ```
-![image](https://hackmd.io/_uploads/BJGwtaYoA.png)
+<br>![image](https://hackmd.io/_uploads/BJGwtaYoA.png)<br>
 Nội dung file đã hiện ra ở website
-![image](https://hackmd.io/_uploads/H10YYTFiC.png)
+<br>![image](https://hackmd.io/_uploads/H10YYTFiC.png)<br>
 Mình sẽ đọc flag bằng `file:///flag.txt`
-![image](https://hackmd.io/_uploads/rkvCK6KiC.png)
+<br>![image](https://hackmd.io/_uploads/rkvCK6KiC.png)<br>
 Upload file docx và mình đã có được flag:
-![image](https://hackmd.io/_uploads/H1Qb5aYj0.png)
+<br>![image](https://hackmd.io/_uploads/H1Qb5aYj0.png)<br>
 - Flag: **KMACTF{3cd54_n0nc3_r3u53_4774ck_4nd_xx3_up104d}**

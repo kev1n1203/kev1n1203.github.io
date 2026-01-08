@@ -10,9 +10,9 @@ Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và
 Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))
 ## Preface
 Challenge xuất hiện dưới dạng một website có chức năng xem sản phẩm và thêm sản phẩm, người dùng có thể thêm sản phẩm và một số các thông tin của sản phẩm, trong đó là phần ảnh minh họa:
-![image](https://hackmd.io/_uploads/BkhzXty40.png)
+![image](https://hackmd.io/_uploads/BkhzXty40.png)<br>
 Đã được add product tùy theo ý mình mà còn unauthen, mình ban đầu cũng nghĩ upload php để RCE:
-![image](https://hackmd.io/_uploads/Sya5yqJN0.png)
+![image](https://hackmd.io/_uploads/Sya5yqJN0.png)<br>
 ## Phân Tích Source Code
 ### Config
 Ngay sau khi mình mở source của challenge mình đã thấy đây chắc chắn không phải là một challenge upload file PHP thông thường. Vì challenge cung cấp cả phpinfo tại /info, và file php.ini, mình nhìn sơ qua qua thì cũng chưa có gì bất thường, nhưng chắc chắn là mình cần phải dùng đến chúng.
@@ -21,7 +21,7 @@ $router->get('/info', function(){
     return phpinfo();
 });
 ```
-![image](https://hackmd.io/_uploads/S1fCHcy4R.png)
+![image](https://hackmd.io/_uploads/S1fCHcy4R.png)<br>
 ### Source Code
 Challenge đã quy định những route có thể truy cập tại website trong index.php:
 ```php!
@@ -233,10 +233,10 @@ function healthCheck() {
 ### Command Injection in cli.php
 Mình mất một lúc để nhận ra có thể truy cập đến cli.php thông qua website /cli/cli.php. Nên mình đang nghĩ đến command injection vào các method, nhưng làm thế nào để bypass sử dụng trên command line?
 Đang tìm cách thì teammates của mình phát hiện ra tại php.ini giá trị `register_argc_argv` đã bị comment: Giá trị này được mặc định là off, nếu như config này được kích hoạt thì mình hoàn toàn có thể truyền vào giá trị của 2 biến này thông qua dấu `+` thay vì dùng dấu `&` để ngăn cách. 
-![image](https://hackmd.io/_uploads/HkoZro1EC.png)
-![image](https://hackmd.io/_uploads/SkXyOoJN0.png)
+<br>![image](https://hackmd.io/_uploads/HkoZro1EC.png)<br>
+![image](https://hackmd.io/_uploads/SkXyOoJN0.png)<br>
 Vậy thì mình có thể lợi dụng việc này để truyền giá trị vào các tham số -m và -c, thực thi file cli.php như đang ở command line, mình truy cập thử đến mode healthcheck thì thấy file hoàn toàn có thể thực thi được:
-![image](https://hackmd.io/_uploads/HyCfLjyE0.png)
+![image](https://hackmd.io/_uploads/HyCfLjyE0.png)<br>
 Mình quyết định sẽ lấy mode backup làm sink để RCE, với việc sử dụng DOMXPath query lấy dự liệu từ file xml, mình tạm thời bỏ qua việc upload file lên như nào mà craft một file xml để command injection vào username:
 ```xml!
 <config>
@@ -246,11 +246,11 @@ Mình quyết định sẽ lấy mode backup làm sink để RCE, với việc s
 </config>
 ```
 Để tránh câu lệnh bị thực thi khi echo vào thì mình base64 trước rồi truyền vào a.xml
-![image](https://hackmd.io/_uploads/HJFQdoJE0.png)
+![image](https://hackmd.io/_uploads/HJFQdoJE0.png)<br>
 Thử truyền vào method backup và tên file config là: /tmp/a.xml
-![image](https://hackmd.io/_uploads/SybD_oJ40.png)
+![image](https://hackmd.io/_uploads/SybD_oJ40.png)<br>
 Và mình thấy kết quả trả về requestrepo, đây là sink đúng để có thể RCE:
-![image](https://hackmd.io/_uploads/BJmt_i1VA.png)
+![image](https://hackmd.io/_uploads/BJmt_i1VA.png)<br>
 Oke vậy là đã có chỗ để RCE, vấn đề còn lại là upload file xml này lên như nào với cái rule whitelist kia thôi.
 ### Race Condition??
 Như mình đã nói ở trên, có 2 thứ mà mình thấy mình chưa sử dụng được trong challenge này, thứ nhất là trang phpinfo, và thứ 2 là cái print_r hiện thông tin của file. Khi PHP script nhận được một file request, file đó sẽ được lưu tạm thời trong thư mục /tmp và có thể tùy chỉnh trong php.ini. Trong trường hợp này sẽ là /tmp/php+6 ký tự [a-zA-Z0-9]. File trong thư mục tmp sẽ biến mất sau khi có sự xuất hiện của hàm `move_uploaded_file` hoặc khi PHP script đó kết thúc. Nghe ná ná giống với case LFI2RCE với phpinfo nên mình và teammate triển luôn theo hướng này.
@@ -259,7 +259,7 @@ Không từ bỏ việc race, mình quyết định đánh vào khả năng prin
 ### The right path: Phar Deserialization
 Mình cứ mải đi race mà không nghĩ ra DOMDocument hỗ trợ cả file phar, tương tự như trong case [XXE to Phar Deserialize](https://blog.efiens.com/post/doublevkay/xxe-to-phar-deserialization/) khi DOMDocument->loadXML có thể truyền vào phar protocol thì ở đây, DOMDocument->load cũng có thể truyền vào phar protocol -> +1 kiến thức.
 Thiên thời địa lợi nhân hòa, config phar.readonly cũng được tắt => có thể deser file phar:
-![image](https://hackmd.io/_uploads/ByzNl3kNR.png)
+<br>![image](https://hackmd.io/_uploads/ByzNl3kNR.png)<br>
 Nếu như đã hỗ trợ deser phar file, thì mình chỉ cần để file xml của mình vào file phar và nhét vào 1 file ảnh valid là được. Về cách gen file phar như nào thì mình sẽ làm tương tự như chall upload phar file trong root me. Ref: https://thanhlocpanda.wordpress.com/2023/08/07/php-phar-jpeg-polyglot-javascript-jpeg-polyglot-root-me-part-ii/ (pass: thanhlocpanda)
 Đường đi nước bước đã đủ, mình tổng hợp lại attack chain như sau:
 - Gen file ảnh càng ngắn càng tốt
@@ -293,11 +293,11 @@ Mình lấy hex bằng cyberchef và được chuỗi:
 ?>
 ```
 Upload file phar lên server thành công:
-![image](https://hackmd.io/_uploads/B1NAW3J4C.png)
+![image](https://hackmd.io/_uploads/B1NAW3J4C.png)<br>
 Vào list product để lấy tên ảnh, của mình là `/uploads/3e10700de9433bdb.png`
 Request đến cli.php để lụm flag thôi:
 ```
 GET /cli/cli.php?-m+backup+-c+phar:///www/uploads/3e10700de9433bdb.png/a.xml
 ```
-![image](https://hackmd.io/_uploads/Sk35G3yNC.png)
-![image](https://hackmd.io/_uploads/rkSiM3yEC.png)
+![image](https://hackmd.io/_uploads/Sk35G3yNC.png)<br>
+![image](https://hackmd.io/_uploads/rkSiM3yEC.png)<br>

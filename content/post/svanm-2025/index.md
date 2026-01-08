@@ -14,12 +14,11 @@ Là một sinh viên năm 4(.5) chuẩn bị ra trường may mắn được l�
 Phần King of the Hill có 2 challenge web, mình nhìn thấy challenge 1 cần tài khoản Azure và review source code 1 hồi thấy khoai lang vão nên bỏ luôn 🗿. Do đó mình chỉ còn 1 chall web để giành giật điểm là challenge thứ 2: Breach
 ## Breach
 Một challenge Java không outbound với docker cho flag vào cả 2 service web là db, khả năng sẽ có 2 cách để lấy flag:
-![image](https://hackmd.io/_uploads/S1cWtxdlZl.png)
+![image](https://hackmd.io/_uploads/S1cWtxdlZl.png)<br>
 
 Author cũng cung cấp cách để patch challenge là sẽ patch tại 2 file: patchme.groovy và patchme.jsp. Các file jsp sẽ inlcude file patchme.jsp, tương tự với groovy:
-
-![image](https://hackmd.io/_uploads/rkpdheOg-g.png)
-![image](https://hackmd.io/_uploads/Skoh2x_lZl.png)
+![image](https://hackmd.io/_uploads/rkpdheOg-g.png)<br>
+![image](https://hackmd.io/_uploads/Skoh2x_lZl.png)<br>
 
 ### SQL Injection In Function
 Ngay sau khi bắt đầu cuộc thi, mình và teammate đã ngồi vào làm luôn challenge 2 và spot thấy sql injection tại detail_services.jsp:
@@ -109,7 +108,7 @@ CONTEXT:  SQL statement "SELECT convert_from(decode('QQ==', 'base64'), 'UTF8')||
 PL/pgSQL function sdecode(text) line 7 at EXECUTE
 ```
 Mình solve khá muộn, vẫn sau 2 team nên sau khi ra flag ở challenge phải giành giật submit mấy round mới ăn được 1 round:
-![image](https://hackmd.io/_uploads/Sk0M-W_ebl.png)
+![image](https://hackmd.io/_uploads/Sk0M-W_ebl.png)<br>
 Các round đầu thì các vẫn chưa có patch nào, cho đến khi mình nhìn mặt được payload và bắt đầu patch chuẩn chỉ thì bị 1 team unshield xong đớp cái patch. Thành ra giờ mình phải bypass cái patch của chính mình, hoặc là đi tìm bug khác.
 Trong lúc submit, mình và team mình liên tục submit chậm hơn các team khác không chỉ ở category web mà còn ở các chall pwn. Lúc thì bị rate limit, lúc thì `owner already updated!!!` tức đã có team khác submit rồi, chầy chật mãi mới có thể giành lại được thì cũng không tồn tại được quá 1 2 round. Team mình khá cay và phải liên tục sửa script, thêm sleep để không bị ratelimit nhưng vẫn không ăn thua 🗿
 Về sau, có một số cách patch mà teammate mình đã bypass như:
@@ -128,7 +127,6 @@ Tại những round cuối, khi bản patch đã khá chặt thì chỉ còn tea
 - Chỉnh lại Dockerfile của tomcat
 ```dockerfile!
 ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-
 EXPOSE 5005
 ```
 - Bỏ service nginx để vào thẳng tomcat cho tiện, đồng thời expose port 5005 ra ngoài
@@ -150,10 +148,8 @@ networks:
   - internet
   - no-internet
 ```
-- Khi đã thấy remote debug connected mà đặt breakpoint không ăn thì có thể là do chưa chọn class là code base, để set thì mình vào Project Structure. Tại tab Modules chọn phần Dependencies, thêm folder classes vào với option là JARs or Directories là oke:
-
-![image](https://hackmd.io/_uploads/HktCoGueWg.png)
-
+- Khi đã thấy remote debug connected mà đặt breakpoint không ăn thì có thể là do chưa chọn class là code base, để set thì mình vào Project Structure. Tại tab Modules chọn phần Dependencies, thêm folder classes vào với option là JARs or Directories là oke:<br>
+![image](https://hackmd.io/_uploads/HktCoGueWg.png)<br>
 Trong web.xml khai báo các file truy cập từ đường dẫn `/admin` đều sẽ đi qua 2 class AuthFilter và WafFilter:
 ```xml!
 <filter-mapping>
@@ -166,27 +162,22 @@ Trong web.xml khai báo các file truy cập từ đường dẫn `/admin` đề
 </filter-mapping>
 ```
 Class AuthFilter yêu cầu mỗi request đi vào đều có username và password, biến format là cách thức hash mật khẩu để so khớp, nếu không có mặc định là sha1:
-
-![image](https://hackmd.io/_uploads/ByXK6zuxZl.png)
-
+![image](https://hackmd.io/_uploads/ByXK6zuxZl.png)<br>
 Nếu như format được truyền vào thì phải nằm trong `sha1,md5,sha256,sha512`, nếu không sẽ báo lỗi ngay:
-![image](https://hackmd.io/_uploads/B19i6fdeZl.png)
-
+![image](https://hackmd.io/_uploads/B19i6fdeZl.png)<br>
 Check chán chê r mới đến đoạn check thông tin người dùng tại InMemoryUserDB#verifyUser:
-![image](https://hackmd.io/_uploads/Syje0G_lZe.png)
+![image](https://hackmd.io/_uploads/Syje0G_lZe.png)<br>
 Hàm này check username trước bằng cách lấy password của user tương ứng. Sau đó so khớp mật khẩu lưu trữ với mật khẩu truyền vào được hash bằng format ta điều chỉnh. Đồng thời this.users là một map chứa mỗi admin, nên loại bỏ việc crack hash:
-![image](https://hackmd.io/_uploads/ByvU0MdeWx.png)
-
+![image](https://hackmd.io/_uploads/ByvU0MdeWx.png)<br>
 Qua 1 vòng if, tiếp tục kiểm tra thuộc tính protect là true thì kiểm tra role, không phải admin thì trả về lỗi role, cuối cùng nếu dpFilter là true thì mới tiếp tục xử lý:
-![image](https://hackmd.io/_uploads/rknUWmOx-l.png)
+![image](https://hackmd.io/_uploads/rknUWmOx-l.png)<br>
 
 Thuộc tính protect được set bằng logic sau:
 - Lấy URI của request, split từng thư mục theo dấu "/"
 - Set page_type mặc định rỗng, nếu như tên file có nhiều hơn 2 dấu . thì lấy extension sau dấu chấm cuối cùng
 - Check nếu page_type nằm trong protectedPages thì set là true, không thì là false
 Mặc định truyền vào file thông thường như: /admin/index.tpl thì mặc định page_type là "" => chuỗi nào mà chả contains "" nên mặc định protect là true:
-
-![image](https://hackmd.io/_uploads/SJXgZXOx-l.png)
+![image](https://hackmd.io/_uploads/SJXgZXOx-l.png)<br>
 Như vậy, để bypass auth thì phải không được để doFilter là false, để làm được điều đó thì:
 
 ***Bypass verifyUser***
@@ -231,20 +222,13 @@ if (!"sha1,md5,sha256,sha512".contains(format))
 ```
 Giá trị được check để **contains** trong chuỗi kia, nếu như ta truyền vào `,sha512` thì sao?
 Đoạn check if contains sẽ được pass, chương trình gọi đến verifyUser:
-
-![image](https://hackmd.io/_uploads/SyljEX_g-x.png)
-
+![image](https://hackmd.io/_uploads/SyljEX_g-x.png)<br>
 Tại đây mật khẩu được lấy từ user tương ứng, không sẽ return false => auth failed1! Nên username truyền vào cần phải là `admin`. Hàm check tiếp tục nhảy vào hàm hashPassword:
-
-![image](https://hackmd.io/_uploads/BkIyVQOlZl.png)
-
+![image](https://hackmd.io/_uploads/BkIyVQOlZl.png)<br>
 Hàm hashPassword sẽ check format truyền vào có phải một thuật toán hash hợp lệ trong MessageDigest không:
-
-![image](https://hackmd.io/_uploads/Bk_W4QOgZl.png)
-
+![image](https://hackmd.io/_uploads/Bk_W4QOgZl.png)<br>
 Do `,sha512` không valid nên sẽ raise exception `,sha512 MessageDigest not available`, từ đó bypass được đoạn whitelist if đầu:
-
-![image](https://hackmd.io/_uploads/HyOGVXdlWe.png)
+![image](https://hackmd.io/_uploads/HyOGVXdlWe.png)<br>
 ***Set protect = false***
 
 Xem lại web.xml, các file có extension như sau được handle bởi class EditContentParser
@@ -272,21 +256,17 @@ Xem lại web.xml, các file có extension như sau được handle bởi class 
 </servlet-mapping>
 ```
 Khi gặp các file này, class call method service, thực hiện parse URI để lấy ra tên file cần hiển thị. Nhưng vấn là ở đây page_type lại được lấy là phần tử tiên sau dấu chấm, ngược lại với logic xử lý `protect`:
-
-![image](https://hackmd.io/_uploads/rkWIDQOxZe.png)
-
+![image](https://hackmd.io/_uploads/rkWIDQOxZe.png)<br>
 Để `protect` là false, ta cần phải truyền vào file có 2 extension:
 - Extension thứ 2 không phải là groovy => page, tpl, htm đều được
 - Extension thứ nhất là extension đúng của file cần truy cập
 
 Kết hợp cả 2 điều kiện, ta có request bypass authen để truy cập file /admin/index.html:
-
-![image](https://hackmd.io/_uploads/SybIOXdeWg.png)
+![image](https://hackmd.io/_uploads/SybIOXdeWg.png)<br>
 
 #### SSTI In Velocity
 Trong các file có thể truy cập, tồn tại editPage.groovy cho phép tạo file .page có nội dung tùy ý truy cập được từ webroot => SSTI Velocity:
-
-![image](https://hackmd.io/_uploads/Sk_ktm_xWg.png)
+![image](https://hackmd.io/_uploads/Sk_ktm_xWg.png)<br>
 
 Vấn đề còn lại là bypass đống blacklist này nữa thôi:
 ```java!
@@ -312,13 +292,11 @@ private boolean containsBlacklisted(String input) {
     }
 }
 ```
-Đa số các payload Velocity SSTI đều dùng forName để call class, để bypass thì mình đã chọn sử dụng classloader. Sau một hồi fuzz tùm lum, mình tìm được object $request chứa instance của class RequestFacade:
-
-![image](https://hackmd.io/_uploads/H1DecXOlbe.png)
+Đa số các payload Velocity SSTI đều dùng forName để call class, để bypass thì mình đã chọn sử dụng classloader. Sau một hồi fuzz tùm lum, mình tìm được object $request chứa instance của class RequestFacade:<br>
+![image](https://hackmd.io/_uploads/H1DecXOlbe.png)<br>
 
 Từ đây có thể call đến object URLClassLoader thông qua payload `$request.servletContext.class.classLoader`:
-
-![image](https://hackmd.io/_uploads/BJH497ugZe.png)
+![image](https://hackmd.io/_uploads/BJH497ugZe.png)<br>
 
 Việc khó đã làm được, giờ mình sẽ dùng nó để load class java.lang.Runtime, lấy command từ header 1337:
 ```java!
@@ -337,18 +315,15 @@ Việc khó đã làm được, giờ mình sẽ dùng nó để load class java
 #set($next = $scClass.getMethod("next"))
 $next.invoke($sc)
 ```
-![image](https://hackmd.io/_uploads/r1VF57_g-e.png)
-Finally, RCE:
+![image](https://hackmd.io/_uploads/r1VF57_g-e.png)<br>
+Finally, RCE:<br>
+![image](https://hackmd.io/_uploads/rkD95Xdx-g.png)<br>
 
-![image](https://hackmd.io/_uploads/rkD95Xdx-g.png)
-
-Đớp flag trên server:
-
-![image](https://hackmd.io/_uploads/r13xo7ugbl.png)
-
+Đớp flag trên server:<br>
+![image](https://hackmd.io/_uploads/r13xo7ugbl.png)<br>
 Ra đến bước này thì cuộc thi cũng kết thúc rồi, thôi thì +1 kiến thức vậy
 ## Kết thúc
 Trong khoảng thời gian 8 tiếng, ngoài challenge web2 thì mình có vọc Lucky Star nữa mà không confirm được đã RCE con Sharepoint hay chưa, coi như là tốn thêm thời gian mà không có thành quả gì. 
 Ngậm ngùi kết thúc ở vị trí thứ 6, mình cũng chỉ biết tự trách bản thân thôi 🗿
-![image](https://hackmd.io/_uploads/S1PUdlulZx.png)
+![image](https://hackmd.io/_uploads/S1PUdlulZx.png)<br>
 Đây là bài học cho bản thân về việc không chuẩn bị kĩ trước một format thi mới, cũng như sự thiếu quyết đoán khi sử dụng tool unshield,... dẫn đến kết quả không như mong muốn. Hi vọng rằng các khóa sau sẽ không mắc phải sai lầm như mình nữa.

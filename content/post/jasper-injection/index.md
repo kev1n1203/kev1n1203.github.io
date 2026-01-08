@@ -45,7 +45,7 @@ Các expression này sẽ được trigger trong quá trình render file JRXML s
 #### Ví dụ
 Để ví dụ thêm trực quan, mình có một đoạn code spring đơn giản, phục vụ việc upload 1 file JRXML và trả về file report.pdf
 Mình sử dụng Jasper phiên bản 6.21.4 là ver mới nhất của dòng 6., vì mình thấy dòng 6. hiện đang được sử dụng nhiều nhất.
-![image](https://hackmd.io/_uploads/BykfHMEnJg.png)
+![image](https://hackmd.io/_uploads/BykfHMEnJg.png)<br>
 Sử dụng luôn ví dụ bên trên, thay vì sử dụng thẻ `<text>` để hiển thị nội dung tĩnh trong field `<staticText>`, mình sẽ sử dụng thẻ `<textFieldExpression>` dùng để diễn đạt nội dung bên trong thẻ `<textField>`, đại khái lúc này file JRXML sẽ như sau:
 ```xml!
 <?xml version="1.0" encoding="UTF-8"?>
@@ -60,33 +60,33 @@ Sử dụng luôn ví dụ bên trên, thay vì sử dụng thẻ `<text>` để
     </detail>
 </jasperReport>
 ```
-![image](https://hackmd.io/_uploads/Hkf4HfEnyl.png)
+![image](https://hackmd.io/_uploads/Hkf4HfEnyl.png)<br>
 Tải file PDF về và output câu lệnh sẽ hiển thị ra ngoài:
-![image](https://hackmd.io/_uploads/rkv90a7h1l.png)
+![image](https://hackmd.io/_uploads/rkv90a7h1l.png)<br>
 Ngoài cách tấn công này ra thì một số bài viết trên mạng thì đa số họ sẽ tấn công vào thẻ `<variableExpression>` trong quá trình khai báo biến `<variable>`, nên mình sẽ không nhắc đến nó nữa, mình sẽ để chúng ở trong phần ref để các bạn có thể tham khảo thêm.
 ## Bypasses
 Giả sử như dev giờ đã biết được tầm nghiêm trọng của vấn đề và có một số biện pháp phòng thủ, mình sẽ đưa ra một số phương pháp có thể bypass cơ chế phòng thủ như sau:
 ### Expression Attribute
 Hướng đầu tiên mà mình nghĩ đến trong các trick bypass đó là sử dụng các thẻ khác ngoài những thẻ đã có sẵn payload trên mạng. JasperReports có kha khá các expression khác mà mình có thể lợi dụng, vì bản thân trường dữ liệu nào cũng cần có nhu cầu hiển thị và xử lý dữ liệu linh hoạt.
 Ta có thể sử dụng attribute defaultValueExpression bên trong thẻ `<parameter>`, rồi call tại thẻ textField quen thuộc. Để call đến param, trong textFieldExpression mình sẽ sử dụng cú pháp `$P{Tên param}`:
-![image](https://hackmd.io/_uploads/SyuawfNh1x.png)
+![image](https://hackmd.io/_uploads/SyuawfNh1x.png)<br>
 Tại thẻ variable thì còn một expression nữa ngoài variableExpression là initialValueExpression cũng có thể chèn code, call đến variable thông qua syntax `$V{Tên variable}`:
-![image](https://hackmd.io/_uploads/SkZ-FfNhyl.png)
+![image](https://hackmd.io/_uploads/SkZ-FfNhyl.png)<br>
 Một lưu ý nhỏ là để in ra giá trị variable thì textfield sẽ được khai báo bên trong thẻ `<title>`, nếu sử dụng `<detail>` sẽ luôn hiển thị giá trị null
-![image](https://hackmd.io/_uploads/ByX33fN2Je.png)
-![image](https://hackmd.io/_uploads/BkQkTzEhJx.png)
+![image](https://hackmd.io/_uploads/ByX33fN2Je.png)<br>
+![image](https://hackmd.io/_uploads/BkQkTzEhJx.png)<br>
 Mò mẫm document, mình thấy nếu như không nhất thiết phải lấy output của câu lệnh thì tồn tại một số Expression đặc thù có thể lợi dụng để RCE, nhưng nó sẽ gây ra lỗi. Attribute imageExpression thuộc thẻ `<image>` vốn được sử dụng để Jasper có thể lấy ảnh từ một URL xác định dạng String, khi không đáp ứng đúng dữ liệu yêu cầu, câu lệnh sẽ trả về lỗi nên mình vẫn có thể lợi dụng để thực hiện các câu lệnh blind để confirm.
 Tại đây vì mình truyền vào Runtime.getRuntime().exec(), output trả về sẽ là một object thuộc ProcessImpl nên chương trình sẽ văng ra lỗi như sau:
-![image](https://hackmd.io/_uploads/BJXTSDNnkx.png)
+![image](https://hackmd.io/_uploads/BJXTSDNnkx.png)<br>
 Nếu như set up để câu lệnh trả về dữ liệu, Jasper khi cố gắng truy cập URL để lấy byte ảnh về thất bại cũng sẽ văng ra lỗi, tuy nhiên mình thấy extract thông tin 1 dòng thì có vẻ không giòn lắm:
-![image](https://hackmd.io/_uploads/rJRUIP4h1l.png)
+![image](https://hackmd.io/_uploads/rJRUIP4h1l.png)<br>
 Tiếp đến là attribute printWhenExpression có thể được khai báo trong thẻ `<band>` hoặc `<reportElement>`, sử dụng khi ta chỉ muốn dữ liệu được in ra theo một điều kiện nhất định, nên nó yêu cầu cần trả về giá trị kiểu Boolean hoặc giá trị null. Việc truyền java code vào attribute này cũng sẽ gây lỗi lúc render PDF nên ta ưu tiên bằng một số câu lệnh blind như curl, ping,...
-![image](https://hackmd.io/_uploads/HJHsvwVnyx.png)
-![image](https://hackmd.io/_uploads/S1ZTvPNnkx.png)
+![image](https://hackmd.io/_uploads/HJHsvwVnyx.png)<br>
+![image](https://hackmd.io/_uploads/S1ZTvPNnkx.png)<br>
 Attribute conditionExpression thuộc thẻ `<style> -> <conditionalStyle>` có tác dụng mô tả điều kiện để áp dụng một style cho dữ liệu cụ thể, cũng yêu cầu dữ liệu trả về Boolean. Để trigger được điều kiện này, ta cần một element trong file JRXML áp dụng style đã inject, tại đây mình PoC với thẻ textField cho tiện:
-![image](https://hackmd.io/_uploads/H1WDiwE3yx.png)
+![image](https://hackmd.io/_uploads/H1WDiwE3yx.png)<br>
 Nếu như ta muốn thay đổi cách hiển thị của một vùng dữ liệu, ta có thể sử dụng propertyExpression để mô tả điều kiện cũng như quy định cách biến đổi. Đồng thời cũng là một nơi để chèn code. Tuy trả về kiểu String, expression này không phải là một giá trị hiển thị mà chỉ có thể thiết lập thuộc tính cho giá trị đó. Khi sử dụng mình vẫn nên ưu tiên các câu lệnh out bound để confirm bug sẽ tốt hơn:
-![image](https://hackmd.io/_uploads/Hkt-guVh1g.png)
+![image](https://hackmd.io/_uploads/Hkt-guVh1g.png)<br>
 Ngoài những expression mình đã liệt kê cách khai thác ở bên trên, vẫn còn nhiều các expression khác như: dataSourceExpression, filterExpression, anchorNameExpression,... Mỗi loại sẽ được trigger trong một thẻ và dưới điều kiện cụ thể, các bạn có thể tùy vào luồng nghiệp vụ của báo cáo để đa dạng hóa nơi chèn code, bypass các blacklist nếu có.
 ### Jasper compiler
 Trong một file JRXML, có một thuộc tính của thẻ root mà mình chưa đề cập đến ở bên trên, nó là `language` - tức ngôn ngữ xử lý các expression xuất hiện trong JasperReports. Nếu không được khai báo thì ngôn ngữ mặc định sẽ là Java (cũng là ngôn ngữ mà mình sử dụng demo ở những phần trên). Tuy nhiên, Jasper hỗ trợ xử lý thêm 3 loại ngôn ngữ khác, khi được khai báo trong `language` thì chúng sẽ được xử lý với compiler tương ứng, đó là:
@@ -115,10 +115,10 @@ Cụ thể thì mình sử dụng version sau:
 #### Groovy
 Để Jasper sử dụng groovy làm ngôn ngữ biên dịch code trong các expression, ta thêm property `language="groovy"`, cũng như hệ thống có chứa lib hỗ trợ xử lý Groovy.
 Mình ví dụ một payload chạy lệnh notepad thông qua method `.execute()` trong groovy:
-![image](https://hackmd.io/_uploads/HkfI_SLnJl.png)
+![image](https://hackmd.io/_uploads/HkfI_SLnJl.png)<br>
 Lưu ý là mình không sử dụng được lệnh println để in ra kết quả câu lệnh, chẳng hạn như: `println("${"cmd /c ver".execute().text}"` sẽ hiển thị output câu lệnh tại server console, còn tại PDF nội dung sẽ là null:
-![image](https://hackmd.io/_uploads/H1tXtS8n1x.png)
-![image](https://hackmd.io/_uploads/rk9HtBI3yg.png)
+![image](https://hackmd.io/_uploads/H1tXtS8n1x.png)<br>
+![image](https://hackmd.io/_uploads/rk9HtBI3yg.png)<br>
 Ngoài việc thực hiện lệnh, mình cũng có thể ghi file nếu như biết đường dẫn bằng `newFile("path/to/shell").write('1337')`, hoặc nhiều các tác vụ file khác. Mình nghĩ nên dùng các native syntax code của từng ngôn ngữ thay vì thực thi câu lệnh để tránh việc bị bên blue phát hiện sớm (nếu có).
 #### Javascript
 Bản thân javascript không có native syntax để execute command, nên mình sẽ lợi dụng khả năng gọi Java trong javascript để call các package thông qua syntax `Packages`, cái này khá hữu ích khi bên họ chặn theo kiểu blacklist 1 chuỗi method `Runtime.getRuntime().exec()` hoặc tương tự.
@@ -139,40 +139,40 @@ p.waitFor();
 output;
 ```
 Tại PDF mình đã có thể lấy hết đc output câu lệnh:
-![image](https://hackmd.io/_uploads/ryswnUIhyg.png)
+![image](https://hackmd.io/_uploads/ryswnUIhyg.png)<br>
 ### Multi-line Code Injection
 Nếu như các bạn để ý thì khi chèn Java và Groovy code thì hầu như mình luôn ưu tiên dùng one-line code, bởi vì đôi khi sử dụng dấu `;` thì sẽ xảy ra lỗi thực thi, lúc trước mình chưa hiểu tại sao nên cũng tạm thời bỏ qua mà sử dụng one-line code.
 Tuy nhiên, việc chèn nhiều hơn 1 câu lệnh sẽ cần thiết nếu như ta muốn sử dụng native code để thực hiện reverse shell, download file, upload file,... thay vì chạy lệnh hệ thống. Nên mình cũng ngồi mày mò debug để nắm rõ vấn đề.
 #### Java
 Mình sẽ truyền vào `1337;;;` tại textFieldExpression để thử đã.
 Với cả 2 ngôn ngữ, việc expression được biến thành source code như thế nào nào sẽ nằm tại method `compileReport`, mình đặt breakpoint từ nó để debug:
-![image](https://hackmd.io/_uploads/SkcsJvU31e.png)
+![image](https://hackmd.io/_uploads/SkcsJvU31e.png)<br>
 Từ JasperCompileManager#compileReport, Jasper kiểm tra ngôn ngữ để chọn đúng Compiler cho report. Vì đây là Java nên Jasper sẽ sử dụng JRJdtCompiler#generateSourceCode
-![image](https://hackmd.io/_uploads/HJFklPIhJg.png)
+![image](https://hackmd.io/_uploads/HJFklPIhJg.png)<br>
 Tiếp tục call đến JRClassGenerator#generateClass, các method và param sẽ được thiết lập tại đây bằng một loạt các method generate:
-![image](https://hackmd.io/_uploads/ry6bgPLn1g.png)
+![image](https://hackmd.io/_uploads/ry6bgPLn1g.png)<br>
 Nhảy vào JRClassGenerator#generateMethod, mình đã thấy nơi xử lý code có trong expression, đó là thông qua method JRClassGenerator#writeExpression
-![image](https://hackmd.io/_uploads/S1SBeDInkg.png)
+![image](https://hackmd.io/_uploads/S1SBeDInkg.png)<br>
 Câu lệnh của mình được đưa vào lệnh case, với số case được lấy từ expression Id, còn giá trị thì nối chuỗi với đoạn code `value = ...`, sau đó break ra ngoài
-![image](https://hackmd.io/_uploads/SyRFgPU2yx.png)
+![image](https://hackmd.io/_uploads/SyRFgPU2yx.png)<br>
 Nếu vậy thì với Java để chèn thêm code mình nghĩ khá đơn giản, chỉ cần đưa cho value một chuỗi ban đầu rồi xuống dòng viết tiếp lệnh là được:
-![image](https://hackmd.io/_uploads/S1ylEvU31x.png)
+![image](https://hackmd.io/_uploads/S1ylEvU31x.png)<br>
 #### Groovy
 Tuy nhiên khi sử dụng cách đó với groovy thì không thành công:
-![image](https://hackmd.io/_uploads/BkT8qvLnJg.png)
+![image](https://hackmd.io/_uploads/BkT8qvLnJg.png)<br>
 Điểm khác biệt nằm tại JRGroovyGenerator#writeExpression, lúc này code được đưa vào `value = (` và đồng thời có một dấu `);` kết thúc trong câu lệnh `if`, câu lệnh bị lỗi do mình chưa đóng ngoặc value lại:
-![image](https://hackmd.io/_uploads/BJ0cqPL3kx.png)
+![image](https://hackmd.io/_uploads/BJ0cqPL3kx.png)<br>
 Để chạy được multi-line ở groovy, mình cần thêm `);` sau chuỗi, đồng thời comment lại dấu `);` đằng sau để không trigger lỗi syntax:
-![image](https://hackmd.io/_uploads/ryDkhvUnJg.png)
-![image](https://hackmd.io/_uploads/ry3e3vInkg.png)
+![image](https://hackmd.io/_uploads/ryDkhvUnJg.png)<br>
+![image](https://hackmd.io/_uploads/ry3e3vInkg.png)<br>
 
 => Khi sử dụng multi-line code tại Java và Groovy, ta đã ngắt câu lệnh value tức giá trị trả về của textFeild là chuỗi tại dòng đầu tiên, nên để lấy được output, mình sẽ cần phải set lại giá trị cho biến value bên trên.
 Ví dụ tại Java, mình sẽ gán lại giá trị cho value bằng output câu lệnh `cmd /c ver`:
-![image](https://hackmd.io/_uploads/H13NuO8nJe.png)
-![image](https://hackmd.io/_uploads/Byde__Inyx.png)
+![image](https://hackmd.io/_uploads/H13NuO8nJe.png)<br>
+![image](https://hackmd.io/_uploads/Byde__Inyx.png)<br>
 Tương tự với Groovy, mình gán lại output của def cmd vào là có thể lấy hết output:
-![image](https://hackmd.io/_uploads/Bya-tOIhkx.png)
-![image](https://hackmd.io/_uploads/r1M4tdI3yx.png)
+![image](https://hackmd.io/_uploads/Bya-tOIhkx.png)<br>
+![image](https://hackmd.io/_uploads/r1M4tdI3yx.png)<br>
 
 ## Kết luận
 Tùy vào tình hình cụ thể của hệ thống mà mình sẽ đưa ra lựa chọn nên tấn công theo cách bypass nào. Cũng như có thể kết hợp việc sử dụng ngôn ngữ khác và thẻ lạ để da dạng hóa cách thức tấn công, khiến cho việc truy vết trở nên khó khăn hơn. Mình mong bài viết của mình sẽ cung cấp cho mọi người những kiến thức tổng quan về Jasper, từ đó có thể tìm được thêm nhiều kiểu bypass khác nữa.
