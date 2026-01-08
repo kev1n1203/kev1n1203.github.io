@@ -162,7 +162,7 @@ Trong web.xml khai báo các file truy cập từ đường dẫn `/admin` đề
 </filter-mapping>
 ```
 Class AuthFilter yêu cầu mỗi request đi vào đều có username và password, biến format là cách thức hash mật khẩu để so khớp, nếu không có mặc định là sha1:
-![image](https://hackmd.io/_uploads/ByXK6zuxZl.png)<br>
+<br>![image](https://hackmd.io/_uploads/ByXK6zuxZl.png)<br>
 Nếu như format được truyền vào thì phải nằm trong `sha1,md5,sha256,sha512`, nếu không sẽ báo lỗi ngay:
 ![image](https://hackmd.io/_uploads/B19i6fdeZl.png)<br>
 Check chán chê r mới đến đoạn check thông tin người dùng tại InMemoryUserDB#verifyUser:
