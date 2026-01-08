@@ -17,7 +17,7 @@ Một challenge Java không outbound với docker cho flag vào cả 2 service w
 ![image](https://hackmd.io/_uploads/S1cWtxdlZl.png)<br>
 
 Author cũng cung cấp cách để patch challenge là sẽ patch tại 2 file: patchme.groovy và patchme.jsp. Các file jsp sẽ inlcude file patchme.jsp, tương tự với groovy:
-![image](https://hackmd.io/_uploads/rkpdheOg-g.png)<br>
+<br>![image](https://hackmd.io/_uploads/rkpdheOg-g.png)<br>
 ![image](https://hackmd.io/_uploads/Skoh2x_lZl.png)<br>
 
 ### SQL Injection In Function
@@ -170,7 +170,7 @@ Check chán chê r mới đến đoạn check thông tin người dùng tại In
 Hàm này check username trước bằng cách lấy password của user tương ứng. Sau đó so khớp mật khẩu lưu trữ với mật khẩu truyền vào được hash bằng format ta điều chỉnh. Đồng thời this.users là một map chứa mỗi admin, nên loại bỏ việc crack hash:
 ![image](https://hackmd.io/_uploads/ByvU0MdeWx.png)<br>
 Qua 1 vòng if, tiếp tục kiểm tra thuộc tính protect là true thì kiểm tra role, không phải admin thì trả về lỗi role, cuối cùng nếu dpFilter là true thì mới tiếp tục xử lý:
-![image](https://hackmd.io/_uploads/rknUWmOx-l.png)<br>
+<br>![image](https://hackmd.io/_uploads/rknUWmOx-l.png)<br>
 
 Thuộc tính protect được set bằng logic sau:
 - Lấy URI của request, split từng thư mục theo dấu "/"
@@ -263,11 +263,9 @@ Khi gặp các file này, class call method service, thực hiện parse URI đ�
 
 Kết hợp cả 2 điều kiện, ta có request bypass authen để truy cập file /admin/index.html:
 ![image](https://hackmd.io/_uploads/SybIOXdeWg.png)<br>
-
 #### SSTI In Velocity
 Trong các file có thể truy cập, tồn tại editPage.groovy cho phép tạo file .page có nội dung tùy ý truy cập được từ webroot => SSTI Velocity:
 ![image](https://hackmd.io/_uploads/Sk_ktm_xWg.png)<br>
-
 Vấn đề còn lại là bypass đống blacklist này nữa thôi:
 ```java!
 private static final List<String> BLACKLIST = Arrays.asList("runtime", "processbuilder", "eval", "forName", "scriptEngine", "parse", "include");
@@ -294,10 +292,8 @@ private boolean containsBlacklisted(String input) {
 ```
 Đa số các payload Velocity SSTI đều dùng forName để call class, để bypass thì mình đã chọn sử dụng classloader. Sau một hồi fuzz tùm lum, mình tìm được object $request chứa instance của class RequestFacade:<br>
 ![image](https://hackmd.io/_uploads/H1DecXOlbe.png)<br>
-
 Từ đây có thể call đến object URLClassLoader thông qua payload `$request.servletContext.class.classLoader`:
 ![image](https://hackmd.io/_uploads/BJH497ugZe.png)<br>
-
 Việc khó đã làm được, giờ mình sẽ dùng nó để load class java.lang.Runtime, lấy command từ header 1337:
 ```java!
 #set($cl = $request.servletContext.class.classLoader)
@@ -318,7 +314,6 @@ $next.invoke($sc)
 ![image](https://hackmd.io/_uploads/r1VF57_g-e.png)<br>
 Finally, RCE:<br>
 ![image](https://hackmd.io/_uploads/rkD95Xdx-g.png)<br>
-
 Đớp flag trên server:<br>
 ![image](https://hackmd.io/_uploads/r13xo7ugbl.png)<br>
 Ra đến bước này thì cuộc thi cũng kết thúc rồi, thôi thì +1 kiến thức vậy
