@@ -42,11 +42,12 @@ Với hàm sanitize_input, mình sẽ không thể thoát khỏi được sự k
       document.forms[0].submit();
 </script>
 ```
-<br>![image](https://hackmd.io/_uploads/HkZe_JQsJg.png)<br>
+![image](https://hackmd.io/_uploads/HkZe_JQsJg.png)<br>
 - Ném cho con bot link html này là được:
-<br>![image](https://hackmd.io/_uploads/SyWd_y7ikx.png)<br>
-<br>![image](https://hackmd.io/_uploads/rkg9_Jms1e.png)<br>
-Đã có thể đưa cho con bot payload, giờ mình sẽ tìm cách bypass XSS. Mình đã nghĩ không thể nào chèn thêm được cái gì vào cái URL kia, nên ý tưởng ban đầu của mình là trigger sự kiện onfocus bằng cách thêm fragment là id của thẻ đó vào URL ([Document](https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all)), sau đó XSS tại trang mà nó redirect sang là behindthename.com
+![image](https://hackmd.io/_uploads/SyWd_y7ikx.png)<br>
+![image](https://hackmd.io/_uploads/rkg9_Jms1e.png)<br>
+
+Đã có thể đưa cho con bot payload, giờ mình sẽ tìm cách bypass XSS. Mình đã nghĩ không thể nào chèn thêm được cái gì vào cái URL kia, nên ý tưởng ban đầu của mình là trigger sự kiện onfocus bằng cách thêm fragment là id của thẻ đó vào URL ([Document](https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all)), sau đó XSS tại trang mà nó redirect sang là behindthename.com:
 <br>![image](https://hackmd.io/_uploads/rkxXFkQikg.png)<br>
 Ai cũng biết là idea này không giòn tí nào, site kia không dính XSS, cũng như mình vẫn bị filter nên không điền đc payload tùy ý.
 Nhìn lại filter, mình đã quên mất là nó không hề filter nháy kép mà chỉ thêm `\` vào trước, mình hoàn toàn có thể bypass bằng `\"` rồi comment đoạn đằng sau lại là có thể XSS:
@@ -55,7 +56,7 @@ JS code sẽ được trigger trước khi redirect sang https://www.behindthena
 <br>![image](https://hackmd.io/_uploads/rkOyqkXoJg.png)<br>
 Giờ thì chỉ cần fetch thôi, lưu ý vì chall chặn cả `:` nên khi fetch có thể bỏ `https:` đi mà chỉ cần `//URL` là được:
 <br>![image](https://hackmd.io/_uploads/r1zjn1Xo1x.png)<br>
-<br>![image](https://hackmd.io/_uploads/HJ4ahk7ikx.png)<br>
+![image](https://hackmd.io/_uploads/HJ4ahk7ikx.png)<br>
 Giờ thì lấy token của bot thôi:
 ```html!
 <form action="http://127.0.0.1:5000/your-name#behindthename-redirect" method="POST">
@@ -66,7 +67,7 @@ Giờ thì lấy token của bot thôi:
 </script>
 ```
 <br>![image](https://hackmd.io/_uploads/SkhzJe7skl.png)<br>
-<br>![image](https://hackmd.io/_uploads/BycDWxmo1x.png)<br>
+![image](https://hackmd.io/_uploads/BycDWxmo1x.png)<br>
 Mình đã có X-Admin-Token là 8657e9a9dec84afb8710a1a4a9e09efb
 ### Format String Python
 Với X-Admin-Token, mình đã có thể truy cập được route `/admin`
@@ -145,7 +146,7 @@ Sau khi đọc qua một lượt, mình tập trung chủ yếu vào file Api/Re
 Còn Security mình không để ý lắm vì đoạn code filter XML khá dài và lan man, còn file upload thì nghỉ đi vì họ whitelist rồi.
 Tại route /api/orders/search sử dụng method searchOrders, ta có thể khai thác SQL Injection qua param limit:
 <br>![image](https://hackmd.io/_uploads/ryg-KBXike.png)<br>
-<br>![image](https://hackmd.io/_uploads/S1OGFB7s1g.png)<br>
+![image](https://hackmd.io/_uploads/S1OGFB7s1g.png)<br>
 Tại đây searchOrders gọi đến function search trong model Order, giá trị của param limit được nối vào mà không có filter gì:
 <br>![image](https://hackmd.io/_uploads/B1vTYH7j1x.png)<br>
 Không như tính năng search của model Product, param limit được ép về int trước khi nối chuỗi:
@@ -156,7 +157,7 @@ Mình lập tức nghĩ đến việc write file to RCE với into dumpfile ho�
 <br>![image](https://hackmd.io/_uploads/Hk9uZP7sJl.png)<br>
 Nhìn thấy bảng users có admin, mình đổi mật khẩu admin thành 12345678 để log in luôn:
 <br>![image](https://hackmd.io/_uploads/B16JpBQjyx.png)<br>
-<br>![image](https://hackmd.io/_uploads/SJQQCSXoJx.png)<br>
+![image](https://hackmd.io/_uploads/SJQQCSXoJx.png)<br>
 ```sql!
 update users set password = '$2y$10$sB/I2oDHtik8W2fWX3odE.FSDq9fGJ6U5HWOMfhSIhLkYMNY.0o5m' where username='admin'
 ```
@@ -250,4 +251,4 @@ Có 3 function của less sử dụng method này, bao gồm:
 <br>![image](https://hackmd.io/_uploads/Hkh0VPQjJx.png)<br>
 Nên ngoài data-uri(), ta hoàn toàn có thể sử dụng 3 function này, cách sử dụng cũng tương tự, tuy nhiên sẽ văng ra kha khá lỗi:
 <br>![image](https://hackmd.io/_uploads/rk7dHvXi1x.png)<br>
-<br>![image](https://hackmd.io/_uploads/H17jHDmo1e.png)<br>
+![image](https://hackmd.io/_uploads/H17jHDmo1e.png)

@@ -164,7 +164,7 @@ Như vậy, ta đã có thể craft thành payload SQL Injection, để tránh g
 ![image](https://hackmd.io/_uploads/B1-025jl1x.png)<br>
 Từ response của server, ta có được 3 cột của bảng là id, hero_name và hero_power. Đặc biệt trong đó cột hero_name có thể chứa chuỗi.
 Theo blog thì payload có thể attack kiểu Union based nên mình cũng nhóm thêm union select và kết quả show ra thông tin, tiện cho mình để dump db:
-![image](https://hackmd.io/_uploads/B1at69jxkg.png)<br>
+<br>![image](https://hackmd.io/_uploads/B1at69jxkg.png)<br>
 ![image](https://hackmd.io/_uploads/rkUyyjslyx.png)<br>
 Công việc gần như đã xong, giờ mình sẽ đi mò xem flag ở đâu, nếu như không cho dùng xp_cmdshell để RCE thì chắc flag sẽ nằm ở 1 bảng nào đó.
 Xác định được bảng `flags`:
