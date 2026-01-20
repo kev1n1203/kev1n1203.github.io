@@ -40,13 +40,13 @@ Username: sql_service
 ```
 ### SQL Server
 Join Domain và set DNS.
-Tải SQL Server Express bản Advanced để cài luôn cả thể Management Studio. Link tải: https://www.microsoft.com/en-us/download/details.aspx?id=43351
-Tại đây chọn SQLEXPRADV_x64_ENU.exe và cài đặt như bình thường.
-Lưu ý: Để không bị lỗi `The SQL Server service account login or password is not valid. Use SQL Server Configuration Manager to update the service account.` khi set người dùng DC\sql_service cho SQL Server Database Engine thì sử dụng WinServer 2012 để set up, dùng Win10 sẽ bị lỗi (mình không hiểu vì sao)
+Tải SQL Server Express bản Advanced để cài luôn cả thể Management Studio. Link tải: https://www.microsoft.com/en-us/download/details.aspx?id=43351<br>
+Tại đây chọn SQLEXPRADV_x64_ENU.exe và cài đặt như bình thường.<br>
+Lưu ý: Để không bị lỗi `The SQL Server service account login or password is not valid. Use SQL Server Configuration Manager to update the service account.` khi set người dùng DC\sql_service cho SQL Server Database Engine thì sử dụng WinServer 2012 để set up, dùng Win10 sẽ bị lỗi (mình không hiểu vì sao).<br>
 Còn lại config theo hướng dẫn của anh Jang và a TàiDH
 ### Sharepoint Server
-Join Domain và set DNS.
-Link download file img sharepoint: https://www.microsoft.com/en-us/evalcenter/download-sharepoint-server-2013 => Chọn bản English
+Join Domain và set DNS.<br>
+Link download file img sharepoint: https://www.microsoft.com/en-us/evalcenter/download-sharepoint-server-2013 => Chọn bản English<br>
 WinServer 2012 dính rất nhiều lỗi khi set up SharePoint Server 2013:
 #### Lỗi set role IIS
 ```!
@@ -71,7 +71,7 @@ Add-WindowsFeature Net-Framework-Features,Web-Server,Web-WebServer,Web-Common-Ht
 
 "C:\Windows\system32\iisreset.exe" /noforce
 ```
-Có thể tự chạy xong rồi restart máy cài tiếp (biện pháp cuối cùng)
+Có thể tự chạy xong rồi restart máy cài tiếp (biện pháp cuối cùng)<br>
 Lưu ý: Không tắt ServerManager khi đang install. Nếu như install thấy lâu chứng tỏ đang chết tại bước set Role này, nó đang đợi kết quả trả về
 #### Lỗi khi download các package
 Khi download các package như SQL Server Native Client và các package sau sẽ liên tục dính lỗi vì WinServer 2012 đã cũ và không thực hiện kết nối được site go.microsoft.com (WinServer 2012 có vấn đề gì đấy với TLS1.2)
@@ -84,7 +84,7 @@ Khi download các package như SQL Server Native Client và các package sau s�
 2025-09-19 07:07:02 - Error: Download failed (0)
 2025-09-19 07:07:02 - Last return code (-1)
 ```
-Đến đoạn này thì khi gặp lỗi ở đâu mình sẽ copy link download fail tại file log và tải ở ngoài, sau đó tự cài các package vào.
+Đến đoạn này thì khi gặp lỗi ở đâu mình sẽ copy link download fail tại file log và tải ở ngoài, sau đó tự cài các package vào.<br>
 Đây là các package mình đã tải:
 <br>![image](https://hackmd.io/_uploads/HJvyZG3ogl.png)<br>
 Các file msi thì có thể chạy ngay, sau đó restart máy cài tiếp.
@@ -103,16 +103,16 @@ Cấu hình Sharepoint theo mặc định. Tại bước Database server nhập 
 Tiếp tục tạo site test collection:
 <br>![image](https://hackmd.io/_uploads/Skme_qJrbx.png)<br>
 ## II. ToolShell in Sharepoint
-Do lần đầu vọc Sharepoint, mình đã đi tìm một CVE có poc sẵn để thực hiện khai thác, sau đó mình chọn bug ToolShell vì nó có ảnh hưởng đến tất cả version của Sharepoint 2013. Bug này trigger chỉ bằng 1 request, gồm 2 bước: Bypass Authen và Deserialize to RCE.
+Do lần đầu vọc Sharepoint, mình đã đi tìm một CVE có poc sẵn để thực hiện khai thác, sau đó mình chọn bug ToolShell vì nó có ảnh hưởng đến tất cả version của Sharepoint 2013. Bug này trigger chỉ bằng 1 request, gồm 2 bước: Bypass Authen và Deserialize to RCE.<br>
 Để tiến hành debug và đọc source của Sharepoint thì mình sử dụng Dnspy, chọn Attach to Process và trỏ đúng tiến trình IIS w3wp.exe đang chạy Collection Site của Sharepoint tại port 80:
 <br>![image](https://hackmd.io/_uploads/Hydk_5kBWe.png)<br>
 Mở tab Modules để xem các file dll đang được tiến trình load, từ đó có được dll đang được Sharepoint load:
 <br>![image](https://hackmd.io/_uploads/rJUruqyHZx.png)<br>
 ### [CVE-2025-49706] Bypass Authentication
-CVE-2025-49706 xảy ra tại class SPRequestModule thuộc namespace Microsoft.SharePoint.ApplicationRuntime, đây là một class implements IHttpModule, sử dụng để chứa các EventHandler trong request pipeline của IIS. 
+CVE-2025-49706 xảy ra tại class SPRequestModule thuộc namespace Microsoft.SharePoint.ApplicationRuntime. Đây là một class implements IHttpModule, sử dụng để chứa các EventHandler trong request pipeline của IIS. <br>
 Tại đây, method PostAuthenticateRequestHandler được sử dụng để xử lý xác thực các HTTP request đến trong Sharepoint, chính vì vậy nó được gọi chỉ sau event BeginRequest:
 <br>![image](https://hackmd.io/_uploads/rJ53O51HWe.png)<br>
-Bên trong hàm tồn tại đoạn mã xử lý truy cập các file css js đối với người dùng không xác thực như sau:
+Bên trong hàm tồn tại đoạn code xử lý truy cập các file css js đối với người dùng không xác thực như sau:
 ```csharp!
 if (!context.User.Identity.IsAuthenticated){
     if (flag4){
@@ -143,8 +143,8 @@ if (!context.User.Identity.IsAuthenticated){
     }
 }
 ```
-Logic code sẽ cho phép người dùng unauthen vẫn có thể truy cập các file script js và stylesheet css để phục vụ việc hiển thị. Các trường hợp còn lại sẽ kiểm tra nhằm trả về status 401 về cho người dùng. Có 3 nhánh if else, nếu như làm cho false cả 3 thì người dùng không xác thực có thể bypass đoạn check này và tiếp tục được xử lý yêu cầu. Để làm được điều đó thì cần flag6 là true, còn flag4 và flag5 cần có giá trị false.
-Xem xét đoạn mã đằng trước, ta thấy được nếu như flag4 mang giá trị false thì chương trình sẽ nhảy vào nhánh if(flag5) vì flag5 = !flag4 = true:
+Logic code sẽ cho phép người dùng unauthen vẫn có thể truy cập các file script js và stylesheet css để phục vụ việc hiển thị. Các trường hợp còn lại sẽ kiểm tra nhằm trả về status 401 về cho người dùng. Có 3 nhánh if else, nếu như làm cho false cả 3 thì người dùng không xác thực có thể bypass đoạn check này và tiếp tục được xử lý yêu cầu. Để làm được điều đó thì cần flag6 là true, còn flag4 và flag5 cần có giá trị false.<br>
+Xem xét đoạn code đằng trước, ta thấy được nếu như flag4 mang giá trị false thì chương trình sẽ nhảy vào nhánh if(flag5) vì flag5 = !flag4 = true:
 ```csharp!
 bool flag4 = SPSecurity.AuthenticationMode == AuthenticationMode.Forms && !flag2;
 bool flag5 = !flag4;
@@ -184,22 +184,22 @@ Hàm CheckForCustomToolpane kiểm tra đường dẫn URL xem có chứa `/_lay
 <br>![image](https://hackmd.io/_uploads/BywB9qkSWg.png)<br>
 Tiếp theo, chương trình sẽ xử lý đến hàm SelectedAspWebPart, nơi mà nội dung WebPart truyền trong body sẽ được xử lý thông qua 2 giá trị tại body là MSOTlPn_Uri và MSOTlPn_DWP:
 <br>![image](https://hackmd.io/_uploads/SyHLq51Hbx.png)<br>
-MSOTlPn_Uri chứa đường dẫn frontPage, còn MSOTlPn_DWP chứa nội dung thông tin về Web Part để tiến hành import, logic import sẽ nằm tại hàm GetPartPreviewAndPropertiesFromMarkup. Để vào được câu lệnh if thì còn điều kiện DisplayMode = EditDisplayMode, hay `?DisplayMode=Edit`.
-Đi vào bên trong GetPartPreviewAndPropertiesFromMarkup, hàm xử lý trực tiếp import webpart là GetMarkupProperties, cũng là nơi kẻ tấn công lợi dụng để khai thác lỗ hổng deserialize thông qua webpart. Nhưng trước khi đến với hàm đó cần phải thỏa mãn tất cả những dòng lệnh trên, trong đó có hàm CreateAndInitializeDocumentDesigner, với đầu vào là pageUri chính là param MSOTlPn_Uri đã truyền vào trước đó:
+MSOTlPn_Uri chứa đường dẫn frontPage, còn MSOTlPn_DWP chứa nội dung thông tin về Web Part để tiến hành import, logic import sẽ nằm tại hàm GetPartPreviewAndPropertiesFromMarkup. Để vào được câu lệnh if thì còn điều kiện DisplayMode = EditDisplayMode, hay `?DisplayMode=Edit`.<br>
+Đi vào bên trong GetPartPreviewAndPropertiesFromMarkup, hàm xử lý trực tiếp import webpart là GetMarkupProperties, cũng là nơi kẻ tấn công lợi dụng để khai thác lỗ hổng deserialize thông qua webpart. Nhưng trước khi đến với hàm đó cần phải thỏa coden tất cả những dòng lệnh trên, trong đó có hàm CreateAndInitializeDocumentDesigner, với đầu vào là pageUri chính là param MSOTlPn_Uri đã truyền vào trước đó:
 <br>![image](https://hackmd.io/_uploads/B111j5yrWe.png)<br>
 CreateAndInitializeDocumentDesigner khi được sử dụng sẽ gọi đến method Create của class ServerWebFileFromFileSystem với callstack:
 <br>![image](https://hackmd.io/_uploads/B1HeoqkS-g.png)<br>
 Tại method này, chương trình tiến hành kiểm tra url truyền vào có chứa `_controltemplates/` và có phải file .ascx không, nếu tồn tại thì trả về đối tượng ServerWebFile dựa trên file thật, không sẽ trả về null:
 <br>![image](https://hackmd.io/_uploads/rJUWoc1B-l.png)<br>
-Nhằm thỏa mãn dòng lệnh trên, cần tìm file ascx tùy ý nằm trong folder `_controltemplates/`, mình lựa chọn `_controltemplates/15/ActionBar.ascx` để poc vì nó ở ngay đầu.
+Nhằm thỏa coden dòng lệnh trên, cần tìm file ascx tùy ý nằm trong folder `_controltemplates/`, mình lựa chọn `_controltemplates/15/ActionBar.ascx` để poc vì nó ở ngay đầu.<br>
 Cũng có hơi nhiều điều kiện rồi, tổng hợp lại để bypass authen vào được endpoint ToolPane.aspx, mình cần:
 -	Referer header: `/_layouts/15/SignOut.aspx`
 -	URL param: `DisplayMode=Edit`
 -	URL phải kết thúc bằng /ToolPane.aspx: thêm một url param tùy ý với giá trị là /ToolPane.aspx 
 -	MSOTlPn_Uri: `http://sp-server/my/_controltemplates/15/ActionBar.ascx`
 ### [CVE-2024-38018] WebPart Properties Insecure Deserialize
-Khúc này sẽ hơi cấn vì tại sao mình lại không dùng CVE-2025-49704 mà lại là một CVE khác. Khi tiến hành thử poc để test thì mình confirm đã bypass auth nhưng lại không thể trigger deser, nó sẽ văng ra lỗi file Web Part not valid, mình đoán là do cấu trúc Webpart của phiên bản 2013 và 2019 có sự khác biệt nên khi import vào bị lỗi. (Vậy mà microsoft bảo rằng exploit được ở mọi phiên bản Sharepoint 2013)
-Mày mò cài Service Pack và cài tiếp bản patch cho Sharepoint nhưng cũng không giòn. Mình có đi hỏi và biết được người anh em xã hội cũng gặp vấn đề tương tự, và  người anh em đó đã cho mình một solution khác: sử dụng CVE-2024-38018 - một CVE khác attack vào Insecure Deserialize property của webpart. PoC của lỗ hổng đã được đề cập và phân tích khá chi tiết tại https://blog.viettelcybersecurity.com/sharepoint_properties_deser/ nên mình cũng khá là ăn theo thôi :)))
+Khúc này sẽ hơi cấn vì tại sao mình lại không dùng CVE-2025-49704 mà lại là một CVE khác. Khi tiến hành thử poc để test thì mình confirm đã bypass auth nhưng lại không thể trigger deser, nó sẽ văng ra lỗi file Web Part not valid, mình đoán là do cấu trúc Webpart của phiên bản 2013 và 2019 có sự khác biệt nên khi import vào bị lỗi. (Vậy mà microsoft bảo rằng exploit được ở mọi phiên bản Sharepoint 2013)<br>
+Mày mò cài Service Pack và cài tiếp bản patch cho Sharepoint nhưng cũng không giòn. Mình có đi hỏi và biết được người anh em xã hội cũng gặp vấn đề tương tự, và  người anh em đó đã cho mình một solution khác: sử dụng CVE-2024-38018 - một CVE khác attack vào Insecure Deserialize property của webpart. PoC của lỗ hổng đã được đề cập và phân tích khá chi tiết tại https://blog.viettelcybersecurity.com/sharepoint_properties_deser/ nên mình cũng khá là ăn theo thôi :)))<br>
 Tiếp tục phân tích nào, mình sẽ lấy phần webpart của bài phân tích trên:
 ```xml!
 <%@ Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages" Assembly="Microsoft.SharePoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
@@ -209,7 +209,7 @@ Tiếp tục phân tích nào, mình sẽ lấy phần webpart của bài phân 
     </WebPart>
 </WebPartPages:XmlWebPart>
 ```
-CVE-2024-38018 đã khai thác lỗ hổng Insecure Deserialize dữ liệu DataSet thông qua cơ chế parse webpart control để thực thi mã từ xa, bắt đầu từ method `WebPart.AddParsedSubObject()`. Method này sẽ luôn được gọi khi truyền vào một webpart control, với mục đích lấy toàn bộ chuỗi truyền vào đã loại bỏ phần register và reference assembly thông qua class LiteralControl để đưa vào method ParseXml:
+CVE-2024-38018 đã khai thác lỗ hổng Insecure Deserialize dữ liệu DataSet thông qua cơ chế parse webpart control để thực thi code từ xa, bắt đầu từ method `WebPart.AddParsedSubObject()`. Method này sẽ luôn được gọi khi truyền vào một webpart control, với mục đích lấy toàn bộ chuỗi truyền vào đã loại bỏ phần register và reference assembly thông qua class LiteralControl để đưa vào method ParseXml:
 <br>![image](https://hackmd.io/_uploads/B1hFR5JrZe.png)<br>
 ParseXml thực hiện deserialize dữ liệu truyền vào thông qua XmlSerializer. Deserialize, trả về object webPart và tiếp tục gọi đến DoPostDeserializationTasks để thực hiện một số thao tác sau lần deserialize đầu tiên:
 <br>![image](https://hackmd.io/_uploads/H1pq0ckBbg.png)<br>
@@ -275,8 +275,8 @@ Tổng hợp lại, request khai thác cuối cùng sẽ như này:
 Mặc dù trả về 401 nhưng chức năng này đã được thực thi (Sharepoint có nhiều đoạn return 401 quá mình cũng lười trace). Mở máy chạy sharepoint lên là ta thấy ngay file pwn.txt:
 <br>![image](https://hackmd.io/_uploads/ryaKMj1S-l.png)<br>
 ## III. Deploy Memory Webshell
-Mình chọn route memory webshell để inject vì nó có thể inject vào cả WebMVC và WebForms, cũng như khá dễ code. Để hiểu rõ hơn về Route Memory Webshell hoạt động như thế nào thì có thể ngó qua [Memshell in dotnet](https://kev1n1203.github.io/p/memshell-dotnet) của mình.
-Tại đây mình dùng gadgetchain ActivitySurrogateSelector để load code C#, gadgetchain này trong tool yso mặc định sẽ lấy binary từ file E.cs để load nhưng mình test thì thấy khá nhấp nháy nên mình đã chọn compile file này thành dll rồi load (works everytime).
+Mình chọn route memory webshell để inject vì nó có thể inject vào cả WebMVC và WebForms, cũng như khá dễ code. Để hiểu rõ hơn về Route Memory Webshell hoạt động như thế nào thì có thể ngó qua [Memshell in dotnet](https://kev1n1203.github.io/p/memshell-dotnet) của mình.<br>
+Tại đây mình dùng gadgetchain ActivitySurrogateSelector để load code C#, gadgetchain này trong tool yso mặc định sẽ lấy binary từ file E.cs để load nhưng mình test thì thấy khá nhấp nháy nên mình đã chọn compile file này thành dll rồi load (works everytime).<br>
 Vì chain này nếu như với ver dotNet > 4.7 thì cần phải disable type check, nên mình đi check ver dotnet của Sharepoint:
 ```bash!
 PS C:\Users\sp_farmadmin> Set-Location 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client'
@@ -286,7 +286,7 @@ Version
 -------
 4.5.51641
 ```
-Ngon luôn, thử test deser load C## code trước nào:
+Ngon luôn, thử test deser load C## code trước nào.<br>
 File E.cs mình sửa tí từ file mặc định thôi:
 ```csharp!
 class E {
