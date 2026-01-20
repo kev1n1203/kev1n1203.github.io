@@ -22,9 +22,8 @@ Sau khi chọn được MVCHandler để xử lý request, mô hình ASP.NET MVC
 <br>![image](https://hackmd.io/_uploads/rJsG0-sHWl.png)<br>
 Tính năng này nằm trong MVC Middleware chỉ thuộc ASP.NET MVC, nên để triển khai được thì webapps cần được code theo kiểu MVC
 ### Filter in .NET
-Khi tạo 1 project web MVC sẽ xuất hiện 3 thư mục Models – Views – Controllers, ngoài ra tồn tại một số thư mục mặc định khác với các chức năng chủ yếu để lưu trữ như App_Data, Content, Scripts,... Đặc biệt chú ý đến file Global.asax, file này sẽ được gọi 1 lần khi ứng dụng web bắt đầu khởi chạy với nội dung:
+Khi tạo 1 project web MVC sẽ xuất hiện 3 thư mục Models – Views – Controllers, ngoài ra tồn tại một số thư mục mặc định khác với các chức năng chủ yếu để lưu trữ như App_Data, Content, Scripts,... Đặc biệt chú ý đến file Global.asax, file này sẽ được gọi 1 lần khi ứng dụng web bắt đầu khởi chạy, chứa các thành phần cơ bản cần phải được khai báo để start up web service, đó là các filters, routes và bundles:
 <br>![image](https://hackmd.io/_uploads/rJ7jbfiHWl.png)<br>
-Từ hình ảnh trên cũng có thể đưa ra nhận xét là Global.asax chứa các thành phần cơ bản cần phải được khai báo để start up web service, đó là các filters, routes và bundles.<br>
 Tại file FilterConfig.cs nằm trong App_Start chứa câu lệnh thêm filter tự định nghĩa vào GlobalFilterCollection, mặc định có filter HandleErrorAttribute để xử lý lỗi
 <br>![image](https://hackmd.io/_uploads/ByByzMjr-x.png)<br>
 Các filter thực chất sẽ được thêm tại class GlobalFilterCollection thuộc namespace System.Web.Mvc: 
@@ -34,7 +33,7 @@ Về cơ bản, quá trình Add sẽ diễn ra như sau:
 -	Kiểm tra Filter được thêm vào tại method ValidateFilterInstance, nếu không thỏa mãn sẽ trả về lỗi
 -	Thêm Filter vào List khai báo trước đó, nếu Filter không đi kèm giá trị order sẽ tạo order với kiểu dữ liệu integer và giá trị mặc định là null
 
-Method ValidateFilterInstance được gọi để xem filter có implements các interface của một filter hợp lệ hay không:
+Method ValidateFilterInstance được gọi để xem filter có implement các interface của một filter hợp lệ hay không:
 <br>![image](https://hackmd.io/_uploads/BymLzzirbl.png)<br>
 Các filter hợp lệ gồm có:
 -	Authorization filters: phục vụ xác thực và ủy quyền trước khi bước vào các action của controller
@@ -44,7 +43,7 @@ Các filter hợp lệ gồm có:
 
 Trong số các filter này thì Authorization filters được gọi đầu tiên. Mình sẽ ưu tiên chọn những filter sớm nhất để inject
 ### Filter Comparison
-Khi tồn tại 2 filters implements cùng một interface, thứ tự thực thi sẽ được xác định thông qua 2 tham số: order và scope
+Khi tồn tại 2 filters implements cùng một interface, thứ tự thực thi sẽ được xác định thông qua 2 tham số: Order và Scope
 <br>![image](https://hackmd.io/_uploads/rJ3tMfirZx.png)<br>
 Nếu chưa khai báo thì mặc định Order sẽ được gán là -1. Còn giá trị scope được biểu diễn như sau:
 <br>![image](https://hackmd.io/_uploads/SkaizMsSWx.png)<br>
@@ -53,7 +52,7 @@ Logic so sánh nằm tại class FilterComparer thuộc FilterProviderCollection
 -	Khi giá trị Order bằng nhau sẽ xem xét đến giá trị Scope. Tương tự như Order, giá trị Scope càng nhỏ thì mức độ ưu tiên càng cao.
 <br>![image](https://hackmd.io/_uploads/rkypzfsS-e.png)<br>
 
-Là một attacker, mình sẽ muốn injected filter được thực thi đầu tiên, cho nên cần set giá trị cho Filter.Order một số nguyên nhỏ hơn -1 là được.
+=> Chỉ cần set giá trị cho Filter.Order một số nguyên nhỏ hơn -1 là được.
 ### Deploy
 Vì class GlobalFilterCollection là public class nên mình có thể gọi đến mà không cần reflection, logic code sẽ như sau:
 ```csharp!
@@ -77,7 +76,7 @@ GlobalFilters.Filters.Add(new MalFilter(), -10);
 ```
 Sau đó thì mình có thể exec command với các đường dẫn hợp lệ:
 <br>![image](https://hackmd.io/_uploads/SyzjVzoHZe.png)<br>
-Mình nói là đường dẫn hợp lệ bởi vì filter này không được thực thi nếu đường dẫn truy cập không tồn tại, đây cũng sẽ là 1 lưu ý khi sử dụng loại memshell này:
+Mình nói là đường dẫn hợp lệ bởi vì filter này không được call nếu path không tồn tại, đây cũng là 1 lưu ý khi sử dụng loại memshell này:
 <br>![image](https://hackmd.io/_uploads/rJM04zoSbl.png)
 ## Route Memory Webshell
 Tiếp đến là kỹ thuật Route, lợi dụng cơ chế routing để xử lý, cơ chế này là một module hoạt động trong pipeline, được sử dụng để phục vụ xử lý URL khi có request đến. <br>
@@ -91,9 +90,9 @@ File RouteConfig.cs mặc định sử dụng method MapRoute để định ngh�
 Method Add cần 2 tham số. Tham số name không quan trọng khi được sử dụng để xem đã có route nào có giá trị name này chưa. Còn tham số route được ép kiểu về RouteBase là quan trọng nhất. RouteBase là một abstract class, được class System.Web.Routing.Route implement mặc định.<br>
 Như vậy sẽ có ít nhất 2 cách để triển khai Route Memory Webshell, một là tự tạo class để implement RouteBase, hai là sử dụng System.Web.Routing.Route đã implement RouteBase sẵn.
 ### Tự Implement RouteBase:
-RouteBase là 1 abstract class, do đó cần override 2 method GetRouteData và GetVirtualPath có trong nó:
+Vì là 1 abstract class nên mình cần override 2 method GetRouteData và GetVirtualPath có trong nó:
 <br>![image](https://hackmd.io/_uploads/By8ODGsS-l.png)<br>
-Hai method nhận vào các tham số khác nhau nhưng đều có object context của current request nên đều có thể sử dụng được. Công dụng của chúng như sau:
+Hai method nhận vào các tham số khác nhau nhưng đều có object context của current request nên đều có thể sử dụng được. Công dụng của chúng gần như ngược nhau:
 -	GetRouteData: Trả về các thông tin routing của request khi request match với route
 -	GetVirtualPath: Lấy thông tin về route của request khi request match với value truyền vào
 
@@ -116,7 +115,7 @@ Kết quả thì GetRouteData được gọi trước, mình sẽ dùng method n
 Khi debug vào chương trình thì với mỗi request, với mỗi RouteBase thì các method GetRouteData và GetVirtualPath đều được gọi lần lượt thông qua câu lệnh foreach:
 <br>![image](https://hackmd.io/_uploads/S1lyuzsHZg.png)<br>
 ![image](https://hackmd.io/_uploads/r1VyOGjHZg.png)<br>
-Mình muốn route của bản thân chèn vào được chạy đầu tiên trong vòng for thì đơn giản chỉ cần Insert vào vị trí đầu tiên là được:
+Để route của bản thân chèn vào được chạy đầu tiên trong vòng for thì đơn giản mình Insert vào vị trí đầu tiên là được:
 ```csharp!
 RouteCollection routes = RouteTable.Routes;
 routes.Insert(0, new MyRouteBase());
@@ -179,9 +178,9 @@ RouteCollection routeCollection = RouteTable.Routes;
 Route customRoute = new Route("RouteMemshell", new CustomRoute());
 routeCollection.Insert(0, customRoute);
 ```
-Nhưng mà khi gọi đến /RouteMemshell thì mình bị lỗi 500, lỗi này do CustomRoute tạo ra không trả về object có dạng IHttpHandler:
+Nhưng mà khi gọi đến `/RouteMemshell` thì mình bị lỗi 500, lỗi này do CustomRoute tạo ra không trả về object có dạng IHttpHandler:
 <br>![image](https://hackmd.io/_uploads/BJHNjfjHZg.png)<br>
-Do đó cần sửa lại code xíu để lượm được output tại response. Cụ thể là method GetHttpHandler cần return object implement interface IHttpHandler thay vì chỉ exec command.
+Cần sửa lại code xíu để lượm được output tại response. Cụ thể là method GetHttpHandler cần return object implement interface IHttpHandler thay vì chỉ exec command.
 ```csharp!
 public class CustomRoute : IRouteHandler {
     public IHttpHandler GetHttpHandler(RequestContext requestContext){
@@ -210,22 +209,22 @@ public class CustomHandler : IHttpHandler{
 ```
 Như này thì có thể lấy được response rồi:
 <br>![image](https://hackmd.io/_uploads/ryZToMjBbg.png)<br>
-Mặc dù không thể khai báo cho có thể truy cập route memory webshell bằng đường dẫn tùy ý nhưng có thể sử dụng dấu {} để biểu diễn ký tự ngẫu nhiên. Cụ thể là nếu như khai báo Route theo cách sau:
+Mặc dù không thể khai báo cho có thể truy cập route memory webshell bằng đường dẫn tùy ý nhưng có thể sử dụng dấu {} để biểu diễn ký tự ngẫu nhiên. Mình ví dụ như này:
 ```csharp!
 Route customRoute = new Route("route{xxx}", new CustomRoute());
 ```
 Thì có thể sử dụng route memory webshell với đường dẫn "route" kết hợp với các ký tự bất kỳ:
 <br>![image](https://hackmd.io/_uploads/SkYm7YjS-x.png)
 ## HTTPListener Memory Webshell
-HttpListener là 1 class thuộc .NET Base Class Library, cung cấp khả năng khởi tạo một HTTP server đơn giản, nhỏ gọn, và có khả năng tùy biến cao (nghe khá giống với `python3 -m http.server`) 👌<br>
+HttpListener là 1 class thuộc .NET Base Class Library, cung cấp khả năng khởi tạo một HTTP server đơn giản và có khả năng tùy biến cao (nghe khá giống với `python3 -m http.server`) 👌<br>
 Không phụ thuộc hay chạy qua IIS cũng như không nằm trong các thành phần của một project ASP.NET, HttpListener chỉ cần truyền vào địa chỉ lắng nghe, port và đường dẫn để khởi tạo một web service.
 <br>![image](https://hackmd.io/_uploads/H1pTrdsSWg.png)<br>
-Do đặc tính hoạt động là 1 service web độc lập nên chắc chắn nó sẽ không lưu lại log trên server, đồng thời có thể run với cùng port, cùng host với service web khiến nó khá khó phát hiện nếu như được deploy.<br>
-Tuy nhiên, trong các blog tham khảo thì họ có đề cập đến là kỹ thuật này chỉ có thể được triển khai với quyền System. Điều này sẽ khá khó xảy ra do thông thường user deploy webapps sẽ là user IIS (default iis apppool\\{pool name}). Ngoại trừ một số trường hợp như đối với Microsoft Exchange sẽ mặc định chạy quyền System nên kỹ thuật này đã được sử dụng để làm post-exploit memshell sau khi khai thác lỗi deser [CVE-2020-17144](https://www.zcgonvh.com/post/analysis_of_CVE-2020-17144_and_to_weaponizing.html)
+Do đặc tính hoạt động là 1 service độc lập nên chắc chắn nó sẽ không lưu lại log trên server, đồng thời có thể run cùng port, cùng host với service web khiến nó khá khó phát hiện nếu như được deploy.<br>
+Tuy nhiên, trong các blog mình tham khảo thì họ có nói rằng kỹ thuật này chỉ có thể được triển khai với quyền System. Điều này khá khó xảy ra do thông thường user deploy webapps sẽ là user IIS (default iis apppool\\{pool name}). Ngoại trừ một số trường hợp như đối với Microsoft Exchange sẽ mặc định chạy quyền System nên kỹ thuật này đã được sử dụng để làm post-exploit memshell sau khi khai thác lỗi deser [CVE-2020-17144](https://www.zcgonvh.com/post/analysis_of_CVE-2020-17144_and_to_weaponizing.html)
 ### Phân tích
-Về cơ bản thì kỹ thuật này sẽ khởi tạo một service web riêng biệt nên sẽ không chạy chèn vào một class nào của service web hiện tại. Công việc còn lại sẽ là xử lý HTTP Request để nhận được đầu vào, thực thi câu lệnh hệ thống và trả kết quả về tại HTTP Response.<br>
-Tại namespace System.Net mặc dù đã tồn tại System.Net.HttpListenerContext đóng vai trò nhận, xử lý và trả về kết quả cho một HTTP Request như là HttpContext thuộc namespace System.Web, nhưng class HttpListenerRequest đóng vai trò là Request class của một HttpListener server khá thô sơ và không có các phương thức nào nhận đầu vào là System.Web.Request để có thể sử dụng ngay, nên việc nhận và xử lý dữ liệu là điều khá khó khăn.<br>
-Giải pháp đưa ra là lấy hết dữ liệu trong object của HttpListenerRequest và HttpListenerResponse, từ đó tự tạo một System.Web.HttpRequest để xử lý dữ liệu.<br>
+Về cơ bản thì kỹ thuật này sẽ khởi tạo một service web riêng biệt nên sẽ không chạy chèn vào một class nào của service web hiện tại. Công việc còn lại là xử lý HTTP Request để nhận được đầu vào, xử lý logic và trả kết quả về tại response.<br>
+Tại namespace System.Net đã tồn tại System.Net.HttpListenerContext đóng vai trò nhận, xử lý và trả về kết quả cho một HTTP Request như là HttpContext thuộc namespace System.Web. Nhưng class HttpListenerRequest khá thô sơ và không có các phương thức xử lý input như là System.Web.Request, nên việc nhận và xử lý dữ liệu là điều khá khó khăn.<br>
+Giải pháp đưa ra là lấy hết dữ liệu trong object HttpListenerRequest và HttpListenerResponse, từ đó tự craft thành System.Web.HttpRequest để nhận/xử lý dữ liệu.<br>
 Cứ tưởng là ngon ăn, nhưng quá trình parse HTTP Request gặp vấn đề khi HttpRequest không nhận được tham số tại POST body request, mặc dù vẫn thực hiện được các hàm tĩnh. Để làm rõ hơn thì mình có đoạn code:
 ```csharp!
 HttpListenerContext context = listener.GetContext();
@@ -327,27 +326,27 @@ Ngon luôn:
 
 ### Giới Hạn
 Câu hỏi đặt ra là, mình có đề cập đến việc kỹ thuật cần quyền System nhưng tại đây người dùng thông thường vẫn có thể triển khai được HttpListener Memory Webshell?<br>
-Để chạy một HttpListerner bắt buộc sẽ phải thêm đường dẫn đến HTTP Server thông qua dòng lệnh: HttpListener.Prefixes.Add, method này thực chất sẽ gọi đến HttpListener.AddPrefix, nơi sẽ tiếp tục gọi đến HttpListener.InternalAddPrefix và cuối cùng là HttpAddUrlToUrlGroup. Đây là method được import từ native dll httpapi.dll:
+Để chạy một HttpListerner bắt buộc  phải thêm đường dẫn đến HTTP Server thông qua dòng lệnh: HttpListener.Prefixes.Add, method này thực chất gọi đến HttpListener.AddPrefix, nơi sẽ tiếp tục gọi đến HttpListener.InternalAddPrefix và cuối cùng là HttpAddUrlToUrlGroup. Đây là method được import từ native dll httpapi.dll:
 <br>![image](https://hackmd.io/_uploads/SJoo-Forbl.png)<br>
 Về chức năng, thông tin cũng như lưu ý của hàm này, Microsoft đã thông báo rõ rằng tham số pFullyQualifiedUrl chứa url truyền vào nếu như có cổng dịch vụ nhỏ hơn 1024 cần quyền System để thực thi, nếu không sẽ dính lỗi Access Denied:
 <br>![image](https://hackmd.io/_uploads/rkN5mYoBWg.png)<br>
 Tức là trong trường hợp người dùng web không có quyền System, không thể tạo được HTTP Server thông qua HttpListener mà cổng dịch vụ nhỏ hơn 1024.<br>
-Ngoài việc sử dụng port thấp ra, nếu như muốn khởi tạo Server với IP không phải localhost/127.0.0.1 mà là IP của card mạng wifi hoặc ethernet, cũng sẽ cần quyền System: đây chính là điểm yếu vì trong môi trường tấn công việc mở server bằng IP local là vô nghĩa. Ví dụ như ở đây địa chỉ IP card wifi của mình là 192.168.100.198:
+Ngoài việc sử dụng port thấp ra, nếu như muốn khởi tạo Server với IP không phải localhost/127.0.0.1 mà là IP của card mạng wifi hoặc ethernet cũng cần quyền System: đây chính là điểm yếu vì trong môi trường tấn công việc mở server bằng IP local là vô nghĩa. Ví dụ như ở đây địa chỉ IP card wifi của mình là 192.168.100.198:
 <br>![image](https://hackmd.io/_uploads/Hy8ZNForWl.png)<br>
 Nếu như khởi tạo HttpListener là http://192.168.100.198:5000/memshell/ sẽ dính lỗi không có quyền, do người dùng deploy web đang là user thường:
 <br>![image](https://hackmd.io/_uploads/r1XmEtjS-x.png)<br>
 Ngoài ra, sử dụng wildcard IP hoặc wildcard hostname như: `http://*:8080/`, `http://+:8080/` cũng yêu cầu quyền System để thực thi.
 ## VirtualPath Memory Webshell
 Đây là kỹ thuật được sử dụng phổ biến nhất khi explot .NET Memory Webshell, được sử dụng làm method tạo memshell trên Godzilla: https://github.com/A-D-Team/SharpMemshell/blob/main/VirtualPath/memshell.cs<br>
-Để ví dụ VirtualPathProvider trực quan hơn thì mình có cách diễn giải như sau: Thông thường để truy cập file aspx thì trên hệ thống buộc phải tồn tại file tương ứng trong thư mục web vật lý, còn VirtualPathProvider sẽ giúp lưu trữ file File.aspx ở bất cứ đâu chứ không nhất thiết phải tồn tại trong hệ thống file vật lý tại server, có thể là lưu trong database,...
+Để ví dụ VirtualPathProvider trực quan hơn thì mình có cách diễn giải như sau: Thông thường để truy cập file aspx thì trên hệ thống buộc phải tồn tại file tương ứng trong thư mục web vật lý, còn VirtualPathProvider giúp lưu trữ file File.aspx ở bất cứ đâu chứ không nhất thiết phải tồn tại trong hệ thống file vật lý tại server, có thể là lưu trong database,...
 <br>![image](https://hackmd.io/_uploads/S1Y4CYoS-g.png)
 ### Not so memshell
 Từ khúc này mình sẽ viết tắt VirtualPathProvider = VPP.<br>
-Method RegisterVirtualPathProviderInternal sẽ chịu trách nhiệm thêm VPP mới vào hệ thống bằng cách lưu đường dẫn ảo truyền vào `_virtualPathProvider`, và đưa VPP được đăng ký trước đó vào method Initialize. Nơi mà VPP đã tồn tại sẽ được đưa vào `_previous`:
+Method RegisterVirtualPathProviderInternal chịu trách nhiệm thêm VPP mới vào hệ thống bằng cách lưu đường dẫn ảo truyền vào `_virtualPathProvider`, và đưa VPP được đăng ký trước đó vào method Initialize. Nơi mà VPP đã tồn tại được đưa vào `_previous`:
 <br>![image](https://hackmd.io/_uploads/ByIw-6jB-x.png)<br>
 ![image](https://hackmd.io/_uploads/BkIc-TjBZe.png)<br>
-Tức khi một VPP mới được thêm vào, VPP đã thêm trước đó sẽ được coi như một node trước và có thể truy cập thông qua thuộc tính Previous. <br>
-Khi một request web page đến, ứng dụng sẽ xét lần lượt từ VirtualPath mới nhất đến cũ nhất cho đến khi trùng khớp hoặc thuộc tính previous là null thì dừng lại. Và `_virtualPathProvider` tồn tại để chứa giá trị của node mới nhất được thêm vào. Cách tổ chức và duyệt phần tử như này khá giống với một danh sách liên kết đơn có 1 con trỏ head.
+Tức khi một VPP mới được thêm vào, VPP đã thêm trước đó được coi như một node trước và có thể truy cập thông qua thuộc tính Previous. <br>
+Khi một request web page đến, ứng dụng xét lần lượt từ VirtualPath mới nhất đến cũ nhất cho đến khi trùng khớp hoặc thuộc tính previous là null thì dừng lại. Và `_virtualPathProvider` tồn tại để chứa giá trị của node mới nhất được thêm vào. Cách tổ chức và duyệt phần tử như này khá giống với một danh sách liên kết đơn có 1 con trỏ head.
 Mình có thể đăng ký 1 VPP với nội dung tùy chỉnh bằng đoạn mã sau:
 ```csharp!
 <%
@@ -368,7 +367,7 @@ Trigger file này sẽ tạo 1 VPP với đường dẫn `/TestPath.aspx`, cũng
 <br>![image](https://hackmd.io/_uploads/r1-IMTorWl.png)<br>
 Để trở thành một kỹ thuật memshell đúng nghĩa, mình muốn exec command tại đường dẫn bất kỳ, cho nên đoạn code này là chưa đủ để đáp ứng điều kiện.
 ### VirtualPath at its finest
-Trong lúc debug thì mình thấy có 2 method sẽ luôn được gọi khi truy cập bất kỳ path nào, đó là GetCacheKey và FileExists. Nhưng khi ngó đoạn code gen memshell của Godzilla, mình thấy code memshell được truyền vào method GetCacheKey. Để kiểm tra xem method nào được call trước, mình sẽ kiểm tra với 1 script đơn giản:
+Trong lúc debug thì mình thấy có 2 method luôn được gọi khi truy cập bất kỳ path nào, đó là GetCacheKey và FileExists. Nhưng khi ngó đoạn code gen memshell của Godzilla, mình thấy code memshell được truyền vào method GetCacheKey. Để kiểm tra xem method nào được call trước, mình kiểm tra với 1 script đơn giản:
 ```csharp!
 public class TestPathProvider : VirtualPathProvider{
     public override string GetCacheKey(string virtualPath){
@@ -419,22 +418,22 @@ Now we got the real memshell here:
 Ý tưởng của kỹ thuật này đã được đề cập trong paper của CrowdStrike về framework [IceApple](https://www.crowdstrike.com/wp-content/uploads/2022/05/crowdstrike-iceapple-a-novel-internet-information-services-post-exploitation-framework-1.pdf) tại module 18, với mục đích thêm một EventHandler vào trong các HttpApplication đang được sử dụng bởi server:
 <br>![image](https://hackmd.io/_uploads/r1yOHToB-e.png)<br>
 ### HttpApplication Reuse Mechanism
-Tại phần request life cycle, mình đã nói về việc một HttpApplication instance sẽ được khởi tạo, ở đây mình sẽ giải thích chi tiết hơn việc nó được khởi tạo như thế nào:<br>
-Khi HTTP request đến server, những hàm tiền xử lý sẽ được gọi để khởi tạo HttpContext và các thông tin cần thiết. Điều này được thực hiện thông qua 3 hàm ProcessRequestNotification trong callstack dưới đây:
+Tại phần request life cycle, mình đã nói về việc một HttpApplication instance được khởi tạo, ở đây mình sẽ giải thích chi tiết hơn việc nó được khởi tạo như thế nào:<br>
+Khi HTTP request đến server, những hàm tiền xử lý được gọi để khởi tạo HttpContext và các thông tin cần thiết. Điều này được thực hiện thông qua 3 hàm ProcessRequestNotification trong callstack dưới đây:
 <br>![image](https://hackmd.io/_uploads/HJMiBpsHZx.png)<br>
 Sau đó, HttpApplicationFactory tiến hành lấy ra 1 instance của HttpApplication để handle HttpContext, việc lựa chọn và lấy ra như thế nào nằm tại hàm GetNormalApplicationInstance:
 <br>![image](https://hackmd.io/_uploads/H1psHTiH-x.png)<br>
 Tại hàm GetNormalApplicationInstance, HttpApllicationFactory sử dụng attribute `_freeList` chứa các object HttpApllication đã xử lý xong request và được tái chế để sử dụng lại. Nếu lấy được sẽ trả về object httpApplication đó:
 <br>![image](https://hackmd.io/_uploads/ByH0BTorbl.png)<br>
 Từ đây rút ra được một số kết luận về HttpApplication như sau:
-- Mỗi HttpApplication instance sẽ dùng để xử lý 1 request, và không thể bị can thiệp cho đến khi xử lý xong
+- Mỗi HttpApplication instance được dùng để xử lý 1 request, và không thể bị can thiệp cho đến khi xử lý xong
 - Nếu như số lượng request gửi đến nhiều hơn số lượng instance HttpApplication có trong `_freeList`, việc tạo mới để thực thi ngay hay sử dụng lại tùy thuộc vào cơ chế đồng bộ
 - Nếu như sử dụng .NET Framework lớn hơn 4.5 thì mặc định cơ chế này được bật.
 ### Logic Add EventHandler into HttpModule
-Tiếp tục từ hàm trước, lúc này HttpModule được khởi tạo thông qua hàm hàm Init, và sẽ call đến các event handler có trong module đó, đây cũng chính là những gì xảy ra trong HTTP Pipeline đã trình bày ở trên. Event AuthenticateRequest đứng ngay sau event đầu tiên BeginRequest - một event dùng để init thuộc tính nên có thể coi đây là event sớm nhất được gọi.<br>
+Tiếp tục từ hàm trước, lúc này HttpModule được khởi tạo thông qua hàm hàm Init, và call đến các event handler có trong module đó, đây cũng chính là những gì xảy ra trong HTTP Pipeline đã trình bày ở trên. Event AuthenticateRequest đứng ngay sau event đầu tiên BeginRequest - một event dùng để init thuộc tính nên có thể coi đây là event sớm nhất được gọi.<br>
 Khi được gọi, AuthenticateRequest ngay lập tức gọi phương thức add để thêm một object thuộc class EventHandler vào HttpModule:
 <br>![image](https://hackmd.io/_uploads/HJK1vTiHZl.png)<br>
-Hàm AddSyncEventHookup này thực chất sẽ được thực hiện với tham số isPostNotification là false:
+Hàm AddSyncEventHookup này thực chất được thực hiện với tham số isPostNotification là false:
 <br>![image](https://hackmd.io/_uploads/SJleDajBWl.png)<br>
 Một HttpApplication có nhiều HttpModule, lưu trong attribute ModuleContainers - 1 mảng các phần tử là instance của class PipelineModuleStepContainer.<br>
 Để thêm được Event vào đúng module, trước hết cần phải lấy module đó ra từ ModuleContainers thông qua hàm GetModuleContainer. EventHandler được ép thành SyncEventExecutionStep rồi mới thực hiện thêm event đó tại method AddEvent:

@@ -185,13 +185,13 @@ Hàm CheckForCustomToolpane kiểm tra đường dẫn URL xem có chứa `/_lay
 Tiếp theo, chương trình sẽ xử lý đến hàm SelectedAspWebPart, nơi mà nội dung WebPart truyền trong body sẽ được xử lý thông qua 2 giá trị tại body là MSOTlPn_Uri và MSOTlPn_DWP:
 <br>![image](https://hackmd.io/_uploads/SyHLq51Hbx.png)<br>
 MSOTlPn_Uri chứa đường dẫn frontPage, còn MSOTlPn_DWP chứa nội dung thông tin về Web Part để tiến hành import, logic import sẽ nằm tại hàm GetPartPreviewAndPropertiesFromMarkup. Để vào được câu lệnh if thì còn điều kiện DisplayMode = EditDisplayMode, hay `?DisplayMode=Edit`.<br>
-Đi vào bên trong GetPartPreviewAndPropertiesFromMarkup, hàm xử lý trực tiếp import webpart là GetMarkupProperties, cũng là nơi kẻ tấn công lợi dụng để khai thác lỗ hổng deserialize thông qua webpart. Nhưng trước khi đến với hàm đó cần phải thỏa coden tất cả những dòng lệnh trên, trong đó có hàm CreateAndInitializeDocumentDesigner, với đầu vào là pageUri chính là param MSOTlPn_Uri đã truyền vào trước đó:
+Nhảy vào GetPartPreviewAndPropertiesFromMarkup - hàm xử lý trực tiếp import webpart là GetMarkupProperties, cũng là sink vuln deserialize bằng webpart. Nhưng trước khi đến được hàm đó cần phải thỏa mãn tất cả những dòng lệnh trên, trong đó có CreateAndInitializeDocumentDesigner, với input pageUri chính là param MSOTlPn_Uri đã truyền vào trước đó:
 <br>![image](https://hackmd.io/_uploads/B111j5yrWe.png)<br>
-CreateAndInitializeDocumentDesigner khi được sử dụng sẽ gọi đến method Create của class ServerWebFileFromFileSystem với callstack:
+CreateAndInitializeDocumentDesigner sẽ gọi đến method Create của class ServerWebFileFromFileSystem với callstack:
 <br>![image](https://hackmd.io/_uploads/B1HeoqkS-g.png)<br>
-Tại method này, chương trình tiến hành kiểm tra url truyền vào có chứa `_controltemplates/` và có phải file .ascx không, nếu tồn tại thì trả về đối tượng ServerWebFile dựa trên file thật, không sẽ trả về null:
+Tại method này, chương trình tiến hành kiểm tra url truyền vào có chứa `_controltemplates/` và có phải file .ascx không, nếu tồn tại thì trả về object ServerWebFile dựa trên file thật, không sẽ trả về null:
 <br>![image](https://hackmd.io/_uploads/rJUWoc1B-l.png)<br>
-Nhằm thỏa coden dòng lệnh trên, cần tìm file ascx tùy ý nằm trong folder `_controltemplates/`, mình lựa chọn `_controltemplates/15/ActionBar.ascx` để poc vì nó ở ngay đầu.<br>
+Nhằm thỏa mãn dòng lệnh trên, cần tìm file ascx tùy ý nằm trong folder `_controltemplates/`, mình lựa chọn `_controltemplates/15/ActionBar.ascx` để poc vì nó ở ngay đầu.<br>
 Cũng có hơi nhiều điều kiện rồi, tổng hợp lại để bypass authen vào được endpoint ToolPane.aspx, mình cần:
 -	Referer header: `/_layouts/15/SignOut.aspx`
 -	URL param: `DisplayMode=Edit`
@@ -272,7 +272,7 @@ static void Main(string[] args){
 ```
 Tổng hợp lại, request khai thác cuối cùng sẽ như này:
 <br>![image](https://hackmd.io/_uploads/r1kvMokSWe.png)<br>
-Mặc dù trả về 401 nhưng chức năng này đã được thực thi (Sharepoint có nhiều đoạn return 401 quá mình cũng lười trace). Mở máy chạy sharepoint lên là ta thấy ngay file pwn.txt:
+Mặc dù trả về 401 nhưng chức năng này đã được thực thi (Sharepoint có nhiều đoạn return 401 quá và mình cũng lười trace). Mở máy chạy sharepoint lên là ta thấy ngay file pwn.txt:
 <br>![image](https://hackmd.io/_uploads/ryaKMj1S-l.png)<br>
 ## III. Deploy Memory Webshell
 Mình chọn route memory webshell để inject vì nó có thể inject vào cả WebMVC và WebForms, cũng như khá dễ code. Để hiểu rõ hơn về Route Memory Webshell hoạt động như thế nào thì có thể ngó qua [Memshell in dotnet](https://kev1n1203.github.io/p/memshell-dotnet) của mình.<br>
@@ -286,7 +286,7 @@ Version
 -------
 4.5.51641
 ```
-Ngon luôn, thử test deser load C## code trước nào.<br>
+Ngon luôn, thử test deser load C# code trước nào.<br>
 File E.cs mình sửa tí từ file mặc định thôi:
 ```csharp!
 class E {
@@ -366,7 +366,7 @@ class E {
     }
 }
 ```
-Xuất hiện header Custom-Header trong response, chứng tỏ C## code đã được load:
+Xuất hiện header Custom-Header trong response, chứng tỏ C# code đã được load:
 <br>![image](https://hackmd.io/_uploads/HJytUs1HZl.png)<br>
 RCE thôi:
 <br>![image](https://hackmd.io/_uploads/HynF8oyBZl.png)<br>
