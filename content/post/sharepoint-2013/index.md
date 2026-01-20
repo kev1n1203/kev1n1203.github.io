@@ -52,8 +52,8 @@ WinServer 2012 dính rất nhiều lỗi khi set up SharePoint Server 2013:
 ```!
 There was an error during Installation, The tool was unable to install Application Server Role, Web Server (IIS) Role
 ```
-Link tham khảo nếu gặp:
-https://www.sharepointdiary.com/2015/05/there-was-an-error-during-installation-the-tool-was-unable-to-install-application-server-role-web-server-iis-role.html
+Link tham khảo nếu gặp:<br>
+https://www.sharepointdiary.com/2015/05/there-was-an-error-during-installation-the-tool-was-unable-to-install-application-server-role-web-server-iis-role.html<br>
 https://vladtalkstech.com/microsoft-365/sharepoint/the-tool-was-unable-to-install-web-server-iis-role-sharepoint-2016-on-windows-server-2016/
 - Tự cài đặt các feature bằng Powershell:
 ```bash!
