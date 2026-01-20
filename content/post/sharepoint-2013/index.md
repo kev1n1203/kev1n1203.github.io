@@ -6,17 +6,17 @@ date: 2026-01-20 00:00:00+0000
 ---
 
 Tiếp nối từ series trước, trong lúc mình thực hiện thực nghiệm cho đồ án, mình đã nghĩ đến việc là làm 2 cái lab đơn giản để trigger memshell thôi. Nhưng giảng viên hướng dẫn của mình bảo là "Làm Sharepoint đi em". So yeah, here we are 🗿
-# I. Setup Guidelines
+## I. Setup Guidelines
 Một số link Setup mẫu mình đã tham khảo:
 - https://gist.github.com/testanull/e1573437f91ec3726ab5041389c6f28d
 - https://hackmd.io/@taidh/ByE7_Kqlh
 
-## Cấu hình máy ảo:
+### Cấu hình máy ảo:
 - DC: WinServer 2012 - 2x2 cores - 4GB RAM
 - SQL Server 2012: WinServer 2012 - 2x2 cores - 4GB RAM
 - Microsoft Sharepoint Server 2013: WinServer 2012 - 2x2 cores - 16GB RAM
 
-## DC
+### DC
 Set up DNS Server và promote thành Domain Controller. 2 máy sau sẽ join domain và set DNS là IP của máy DC.
 <br>![image](https://hackmd.io/_uploads/SJNrQMhole.png)<br>
 Tạo OU ServiceAccounts và thêm 3 account:
@@ -38,17 +38,17 @@ First name: SQL
 Last name: Service
 Username: sql_service
 ```
-## SQL Server
+### SQL Server
 Join Domain và set DNS.
 Tải SQL Server Express bản Advanced để cài luôn cả thể Management Studio. Link tải: https://www.microsoft.com/en-us/download/details.aspx?id=43351
 Tại đây chọn SQLEXPRADV_x64_ENU.exe và cài đặt như bình thường.
 Lưu ý: Để không bị lỗi `The SQL Server service account login or password is not valid. Use SQL Server Configuration Manager to update the service account.` khi set người dùng DC\sql_service cho SQL Server Database Engine thì sử dụng WinServer 2012 để set up, dùng Win10 sẽ bị lỗi (mình không hiểu vì sao)
 Còn lại config theo hướng dẫn của anh Jang và a TàiDH
-## Sharepoint Server
+### Sharepoint Server
 Join Domain và set DNS.
 Link download file img sharepoint: https://www.microsoft.com/en-us/evalcenter/download-sharepoint-server-2013 => Chọn bản English
 WinServer 2012 dính rất nhiều lỗi khi set up SharePoint Server 2013:
-### Lỗi set role IIS
+#### Lỗi set role IIS
 ```!
 There was an error during Installation, The tool was unable to install Application Server Role, Web Server (IIS) Role
 ```
@@ -73,7 +73,7 @@ Add-WindowsFeature Net-Framework-Features,Web-Server,Web-WebServer,Web-Common-Ht
 ```
 Có thể tự chạy xong rồi restart máy cài tiếp (biện pháp cuối cùng)
 Lưu ý: Không tắt ServerManager khi đang install. Nếu như install thấy lâu chứng tỏ đang chết tại bước set Role này, nó đang đợi kết quả trả về
-### Lỗi khi download các package
+#### Lỗi khi download các package
 Khi download các package như SQL Server Native Client và các package sau sẽ liên tục dính lỗi vì WinServer 2012 đã cũ và không thực hiện kết nối được site go.microsoft.com (WinServer 2012 có vấn đề gì đấy với TLS1.2)
 ```!
 2025-09-19 07:07:02 - [In HRESULT format] (0)
@@ -102,13 +102,13 @@ Cấu hình Sharepoint theo mặc định. Tại bước Database server nhập 
 <br>![image](https://hackmd.io/_uploads/rkGND9yB-g.png)<br>
 Tiếp tục tạo site test collection:
 <br>![image](https://hackmd.io/_uploads/Skme_qJrbx.png)<br>
-# II. ToolShell in Sharepoint
+## II. ToolShell in Sharepoint
 Do lần đầu vọc Sharepoint, mình đã đi tìm một CVE có poc sẵn để thực hiện khai thác, sau đó mình chọn bug ToolShell vì nó có ảnh hưởng đến tất cả version của Sharepoint 2013. Bug này trigger chỉ bằng 1 request, gồm 2 bước: Bypass Authen và Deserialize to RCE.
 Để tiến hành debug và đọc source của Sharepoint thì mình sử dụng Dnspy, chọn Attach to Process và trỏ đúng tiến trình IIS w3wp.exe đang chạy Collection Site của Sharepoint tại port 80:
 <br>![image](https://hackmd.io/_uploads/Hydk_5kBWe.png)<br>
 Mở tab Modules để xem các file dll đang được tiến trình load, từ đó có được dll đang được Sharepoint load:
 <br>![image](https://hackmd.io/_uploads/rJUruqyHZx.png)<br>
-## [CVE-2025-49706] Bypass Authentication
+### [CVE-2025-49706] Bypass Authentication
 CVE-2025-49706 xảy ra tại class SPRequestModule thuộc namespace Microsoft.SharePoint.ApplicationRuntime, đây là một class implements IHttpModule, sử dụng để chứa các EventHandler trong request pipeline của IIS. 
 Tại đây, method PostAuthenticateRequestHandler được sử dụng để xử lý xác thực các HTTP request đến trong Sharepoint, chính vì vậy nó được gọi chỉ sau event BeginRequest:
 <br>![image](https://hackmd.io/_uploads/rJ53O51HWe.png)<br>
@@ -197,7 +197,7 @@ Cũng có hơi nhiều điều kiện rồi, tổng hợp lại để bypass aut
 -	URL param: `DisplayMode=Edit`
 -	URL phải kết thúc bằng /ToolPane.aspx: thêm một url param tùy ý với giá trị là /ToolPane.aspx 
 -	MSOTlPn_Uri: `http://sp-server/my/_controltemplates/15/ActionBar.ascx`
-## [CVE-2024-38018] WebPart Properties Insecure Deserialize
+### [CVE-2024-38018] WebPart Properties Insecure Deserialize
 Khúc này sẽ hơi cấn vì tại sao mình lại không dùng CVE-2025-49704 mà lại là một CVE khác. Khi tiến hành thử poc để test thì mình confirm đã bypass auth nhưng lại không thể trigger deser, nó sẽ văng ra lỗi file Web Part not valid, mình đoán là do cấu trúc Webpart của phiên bản 2013 và 2019 có sự khác biệt nên khi import vào bị lỗi. (Vậy mà microsoft bảo rằng exploit được ở mọi phiên bản Sharepoint 2013)
 Mày mò cài Service Pack và cài tiếp bản patch cho Sharepoint nhưng cũng không giòn. Mình có đi hỏi và biết được người anh em xã hội cũng gặp vấn đề tương tự, và  người anh em đó đã cho mình một solution khác: sử dụng CVE-2024-38018 - một CVE khác attack vào Insecure Deserialize property của webpart. PoC của lỗ hổng đã được đề cập và phân tích khá chi tiết tại https://blog.viettelcybersecurity.com/sharepoint_properties_deser/ nên mình cũng khá là ăn theo thôi :)))
 Tiếp tục phân tích nào, mình sẽ lấy phần webpart của bài phân tích trên:
@@ -274,7 +274,7 @@ Tổng hợp lại, request khai thác cuối cùng sẽ như này:
 <br>![image](https://hackmd.io/_uploads/r1kvMokSWe.png)<br>
 Mặc dù trả về 401 nhưng chức năng này đã được thực thi (Sharepoint có nhiều đoạn return 401 quá mình cũng lười trace). Mở máy chạy sharepoint lên là ta thấy ngay file pwn.txt:
 <br>![image](https://hackmd.io/_uploads/ryaKMj1S-l.png)<br>
-# III. Deploy Memory Webshell
+## III. Deploy Memory Webshell
 Mình chọn route memory webshell để inject vì nó có thể inject vào cả WebMVC và WebForms, cũng như khá dễ code. Để hiểu rõ hơn về Route Memory Webshell hoạt động như thế nào thì có thể ngó qua [Memshell in dotnet](https://kev1n1203.github.io/p/memshell-dotnet) của mình.
 Tại đây mình dùng gadgetchain ActivitySurrogateSelector để load code C#, gadgetchain này trong tool yso mặc định sẽ lấy binary từ file E.cs để load nhưng mình test thì thấy khá nhấp nháy nên mình đã chọn compile file này thành dll rồi load (works everytime).
 Vì chain này nếu như với ver dotNet > 4.7 thì cần phải disable type check, nên mình đi check ver dotnet của Sharepoint:
@@ -286,7 +286,7 @@ Version
 -------
 4.5.51641
 ```
-Ngon luôn, thử test deser load C# code trước nào:
+Ngon luôn, thử test deser load C## code trước nào:
 File E.cs mình sửa tí từ file mặc định thôi:
 ```csharp!
 class E {
@@ -366,7 +366,7 @@ class E {
     }
 }
 ```
-Xuất hiện header Custom-Header trong response, chứng tỏ C# code đã được load:
+Xuất hiện header Custom-Header trong response, chứng tỏ C## code đã được load:
 <br>![image](https://hackmd.io/_uploads/HJytUs1HZl.png)<br>
 RCE thôi:
 <br>![image](https://hackmd.io/_uploads/HynF8oyBZl.png)<br>
