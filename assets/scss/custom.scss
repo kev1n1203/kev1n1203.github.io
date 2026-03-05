@@ -1,3 +1,19 @@
 /*
     You can add your own custom styles here.
 */
+@media (min-width: 1024px) {
+  .container.extended {
+    max-width: 1400px;           /* 1280 -> 1400/1500 tùy bạn */
+    --left-sidebar-max-width: 16%;
+    --right-sidebar-max-width: 20%;
+  }
+}
+
+/* Từ 1280px trở lên (màn to) */
+@media (min-width: 1280px) {
+  .container.extended {
+    max-width: 1700px;           /* 1536 -> 1700/1800 nếu muốn rất rộng */
+    --left-sidebar-max-width: 14%;
+    --right-sidebar-max-width: 18%;
+  }
+}
